@@ -54,6 +54,6 @@ Typical pattern: physics codes become components; couplings are closed with Newt
 
 ## 4. How this relates to VITAL (for later)
 
-VITAL's trim is a single plant with an `lsqnonlin` solve. The OpenMDAO version in `trim_mda.py` instead splits the same balance into disciplines (elevator balance, aerodynamics, propulsion, lift) and lets a framework solver close the loop.
+VITAL's trim is a single plant with an `lsqnonlin` solve. The OpenMDAO version in `trim_mda.py` instead splits the same balance into disciplines (elevator balance, aerodynamics, drag balance, lift) and lets a framework solver close the loop.
 
 It would become useful if VITAL grows into design work, for example the X-57 with many propeller components and an optimizer sizing them. MATLAB code could be wrapped with `ExternalCodeComp`, or through MATLAB's Python engine. That was not done here, and this bench is deliberately independent of VITAL.

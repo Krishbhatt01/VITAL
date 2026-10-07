@@ -1,48 +1,49 @@
-"""Coupled longitudinal TRIM loop in OpenMDAO, converged two ways.
+"""Coupled longitudinal TRIM loop of the F-16 in OpenMDAO, solved several ways.
 
-SciComp test bench, separate from the VITAL MATLAB framework. The numbers are
-F-16-like for scale only: a linear-aerodynamics surrogate, NOT the NASA F-16
-model used by VITAL.
+SciComp test bench, separate from the VITAL MATLAB code (VITAL is only used,
+once, by fit_f16_coefficients.m to produce the numbers this file reads).
 
-What the model solves
----------------------
-Steady, wings-level, unaccelerated flight at speed V and altitude h needs two
-balances (force along the lift direction, pitching moment), plus the thrust
-that cancels drag. Written as five explicit components that pass data around a
-loop:
+THE QUESTION
+    At 565.6854 ft/s and 10,013 ft, CG 25 % MAC, what angle of attack alpha,
+    elevator de and thrust T hold the F-16 in steady, wings-level, level flight?
 
+THE NUMBERS (f16_coefficients.json, made by fit_f16_coefficients.m)
+    Flight condition (density, weight, speed) exactly as VITAL uses it, and 8
+    aerodynamic coefficients taken from NASA's F-16 tables AT VITAL's trim
+    point (slopes of the tables there; moment moved to the CG at 25 % MAC):
+        CL = CL0 + CLa*alpha + CLde*de        lift
+        CD = CD0 + K*CL**2                    drag
+        Cm = Cm0 + Cma*alpha + Cmde*de        pitching moment about the CG
+    Exact at the trim point, an approximation (straight lines) away from it.
+
+THE LOOP: five components pass values around a circle
     1 pitch  : elevator for zero pitching moment     alpha       -> de
-    2 aero   : drag and pitching-moment coefficients  alpha, de   -> CD, Cm
-    3 prop   : thrust that cancels drag               CD, alpha   -> T
-    4 liftreq: lift coefficient still required        T, alpha    -> CL_req
-    5 alphacl: angle of attack giving that lift        CL_req, de  -> alpha
+    2 aero   : lift, drag, moment coefficients       alpha, de   -> CL, CD, Cm
+    3 dragbal: drag balance, thrust that cancels drag CD, alpha   -> T
+    4 liftreq: lift coefficient still required       T, alpha    -> CL_req
+    5 alphacl: angle of attack giving that lift       CL_req, de  -> alpha
+    alpha (from 5) feeds back into 1, 2, 3 and 4: ONE coupling cycle. A solver
+    must iterate until alpha stops changing.
 
-alpha (output of component 5) feeds back into components 1, 2 and 4: one
-coupling cycle (a strongly connected component of the data graph). The
-group's nonlinear solver must iterate to make alpha consistent.
+    Force balance (thrust along the body x axis, level flight):
+        T cos(alpha) = qbar S CD           (along the flight path)
+        qbar S CL + T sin(alpha) = W       (perpendicular to it)
 
-Physics (small set of explicit equations, units ft, lbf, slug, rad)
-    CL  = CL0 + CLa*alpha + CLde*de          CD = CD0 + K*CL**2
-    Cm  = Cm0 + Cma*alpha + Cmde*de          (pitch balance Cm = 0)
-    T   = qbar*S*CD / cos(alpha)             (thrust along the body x axis; level flight)
-    L   = qbar*S*CL ;  L + T*sin(alpha) = W  (lift + thrust component = weight)
+THE SOLVERS (same model, same starting guess alpha = 0, same stopping rule)
+    A  NonlinearBlockGS              Gauss-Seidel: run 1..5 in order, repeat
+    B  NonlinearBlockGS + Aitken     same, with an automatic step-size boost
+    C  NewtonSolver + DirectSolver   Newton: exact derivatives, one linear solve per step
+    D  BroydenSolver + DirectSolver  quasi-Newton: one exact Jacobian, then cheap updates
+       (on the implicit form, where component 5 holds alpha as a state)
+    plus two comparison runs (Newton on the implicit form; Broyden misused in
+    full-model mode). Each reports the answer, iterations, function calls and
+    residual history.
 
-Three solution approaches on the SAME model
-    A  NonlinearBlockGS (block Gauss-Seidel: run the components in order, repeat)
-    B  NewtonSolver with DirectSolver (Newton on the coupled residual, analytic partials)
-    C  BroydenSolver (quasi-Newton: one exact Jacobian, then rank-1 updates of its inverse)
-    D  NonlinearBlockGS with Aitken acceleration (dynamic relaxation of the Gauss-Seidel update)
-For each: final result, tolerances, iterations, function calls (compute,
-compute_partials and linear solves counted per component), residual history
-(recorded with an OpenMDAO SqliteRecorder on the solver).
-
-Checks
-    * the converged trim is compared with an INDEPENDENT solve of the two
-      balance equations with scipy.optimize.fsolve (no OpenMDAO involved);
-    * the N2 data (the same data the .html shows) is checked programmatically:
-      component inputs and outputs, every expected connection, and exactly one
-      coupling cycle containing all five components, with the solver that owns it;
-    * check_partials confirms the analytic derivatives used by Newton.
+THE CHECKS
+    * every run is compared with an independent scipy fsolve of the same equations;
+    * every run is compared with VITAL's own F-16 trim (f16_coefficients.json);
+    * the N2 data is checked: inputs, outputs, all connections, the one cycle, its solver;
+    * the hand-written derivatives are checked against complex step.
 
 Run:  python trim_mda.py          (writes into results/ next to this file)
 """
@@ -62,18 +63,23 @@ HERE = Path(__file__).resolve().parent
 OUT = HERE / "results"
 
 # --------------------------------------------------------------------------
-# Flight condition and surrogate aerodynamic data (F-16-like scale)
+# INPUT NUMBERS: F-16 flight condition + 8 coefficients from NASA's tables.
+# They come from f16_coefficients.json, written by fit_f16_coefficients.m
+# (run in MATLAB). Nothing below hard-codes an aircraft number.
 # --------------------------------------------------------------------------
+_FIT = json.loads((HERE / "f16_coefficients.json").read_text(encoding="utf-8"))
+_C, _K = _FIT["coefficients_per_rad"], _FIT["condition"]
 P = dict(
-    W=20500.0,          # weight, lbf
-    S=300.0,            # wing area, ft^2
-    V=565.6854,         # true airspeed, ft/s
-    rho=0.0017553,      # air density at ~10,013 ft (US 1976), slug/ft^3
-    CL0=0.0, CLa=4.0, CLde=0.5,       # lift: per rad
-    CD0=0.016, K=0.12,                # drag polar
-    Cm0=0.0, Cma=-0.4, Cmde=-0.6,     # pitching moment: per rad (statically stable, Etkin signs)
+    W=_K["W_lbf"],          # weight, lbf (637.16 slug x 32.174 ft/s^2 = 20,500 lbf)
+    S=_K["S_ft2"],          # wing area, ft^2
+    V=_K["V_ftps"],         # true airspeed, ft/s
+    rho=_K["rho_slugft3"],  # air density at 10,013 ft, US 1976 (as VITAL), slug/ft^3
+    CL0=_C["CL0"], CLa=_C["CLa"], CLde=_C["CLde"],   # lift, per rad
+    CD0=_C["CD0"], K=_C["K"],                         # drag polar
+    Cm0=_C["Cm0"], Cma=_C["Cma"], Cmde=_C["Cmde"],   # pitching moment about the CG, per rad
 )
-P["qbar"] = 0.5 * P["rho"] * P["V"] ** 2          # psf
+P["qbar"] = 0.5 * P["rho"] * P["V"] ** 2          # dynamic pressure, psf
+VITAL_TRIM = _FIT["vital_trim"]                   # VITAL's own F-16 trim at this condition, for comparison
 
 CALLS: dict[str, dict[str, int]] = {}
 
@@ -83,7 +89,10 @@ def _count(name: str, kind: str) -> None:
 
 
 # --------------------------------------------------------------------------
-# Components (explicit: outputs computed directly from inputs)
+# THE 5 COMPONENTS. Each is an OpenMDAO ExplicitComponent:
+#   setup()            declares its inputs and outputs (add_input / add_output)
+#   compute()          turns inputs into outputs (the equation)
+#   compute_partials() gives exact derivatives (only Newton and Broyden use them)
 # --------------------------------------------------------------------------
 class PitchBalance(om.ExplicitComponent):
     """1: elevator that zeroes the pitching moment: de = -(Cm0 + Cma*alpha) / Cmde."""
@@ -124,8 +133,9 @@ class Aero(om.ExplicitComponent):
         J["Cm", "alpha"] = P["Cma"]; J["Cm", "de"] = P["Cmde"]
 
 
-class Propulsion(om.ExplicitComponent):
-    """3: thrust along body x that balances drag in level flight: T = qbar S CD / cos(alpha)."""
+class DragBalance(om.ExplicitComponent):
+    """3: drag balance. The thrust (along body x) that cancels drag in level flight:
+    T = qbar S CD / cos(alpha). This is thrust REQUIRED, not an engine model."""
 
     def setup(self):
         self.add_input("CD", P["CD0"])
@@ -200,12 +210,15 @@ class LiftBalance(om.ImplicitComponent):
         J["alpha", "alpha"] = P["CLa"]; J["alpha", "de"] = P["CLde"]; J["alpha", "CL_req"] = -1.0
 
 
+# --------------------------------------------------------------------------
+# The 9 connections the model must have (used to check the N2 diagram).
+# --------------------------------------------------------------------------
 def expected_connections(c5: str) -> set:
     """(source output, target input) pairs inside the "trim" group; c5 = name of component 5."""
     return {(f"trim.{c5}.alpha", "trim.pitch.alpha"), (f"trim.{c5}.alpha", "trim.aero.alpha"),
-            (f"trim.{c5}.alpha", "trim.prop.alpha"), (f"trim.{c5}.alpha", "trim.liftreq.alpha"),
+            (f"trim.{c5}.alpha", "trim.dragbal.alpha"), (f"trim.{c5}.alpha", "trim.liftreq.alpha"),
             ("trim.pitch.de", "trim.aero.de"), ("trim.pitch.de", f"trim.{c5}.de"),
-            ("trim.aero.CD", "trim.prop.CD"), ("trim.prop.T", "trim.liftreq.T"),
+            ("trim.aero.CD", "trim.dragbal.CD"), ("trim.dragbal.T", "trim.liftreq.T"),
             ("trim.liftreq.CL_req", f"trim.{c5}.CL_req")}
 
 
@@ -217,24 +230,31 @@ FORM = {"nlbgs": ("explicit", "alphacl"), "nlbgs_aitken": ("explicit", "alphacl"
 def build(solver: str, recorder_file: Path | None = None, complex_step: bool = False) -> om.Problem:
     """The trim group with the requested nonlinear solver (keys of FORM)."""
     form, c5 = FORM[solver]
+    # MODEL SETUP: one Problem, one Group called "trim" holding the 5 components
     prob = om.Problem(reports=False)
     g = prob.model.add_subsystem("trim", om.Group())
     g.add_subsystem("pitch", PitchBalance())
     g.add_subsystem("aero", Aero())
-    g.add_subsystem("prop", Propulsion())
+    g.add_subsystem("dragbal", DragBalance())
     g.add_subsystem("liftreq", LiftRequired())
     g.add_subsystem(c5, AlphaFromLift() if form == "explicit" else LiftBalance())
-    g.connect(f"{c5}.alpha", ["pitch.alpha", "aero.alpha", "prop.alpha", "liftreq.alpha"])
+    # CONNECTIONS: wire outputs to inputs. The first line is the FEEDBACK (alpha back to 1-4)
+    g.connect(f"{c5}.alpha", ["pitch.alpha", "aero.alpha", "dragbal.alpha", "liftreq.alpha"])
     g.connect("pitch.de", ["aero.de", f"{c5}.de"])
-    g.connect("aero.CD", "prop.CD")
-    g.connect("prop.T", "liftreq.T")
+    g.connect("aero.CD", "dragbal.CD")
+    g.connect("dragbal.T", "liftreq.T")
     g.connect("liftreq.CL_req", f"{c5}.CL_req")
 
+    # SOLVER SETUP: the solver on the "trim" group closes the loop.
+    # Stopping rule for every solver: residual below 1e-10 (atol) or 1e-12 of its start (rtol).
+
     if solver == "nlbgs":
+        # SOLVER A: Gauss-Seidel. Runs the 5 components in order, repeats. No derivatives.
         ns = g.nonlinear_solver = om.NonlinearBlockGS()
         ns.options.update(dict(maxiter=100, atol=1e-10, rtol=1e-12, iprint=0, err_on_non_converge=True))
         g.linear_solver = om.LinearBlockGS(maxiter=100, atol=1e-12, rtol=1e-12, iprint=-1)
     elif solver == "nlbgs_aitken":
+        # SOLVER B: Gauss-Seidel + Aitken. Same sweep, each step stretched or shrunk automatically.
         # same Gauss-Seidel sweep, but each update of the coupling variables is relaxed by a factor
         # theta_k computed from the last two residual vectors (Aitken's delta-squared idea, vector form);
         # theta starts at aitken_initial_factor and is clipped to [aitken_min_factor, aitken_max_factor].
@@ -243,10 +263,12 @@ def build(solver: str, recorder_file: Path | None = None, complex_step: bool = F
                                use_aitken=True, aitken_initial_factor=1.0, aitken_min_factor=0.1, aitken_max_factor=1.5))
         g.linear_solver = om.LinearBlockGS(maxiter=100, atol=1e-12, rtol=1e-12, iprint=-1)
     elif solver in ("newton", "newton_implicit"):
+        # SOLVER C: Newton. Exact derivatives each step; DirectSolver solves J dx = -R exactly.
         ns = g.nonlinear_solver = om.NewtonSolver(solve_subsystems=False)
         ns.options.update(dict(maxiter=20, atol=1e-10, rtol=1e-12, iprint=0, err_on_non_converge=True))
         g.linear_solver = om.DirectSolver()
     elif solver == "broyden":
+        # SOLVER D: Broyden. One exact Jacobian, then cheap rank-1 updates instead of new derivatives.
         # intended use: Broyden iterates on the implicit STATE alpha; the explicit components are
         # re-run (a Gauss-Seidel sub-solve) each iteration. compute_jacobian=True: one exact Jacobian
         # of the state residual to start, then rank-1 Broyden updates (secant method in 1-D).
@@ -262,6 +284,7 @@ def build(solver: str, recorder_file: Path | None = None, complex_step: bool = F
         g.linear_solver = om.DirectSolver()
     else:
         raise ValueError(solver)
+    # RECORDER: saves the residual of every iteration (read back for the report and plot)
     if recorder_file is not None:
         ns.recording_options["record_abs_error"] = True
         ns.recording_options["record_rel_error"] = True
@@ -271,7 +294,7 @@ def build(solver: str, recorder_file: Path | None = None, complex_step: bool = F
 
 
 def independent_trim() -> tuple[float, float, float]:
-    """Solve Cm = 0 and L + T sin(a) - W = 0 directly with scipy (no OpenMDAO)."""
+    """CHECK: solve Cm = 0 and L + T sin(a) - W = 0 directly with scipy (no OpenMDAO)."""
     qS = P["qbar"] * P["S"]
 
     def f(z):
@@ -287,6 +310,7 @@ def independent_trim() -> tuple[float, float, float]:
 
 
 def run(solver: str) -> dict:
+    """RUN ONE SOLVER: build, set the starting guess, run_model(), read back results and counts."""
     rec = OUT / f"cases_{solver}.sql"
     rec.unlink(missing_ok=True)
     prob = build(solver, rec)
@@ -294,7 +318,7 @@ def run(solver: str) -> dict:
     prob.set_val(f"trim.{c5}.alpha", 0.0)                 # same initial guess for every solver
     prob.final_setup()
     CALLS.clear()
-    prob.run_model()
+    prob.run_model()                                      # <- this is where the solver converges the loop
     ns = prob.model.trim.nonlinear_solver
     lin = prob.model.trim.linear_solver
     prob.cleanup()
@@ -306,7 +330,7 @@ def run(solver: str) -> dict:
         "iterations": int(ns._iter_count),
         "alpha_deg": float(np.degrees(prob.get_val(f"trim.{c5}.alpha")[0])),
         "de_deg": float(np.degrees(prob.get_val("trim.pitch.de")[0])),
-        "T_lbf": float(prob.get_val("trim.prop.T")[0]),
+        "T_lbf": float(prob.get_val("trim.dragbal.T")[0]),
         "CL": float(prob.get_val("trim.aero.CL")[0]),
         "Cm": float(prob.get_val("trim.aero.Cm")[0]),
         "calls": {k.split(".")[-1]: v for k, v in sorted(CALLS.items())},
@@ -320,7 +344,8 @@ def run(solver: str) -> dict:
 
 
 def verify_n2(prob: om.Problem, solver_name: str, c5: str) -> list[tuple[str, bool, str]]:
-    """Check the N2 data: variables, connections, the coupling cycle and its solver."""
+    """CHECK THE N2: reads the same data the N2 .html shows and checks variables,
+    connections, the coupling cycle and the solver on the trim group."""
     from openmdao.visualization.n2_viewer.n2_viewer import _get_viewer_data
     data = _get_viewer_data(prob)
     expected = expected_connections(c5)
@@ -342,7 +367,7 @@ def verify_n2(prob: om.Problem, solver_name: str, c5: str) -> list[tuple[str, bo
         return None
     trim = find(data["tree"], ["trim"])
     comps = [c["name"] for c in trim.get("children", [])] if trim else []
-    checks.append(("trim group holds the 5 components in run order", comps == ["pitch", "aero", "prop", "liftreq", c5], str(comps)))
+    checks.append(("trim group holds the 5 components in run order", comps == ["pitch", "aero", "dragbal", "liftreq", c5], str(comps)))
     label = str(trim.get("nonlinear_solver", "")) if trim else ""
     checks.append(("solver shown on the trim group", solver_name.lower() in label.lower(), label))
     if c5 == "liftbal":
@@ -356,7 +381,7 @@ def verify_n2(prob: om.Problem, solver_name: str, c5: str) -> list[tuple[str, bo
     expect_io = {
         "pitch": [("alpha", "input"), ("de", "output")],
         "aero": sorted([("alpha", "input"), ("de", "input"), ("CL", "output"), ("CD", "output"), ("Cm", "output")]),
-        "prop": sorted([("CD", "input"), ("alpha", "input"), ("T", "output")]),
+        "dragbal": sorted([("CD", "input"), ("alpha", "input"), ("T", "output")]),
         "liftreq": sorted([("T", "input"), ("alpha", "input"), ("CL_req", "output")]),
         c5: sorted([("CL_req", "input"), ("de", "input"), ("alpha", "output")]),
     }
@@ -410,13 +435,17 @@ def main() -> int:
     ok = True
     report = ["# Coupled trim loop in OpenMDAO: Gauss-Seidel (with and without Aitken), Newton and Broyden", "",
               f"OpenMDAO {openmdao.__version__}. Flight condition: V = {P['V']} ft/s, rho = {P['rho']} slug/ft^3, "
-              f"qbar = {P['qbar']:.3f} psf, W = {P['W']} lbf, S = {P['S']} ft^2 (F-16-like scale; surrogate aerodynamics).", "",
+              f"qbar = {P['qbar']:.3f} psf, W = {P['W']:.3f} lbf, S = {P['S']} ft^2. Aerodynamic coefficients from NASA's F-16 tables "
+              f"at VITAL's trim point (f16_coefficients.json, made by fit_f16_coefficients.m).", "",
+              f"VITAL's own F-16 trim at this condition: alpha = {VITAL_TRIM['alpha_deg']:.6f} deg, "
+              f"de = {VITAL_TRIM['elevator_deg']:.6f} deg, T = {VITAL_TRIM['thrust_lbf']:.3f} lbf "
+              f"(throttle {VITAL_TRIM['throttle_pct']:.4f} %).", "",
               f"Independent check (scipy fsolve on the two balance equations): alpha = {math.degrees(a_ref):.10f} deg, "
               f"de = {math.degrees(de_ref):.10f} deg, T = {T_ref:.6f} lbf.", "",
               "Two formulations of the same physics. **Explicit**: component 5 computes alpha = (CL_req - CL0 - CLde de)/CLa "
               "(used by Gauss-Seidel and Newton). **Implicit**: component 5 holds alpha as a state with residual "
               "R = CL0 + CLa alpha + CLde de - CL_req (used by Broyden, which needs a state; Newton is repeated on it for "
-              "comparison). Same tolerances (atol 1e-10, rtol 1e-12) and the same initial guess alpha = 0 for every run.", ""]
+              "comparison). Same stopping rule (residual below 1e-10, or 1e-12 of its starting value) and the same initial guess alpha = 0 for every run.", ""]
     for s, r in results.items():
         prob = r.pop("prob")
         c5 = FORM[s][1]
@@ -434,11 +463,13 @@ def main() -> int:
                    "| quantity | value |", "|---|---|",
                    f"| alpha | {r['alpha_deg']:.10f} deg |", f"| elevator de | {r['de_deg']:.10f} deg |",
                    f"| thrust T | {r['T_lbf']:.6f} lbf |", f"| CL | {r['CL']:.10f} |", f"| Cm (should be 0) | {r['Cm']:.3e} |",
-                   f"| tolerances | atol {r['atol']:g}, rtol {r['rtol']:g}, maxiter {r['maxiter']} |",
+                   f"| stopping rule | residual below {r['atol']:g}, or below {r['rtol']:g} x its start; at most {r['maxiter']} iterations |",
                    f"| iterations | {r['iterations']} |",
                    f"| compute() calls (all components; implicit residual evaluations included) | {r['calls_total_compute']} |",
                    f"| compute_partials() / linearize() calls | {r['calls_total_partials']} |",
-                   f"| agreement with independent fsolve | alpha {errs['alpha']:.1e} deg, de {errs['de']:.1e} deg, T {errs['T']:.1e} lbf |", "",
+                   f"| agreement with independent fsolve | alpha {errs['alpha']:.1e} deg, de {errs['de']:.1e} deg, T {errs['T']:.1e} lbf |",
+                   f"| difference from VITAL's F-16 trim | alpha {r['alpha_deg'] - VITAL_TRIM['alpha_deg']:+.2e} deg, "
+                   f"de {r['de_deg'] - VITAL_TRIM['elevator_deg']:+.2e} deg, T {r['T_lbf'] - VITAL_TRIM['thrust_lbf']:+.2e} lbf |", "",
                    "Calls per component: " + ", ".join(f"{k} {v['compute']}+{v['compute_partials']}" for k, v in r["calls"].items())
                    + " (compute + partials)", "",
                    "Residual history (absolute norm of the solver's residual per iteration):", "",
@@ -462,6 +493,21 @@ def main() -> int:
                f"worst relative error {worst:.1e}.", ""]
     ok &= worst < 1e-10
     a, b, c, d = results["nlbgs"], results["newton"], results["broyden"], results["nlbgs_aitken"]
+    # CHECK AGAINST VITAL: the fitted model must land on VITAL's F-16 trim (same point the coefficients came from)
+    vit = max(abs(results[k]["alpha_deg"] - VITAL_TRIM["alpha_deg"]) for k in MAIN)
+    vit_de = max(abs(results[k]["de_deg"] - VITAL_TRIM["elevator_deg"]) for k in MAIN)
+    vit_T = max(abs(results[k]["T_lbf"] - VITAL_TRIM["thrust_lbf"]) for k in MAIN)
+    vital_ok = vit < 1e-3 and vit_de < 1e-3 and vit_T < 1.0
+    ok &= vital_ok
+    report += ["## Comparison with VITAL's F-16 trim", "",
+               "| | SciComp (all four solvers) | VITAL | largest difference |", "|---|---|---|---|",
+               f"| alpha | {a['alpha_deg']:.6f} deg | {VITAL_TRIM['alpha_deg']:.6f} deg | {vit:.1e} deg |",
+               f"| elevator | {a['de_deg']:.6f} deg | {VITAL_TRIM['elevator_deg']:.6f} deg | {vit_de:.1e} deg |",
+               f"| thrust | {a['T_lbf']:.3f} lbf | {VITAL_TRIM['thrust_lbf']:.3f} lbf | {vit_T:.1e} lbf |", "",
+               f"{'PASS' if vital_ok else 'FAIL'}: within 1e-3 deg and 1 lbf of VITAL. Expected, because the coefficients are "
+               "NASA's slopes at exactly this trim point. Away from this speed and altitude the straight-line model drifts from "
+               "the F-16 (not tested here: single flight condition). Thrust here is thrust REQUIRED; VITAL also gives the "
+               "throttle setting from NASA's engine tables.", ""]
     rates = np.array(a["residual_history_abs"][1:]) / np.array(a["residual_history_abs"][:-1])
     report += ["## Comparison", "",
                "| approach | iterations | compute calls | derivative calls | convergence |", "|---|---|---|---|---|",
@@ -488,16 +534,16 @@ def main() -> int:
         import matplotlib
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
+        # PLOT: residual vs iteration for the four solvers (log scale)
         fig, ax = plt.subplots(figsize=(7.5, 4.6))
         for s, lab, st in (("nlbgs", "Nonlinear Block Gauss-Seidel", "o-"), ("nlbgs_aitken", "Gauss-Seidel + Aitken", "s-"),
                            ("newton", "Newton + DirectSolver", "o-"),
-                           ("broyden", "Broyden, state alpha (1 Jacobian + rank-1 updates)", "o-"),
-                           ("broyden_full", "Broyden full-model mode (comparison, explicit loop)", "x:")):
+                           ("broyden", "Broyden", "o-")):
             h = results[s]["residual_history_abs"]
             ax.semilogy(range(len(h)), h, st, label=lab)
-        ax.axhline(1e-10, color="grey", ls="--", lw=0.8, label="atol 1e-10")
-        ax.set_xlabel("iteration"); ax.set_ylabel("absolute residual norm"); ax.grid(True, which="both", alpha=0.3)
-        ax.set_title("Trim loop: residual history"); ax.legend(fontsize=8)
+        ax.axhline(1e-10, color="grey", ls="--", lw=0.8, label="Residual = 1e-10")
+        ax.set_xlabel("Iteration"); ax.set_ylabel("Absolute Residual Norm"); ax.grid(True, which="both", alpha=0.3)
+        ax.set_title(f"Trim Loop at {P['V']:.1f} ft/s, {_K['h_ft']:,.0f} ft: Residual History"); ax.legend(fontsize=8)
         fig.tight_layout(); fig.savefig(OUT / "residual_history.png", dpi=130)
         report += ["![residual history](residual_history.png)", ""]
     except Exception as e:  # plotting is optional

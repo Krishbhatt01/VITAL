@@ -1,0 +1,719 @@
+{
+ "vital_gain": {
+  "nlbgs": {
+   "solver": "nlbgs",
+   "Knz": 0.05,
+   "loop_gain": 0.0894602108995024,
+   "iterations": 10,
+   "de_deg": -2.1429306671985864,
+   "nz": 1.0332227858656178,
+   "error_vs_exact_deg": 3.225877585674372e-12,
+   "calls_total_compute": 30,
+   "calls_total_partials": 0,
+   "calls": {
+    "aero": {
+     "compute": 10,
+     "compute_partials": 0
+    },
+    "ctrl": {
+     "compute": 10,
+     "compute_partials": 0
+    },
+    "nzsens": {
+     "compute": 10,
+     "compute_partials": 0
+    }
+   },
+   "solver_error": null,
+   "converged": true,
+   "start_error_deg": 0.09824964484844555,
+   "diverged": false,
+   "residual_history_abs": [
+    0.002878555099013491,
+    0.00025751614624373295,
+    2.303744875306419e-05,
+    2.0609350239451606e-06,
+    1.8437168183172512e-07,
+    1.6493929551809982e-08,
+    1.475550550868981e-09,
+    1.3200291470688932e-10,
+    1.1809050200573126e-11
+   ],
+   "residual_history_rel": [
+    0.08946021089950504,
+    0.008003129334188284,
+    0.0007159616380947387,
+    6.40500791370978e-05,
+    5.729933585851874e-06,
+    5.126010673800148e-07,
+    4.585740377832567e-08,
+    4.102408389915745e-09,
+    3.6700361296824455e-10
+   ],
+   "n2_checks": [
+    [
+     "all 4 expected connections present, nothing else",
+     true
+    ],
+    [
+     "feedback: de from component 3 (ctrl) back to component 1 (aero)",
+     true
+    ],
+    [
+     "N2 marks the connections that close a cycle",
+     true
+    ],
+    [
+     "loop group holds the 3 components in run order",
+     true
+    ],
+    [
+     "solver shown on the loop group",
+     true
+    ],
+    [
+     "each component's inputs and outputs as designed",
+     true
+    ],
+    [
+     "exactly one coupling cycle, containing the 3 loop components (cmd outside it)",
+     true
+    ]
+   ]
+  },
+  "nlbgs_aitken": {
+   "solver": "nlbgs_aitken",
+   "Knz": 0.05,
+   "loop_gain": 0.0894602108995024,
+   "iterations": 4,
+   "de_deg": -2.1429306671953614,
+   "nz": 1.0332227858667435,
+   "error_vs_exact_deg": 7.951386703658792e-16,
+   "calls_total_compute": 12,
+   "calls_total_partials": 0,
+   "calls": {
+    "aero": {
+     "compute": 4,
+     "compute_partials": 0
+    },
+    "ctrl": {
+     "compute": 4,
+     "compute_partials": 0
+    },
+    "nzsens": {
+     "compute": 4,
+     "compute_partials": 0
+    }
+   },
+   "solver_error": null,
+   "converged": true,
+   "start_error_deg": 0.09824964484844555,
+   "diverged": false,
+   "residual_history_abs": [
+    0.002878555099013491,
+    0.00028281701615486893,
+    2.2929868617541516e-16
+   ],
+   "residual_history_rel": [
+    0.08946021089950504,
+    0.00878943394894687,
+    7.126182448709112e-15
+   ],
+   "n2_checks": [
+    [
+     "all 4 expected connections present, nothing else",
+     true
+    ],
+    [
+     "feedback: de from component 3 (ctrl) back to component 1 (aero)",
+     true
+    ],
+    [
+     "N2 marks the connections that close a cycle",
+     true
+    ],
+    [
+     "loop group holds the 3 components in run order",
+     true
+    ],
+    [
+     "solver shown on the loop group",
+     true
+    ],
+    [
+     "each component's inputs and outputs as designed",
+     true
+    ],
+    [
+     "exactly one coupling cycle, containing the 3 loop components (cmd outside it)",
+     true
+    ]
+   ]
+  },
+  "newton": {
+   "solver": "newton",
+   "Knz": 0.05,
+   "loop_gain": 0.0894602108995024,
+   "iterations": 1,
+   "de_deg": -2.142930667195361,
+   "nz": 1.0332227858667438,
+   "error_vs_exact_deg": 3.975693351829396e-16,
+   "calls_total_compute": 6,
+   "calls_total_partials": 0,
+   "calls": {
+    "aero": {
+     "compute": 2,
+     "compute_partials": 0
+    },
+    "ctrl": {
+     "compute": 2,
+     "compute_partials": 0
+    },
+    "nzsens": {
+     "compute": 2,
+     "compute_partials": 0
+    }
+   },
+   "solver_error": null,
+   "converged": true,
+   "start_error_deg": 0.09824964484844555,
+   "diverged": false,
+   "residual_history_abs": [
+    0.007600000000042045,
+    2.220446049250313e-16
+   ],
+   "residual_history_rel": [
+    1.0,
+    2.921639538471091e-14
+   ],
+   "n2_checks": [
+    [
+     "all 4 expected connections present, nothing else",
+     true
+    ],
+    [
+     "feedback: de from component 3 (ctrl) back to component 1 (aero)",
+     true
+    ],
+    [
+     "N2 marks the connections that close a cycle",
+     true
+    ],
+    [
+     "loop group holds the 3 components in run order",
+     true
+    ],
+    [
+     "solver shown on the loop group",
+     true
+    ],
+    [
+     "each component's inputs and outputs as designed",
+     true
+    ],
+    [
+     "exactly one coupling cycle, containing the 3 loop components (cmd outside it)",
+     true
+    ]
+   ]
+  },
+  "broyden": {
+   "solver": "broyden",
+   "Knz": 0.05,
+   "loop_gain": 0.0894602108995024,
+   "iterations": 1,
+   "de_deg": -2.1429306671953614,
+   "nz": 1.0332227858667435,
+   "error_vs_exact_deg": 7.951386703658792e-16,
+   "calls_total_compute": 13,
+   "calls_total_partials": 1,
+   "calls": {
+    "aero": {
+     "compute": 5,
+     "compute_partials": 0
+    },
+    "ctrlbal": {
+     "compute": 3,
+     "compute_partials": 1
+    },
+    "nzsens": {
+     "compute": 5,
+     "compute_partials": 0
+    }
+   },
+   "solver_error": null,
+   "converged": true,
+   "start_error_deg": 0.09824964484844555,
+   "diverged": false,
+   "residual_history_abs": [
+    0.0015613752297248208,
+    2.6020852139652106e-18
+   ],
+   "residual_history_rel": [
+    1.0,
+    1.6665341965389102e-15
+   ],
+   "n2_checks": [
+    [
+     "all 4 expected connections present, nothing else",
+     true
+    ],
+    [
+     "feedback: de from component 3 (ctrlbal) back to component 1 (aero)",
+     true
+    ],
+    [
+     "N2 marks the connections that close a cycle",
+     true
+    ],
+    [
+     "loop group holds the 3 components in run order",
+     true
+    ],
+    [
+     "solver shown on the loop group",
+     true
+    ],
+    [
+     "component 3 is implicit (de is a state)",
+     true
+    ],
+    [
+     "each component's inputs and outputs as designed",
+     true
+    ],
+    [
+     "exactly one coupling cycle, containing the 3 loop components (cmd outside it)",
+     true
+    ]
+   ]
+  },
+  "runonce": {
+   "solver": "runonce",
+   "Knz": 0.05,
+   "loop_gain": 0.0894602108995024,
+   "iterations": 0,
+   "de_deg": -2.1517201011443046,
+   "nz": 1.030154694630831,
+   "error_vs_exact_deg": 0.008789433948944035,
+   "calls_total_compute": 3,
+   "calls_total_partials": 0,
+   "calls": {
+    "aero": {
+     "compute": 14,
+     "compute_partials": 0
+    },
+    "ctrl": {
+     "compute": 7,
+     "compute_partials": 0
+    },
+    "nzsens": {
+     "compute": 14,
+     "compute_partials": 0
+    }
+   },
+   "solver_error": null,
+   "converged": false,
+   "start_error_deg": 0.09824964484844555,
+   "diverged": false,
+   "residual_history_abs": [
+    0.0
+   ],
+   "residual_history_rel": [
+    0.0
+   ]
+  }
+ },
+ "sweep": [
+  {
+   "L": -3.0,
+   "nlbgs": {
+    "iterations": 100,
+    "converged": false,
+    "diverged": true,
+    "error_vs_exact_deg": 3.865331405490005e+47,
+    "start_error_deg": 0.7500000000000002,
+    "calls_total_compute": 300,
+    "calls_total_partials": 0
+   },
+   "nlbgs_aitken": {
+    "iterations": 4,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 1.5902773407317584e-15,
+    "start_error_deg": 0.7500000000000002,
+    "calls_total_compute": 12,
+    "calls_total_partials": 0
+   },
+   "newton": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 3.578124016646457e-15,
+    "start_error_deg": 0.7500000000000002,
+    "calls_total_compute": 6,
+    "calls_total_partials": 0
+   },
+   "broyden": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 7.156248033292914e-15,
+    "start_error_deg": 0.7500000000000002,
+    "calls_total_compute": 13,
+    "calls_total_partials": 1
+   }
+  },
+  {
+   "L": -1.5,
+   "nlbgs": {
+    "iterations": 100,
+    "converged": false,
+    "diverged": true,
+    "error_vs_exact_deg": 2.4393670652112394e+17,
+    "start_error_deg": 0.6000000000000001,
+    "calls_total_compute": 300,
+    "calls_total_partials": 0
+   },
+   "nlbgs_aitken": {
+    "iterations": 4,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 1.987846675914698e-15,
+    "start_error_deg": 0.6000000000000001,
+    "calls_total_compute": 12,
+    "calls_total_partials": 0
+   },
+   "newton": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 2.782985346280577e-15,
+    "start_error_deg": 0.6000000000000001,
+    "calls_total_compute": 6,
+    "calls_total_partials": 0
+   },
+   "broyden": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 5.565970692561154e-15,
+    "start_error_deg": 0.6000000000000001,
+    "calls_total_compute": 13,
+    "calls_total_partials": 1
+   }
+  },
+  {
+   "L": -0.9,
+   "nlbgs": {
+    "iterations": 100,
+    "converged": false,
+    "diverged": false,
+    "error_vs_exact_deg": 1.2581715267014632e-05,
+    "start_error_deg": 0.47368421052631593,
+    "calls_total_compute": 300,
+    "calls_total_partials": 0
+   },
+   "nlbgs_aitken": {
+    "iterations": 4,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 1.987846675914698e-15,
+    "start_error_deg": 0.47368421052631593,
+    "calls_total_compute": 12,
+    "calls_total_partials": 0
+   },
+   "newton": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 1.987846675914698e-15,
+    "start_error_deg": 0.47368421052631593,
+    "calls_total_compute": 6,
+    "calls_total_partials": 0
+   },
+   "broyden": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 4.373262687012335e-15,
+    "start_error_deg": 0.47368421052631593,
+    "calls_total_compute": 13,
+    "calls_total_partials": 1
+   }
+  },
+  {
+   "L": -0.5,
+   "nlbgs": {
+    "iterations": 30,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 3.1044320808560395e-10,
+    "start_error_deg": 0.33333333333333354,
+    "calls_total_compute": 90,
+    "calls_total_partials": 0
+   },
+   "nlbgs_aitken": {
+    "iterations": 4,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 1.1927080055488188e-15,
+    "start_error_deg": 0.33333333333333354,
+    "calls_total_compute": 12,
+    "calls_total_partials": 0
+   },
+   "newton": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 1.5902773407317584e-15,
+    "start_error_deg": 0.33333333333333354,
+    "calls_total_compute": 6,
+    "calls_total_partials": 0
+   },
+   "broyden": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 3.1805546814635168e-15,
+    "start_error_deg": 0.33333333333333354,
+    "calls_total_compute": 13,
+    "calls_total_partials": 1
+   }
+  },
+  {
+   "L": 0.08946021090305845,
+   "nlbgs": {
+    "iterations": 10,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 3.225877585674372e-12,
+    "start_error_deg": 0.09824964485273452,
+    "calls_total_compute": 30,
+    "calls_total_partials": 0
+   },
+   "nlbgs_aitken": {
+    "iterations": 4,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 7.951386703658792e-16,
+    "start_error_deg": 0.09824964485273452,
+    "calls_total_compute": 12,
+    "calls_total_partials": 0
+   },
+   "newton": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 3.975693351829396e-16,
+    "start_error_deg": 0.09824964485273452,
+    "calls_total_compute": 6,
+    "calls_total_partials": 0
+   },
+   "broyden": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 7.951386703658792e-16,
+    "start_error_deg": 0.09824964485273452,
+    "calls_total_compute": 13,
+    "calls_total_partials": 1
+   }
+  },
+  {
+   "L": 0.5,
+   "nlbgs": {
+    "iterations": 30,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 9.31329027902809e-10,
+    "start_error_deg": 1.0000000000000002,
+    "calls_total_compute": 90,
+    "calls_total_partials": 0
+   },
+   "nlbgs_aitken": {
+    "iterations": 17,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 2.3283489087254783e-10,
+    "start_error_deg": 1.0000000000000002,
+    "calls_total_compute": 51,
+    "calls_total_partials": 0
+   },
+   "newton": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 4.572047354603805e-15,
+    "start_error_deg": 1.0000000000000002,
+    "calls_total_compute": 6,
+    "calls_total_partials": 0
+   },
+   "broyden": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 9.34287937679908e-15,
+    "start_error_deg": 1.0000000000000002,
+    "calls_total_compute": 13,
+    "calls_total_partials": 1
+   }
+  },
+  {
+   "L": 0.9,
+   "nlbgs": {
+    "iterations": 100,
+    "converged": false,
+    "diverged": false,
+    "error_vs_exact_deg": 0.00023905259003550894,
+    "start_error_deg": 9.000000000000004,
+    "calls_total_compute": 300,
+    "calls_total_partials": 0
+   },
+   "nlbgs_aitken": {
+    "iterations": 100,
+    "converged": false,
+    "diverged": false,
+    "error_vs_exact_deg": 8.826372817636251e-07,
+    "start_error_deg": 9.000000000000004,
+    "calls_total_compute": 300,
+    "calls_total_partials": 0
+   },
+   "newton": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 4.055207218865984e-14,
+    "start_error_deg": 9.000000000000004,
+    "calls_total_compute": 6,
+    "calls_total_partials": 0
+   },
+   "broyden": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 8.507983772914907e-14,
+    "start_error_deg": 9.000000000000004,
+    "calls_total_compute": 13,
+    "calls_total_partials": 1
+   }
+  },
+  {
+   "L": 0.99,
+   "nlbgs": {
+    "iterations": 100,
+    "converged": false,
+    "diverged": false,
+    "error_vs_exact_deg": 36.237201786049354,
+    "start_error_deg": 98.99999999999882,
+    "calls_total_compute": 300,
+    "calls_total_partials": 0
+   },
+   "nlbgs_aitken": {
+    "iterations": 100,
+    "converged": false,
+    "diverged": false,
+    "error_vs_exact_deg": 22.062573652455487,
+    "start_error_deg": 98.99999999999882,
+    "calls_total_compute": 300,
+    "calls_total_partials": 0
+   },
+   "newton": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 5.852220613892871e-13,
+    "start_error_deg": 98.99999999999882,
+    "calls_total_compute": 6,
+    "calls_total_partials": 0
+   },
+   "broyden": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 1.0686663729717417e-12,
+    "start_error_deg": 98.99999999999882,
+    "calls_total_compute": 13,
+    "calls_total_partials": 1
+   }
+  },
+  {
+   "L": 1.5,
+   "nlbgs": {
+    "iterations": 100,
+    "converged": false,
+    "diverged": true,
+    "error_vs_exact_deg": 1.2196835326056259e+18,
+    "start_error_deg": 3.0000000000000004,
+    "calls_total_compute": 300,
+    "calls_total_partials": 0
+   },
+   "nlbgs_aitken": {
+    "iterations": 100,
+    "converged": false,
+    "diverged": true,
+    "error_vs_exact_deg": 805.1097419161372,
+    "start_error_deg": 3.0000000000000004,
+    "calls_total_compute": 300,
+    "calls_total_partials": 0
+   },
+   "newton": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 1.2722218725854067e-14,
+    "start_error_deg": 3.0000000000000004,
+    "calls_total_compute": 6,
+    "calls_total_partials": 0
+   },
+   "broyden": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 2.782985346280577e-14,
+    "start_error_deg": 3.0000000000000004,
+    "calls_total_compute": 13,
+    "calls_total_partials": 1
+   }
+  },
+  {
+   "L": 3.0,
+   "nlbgs": {
+    "iterations": 100,
+    "converged": false,
+    "diverged": true,
+    "error_vs_exact_deg": 7.730662810980044e+47,
+    "start_error_deg": 1.5000000000000004,
+    "calls_total_compute": 300,
+    "calls_total_partials": 0
+   },
+   "nlbgs_aitken": {
+    "iterations": 100,
+    "converged": false,
+    "diverged": true,
+    "error_vs_exact_deg": 776418511.1438799,
+    "start_error_deg": 1.5000000000000004,
+    "calls_total_compute": 300,
+    "calls_total_partials": 0
+   },
+   "newton": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 7.156248033292914e-15,
+    "start_error_deg": 1.5000000000000004,
+    "calls_total_compute": 6,
+    "calls_total_partials": 0
+   },
+   "broyden": {
+    "iterations": 1,
+    "converged": true,
+    "diverged": false,
+    "error_vs_exact_deg": 1.4312496066585827e-14,
+    "start_error_deg": 1.5000000000000004,
+    "calls_total_compute": 13,
+    "calls_total_partials": 1
+   }
+  }
+ ]
+}

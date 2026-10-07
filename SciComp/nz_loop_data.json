@@ -1,0 +1,32 @@
+{
+  "source": "VITAL F-16 (NASA NESC tables) at VITAL's trim point; loop as tests/M5/tClosedLoopR1.m (ADR-026)",
+  "condition": {
+    "V_ftps": 565.6854,
+    "h_ft": 10013,
+    "cg_pct_mac": 25,
+    "g_ftps2": 32.174
+  },
+  "trim": {
+    "alpha_deg": 2.6542257816049162,
+    "de0_deg": -3.2411803120438063,
+    "nz0_g": 0.99892719003633468,
+    "CZ0": -0.24311409902589778,
+    "F_prop_z_N": 0
+  },
+  "plant": {
+    "CZde_per_rad": -0.435447924301835,
+    "qbarS_over_W": 4.1088821834636731,
+    "dnz_dde_g_per_rad": 1.7892042180611689
+  },
+  "controller": {
+    "Knz_rad_per_g": 0.05
+  },
+  "vital": {
+    "Kref_de_de": 1.0982496448479242,
+    "loop_gain": 0.089460210903058446,
+    "step_deg": 1,
+    "de_ref_deg": -2.2411803120438059,
+    "de_applied_deg": -2.1429306671959578,
+    "nz_applied_g": 1.0332227858665355
+  }
+}
