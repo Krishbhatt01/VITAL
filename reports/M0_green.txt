@@ -1,0 +1,50 @@
+VITAL 0.0.0-M0  gate M0 (GREEN)  2026-09-29 01:02:05
+test                                                                             class
+tRunnerClassification/notImplementedIsRedExpected                                PASS
+tRunnerClassification/otherErrorIsRedUnexpected                                  PASS
+tRunnerClassification/verifyErrorCatchingNotImplementedIsExpected                PASS
+tRunnerClassification/assertionWithoutNotImplementedIsSuspicious                 PASS
+tRunnerClassification/passingNewTestInRedIsVacuous                               PASS
+tRunnerClassification/earlierMilestonePassIsPass                                 PASS
+tRunnerClassification/earlierMilestoneFailureIsRegression                        PASS
+tRunnerClassification/redGateInvalidOnUnexpectedOrRegression                     PASS
+tRunnerClassification/greenGateRequiresZeroFailures                              PASS
+tRunnerClassification/milestoneSelectionIsCumulative                             PASS
+tRunnerClassification/milestoneTagM1DoesNotMatchM10                              PASS
+tRunnerClassification/fixturesExcludedByDefault                                  PASS
+tRunnerClassification/badMilestoneNameErrors                                     PASS
+tRunnerClassification/reportsWrittenAndCountsMatch                               PASS
+tSabotageHarness/definitionsLoad                                                 PASS
+tSabotageHarness/malformedDefinitionErrors                                       PASS
+tSabotageHarness/missingPatternErrors                                            PASS
+tSabotageHarness/ambiguousPatternErrors                                          PASS
+tSabotageHarness/unknownTargetErrors                                             PASS
+tSabotageHarness/originalTreeUnchanged                                           PASS
+tSabotageHarness/treeHashIsDeterministicAndSensitive                             PASS
+tSabotageHarness/sabotageTurnsTargetRedAndBaselineIsGreen                        PASS
+tSpecDocs/requiredDocsExist                                                      PASS
+tSpecDocs/catalogueTestsExistOrPlanned                                           PASS
+tSpecDocs/catalogueCoversRequiredFailureModes                                    PASS
+tSpecDocs/ruleSchemaAcceptsValidRecord                                           PASS
+tSpecDocs/ruleSchemaRejectsMissingCitation                                       PASS
+tSpecDocs/ruleSchemaRejectsBadClass                                              PASS
+tSpecDocs/ruleSchemaRejectsNonMonotoneLevels                                     PASS
+tSpecDocs/manifestHashesMatch                                                    PASS
+tSpecDocs/nescCaseMatrixComplete                                                 PASS
+tVitalTestCase/passingCheckPasses                                                PASS
+tVitalTestCase/failingCheckFails                                                 PASS
+tVitalTestCase/nanVsNanFails                                                     PASS
+tVitalTestCase/infActualFails                                                    PASS
+tVitalTestCase/badSourceErrors                                                   PASS
+tVitalTestCase/badModeErrors                                                     PASS
+tVitalTestCase/absModeIgnoresRelTolerance                                        PASS
+tVitalTestCase/relModeRejectsZeroExpected                                        PASS
+tVitalTestCase/withinAndExact                                                    PASS
+tVitalTestCase/vectorFailsOnOneBadElement                                        PASS
+tVitalTestCase/recordHasAllFields                                                PASS
+tVitalTestCase/failingCheckIsLogged                                              PASS
+tVitalTestCase/provenanceWritesJson                                              PASS
+
+TOTAL 44 | PASS 44 FAIL 0 | RED_EXPECTED 0 RED_UNEXPECTED 0 RED_SUSPICIOUS 0 VACUOUS 0 REGRESSION 0 | checks logged 0 | 47.4 s
+checks by source: PUB 0  INDEP 0  ANALYTIC 0  REG 0
+GATE OK

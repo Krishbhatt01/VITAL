@@ -1,0 +1,10 @@
+tRunnerIncrements/redIncrementClassifiesOnlyListedFilesAsNew           RED_EXPECTED
+tRunnerIncrements/greenIncrementSkipsUnlistedCurrentMilestoneFiles     RED_EXPECTED
+tRunnerIncrements/fullGateStillRunsEverything                          VACUOUS
+tRunnerIncrements/baselineFailureIsRegression                          RED_EXPECTED
+tRunnerIncrements/unknownIncrementNameErrors                           RED_EXPECTED
+tRunnerIncrements/tagNamesTheReportFiles                               RED_EXPECTED
+tRunnerIncrements/sabotagePartsAreMerged                               RED_EXPECTED
+tRunnerIncrements/duplicateSabotageIdAcrossPartsErrors                 RED_EXPECTED
+tRunnerIncrements/missingSabotagePartErrors                            RED_EXPECTED
+earlier-milestone regressions / unexpected / excluded: 0

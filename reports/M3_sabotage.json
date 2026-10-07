@@ -1,0 +1,81 @@
+{
+  "milestone": "M3",
+  "treeUnchanged": true,
+  "treeHash": "5c6c4d1c7f59226e8e1b7811ef0c9b86b36ba5af667ca8f8d2ad8e4302e7e954",
+  "sabotages": [
+    {
+      "id": "S3-1",
+      "file": "+vital/+aircraft/+f16/loads.m",
+      "targets": [
+        "tF16Plant/aeroInputsAreConvertedToModelUnits"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tF16Plant/aeroInputsAreConvertedToModelUnits",
+        "passed": false
+      },
+      "rationale": "Passing radians to a model tabulated in degrees is the classic unit error at a data-model boundary."
+    },
+    {
+      "id": "S3-2",
+      "file": "+vital/+plant/derivatives.m",
+      "targets": [
+        "tF16Plant/gravityEntersOnlyThroughTheCg"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tF16Plant/gravityEntersOnlyThroughTheCg",
+        "passed": false
+      },
+      "rationale": "Gravity must point down (NED +z)."
+    },
+    {
+      "id": "S3-3",
+      "file": "+vital/+aircraft/+f16/config.m",
+      "targets": [
+        "tF16Plant/datumInvariance"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tF16Plant/datumInvariance",
+        "passed": false
+      },
+      "rationale": "A lever arm taken from the wrong point is the most common load-transfer bug; datum invariance must catch it."
+    },
+    {
+      "id": "S3-4",
+      "file": "+vital/+aircraft/+f16/config.m",
+      "targets": [
+        "tF16Plant/configMatchesNescData"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tF16Plant/configMatchesNescData",
+        "passed": false
+      },
+      "rationale": "The Ixz product-of-inertia sign changes Dutch roll and roll-yaw coupling."
+    },
+    {
+      "id": "S3-5",
+      "file": "+vital/+eom/rigidBodyDerivs.m",
+      "targets": [
+        "tRigidBody/rotationalEquationWithGyro",
+        "tRigidBody/torqueFreeConservesMomentumAndEnergy"
+      ],
+      "detected": true,
+      "results": [
+        {
+          "name": "tRigidBody/rotationalEquationWithGyro",
+          "passed": false
+        },
+        {
+          "name": "tRigidBody/torqueFreeConservesMomentumAndEnergy",
+          "passed": true
+        }
+      ],
+      "rationale": "Dropping the gyroscopic/inertial coupling term breaks rotational dynamics."
+    }
+  ],
+  "allDetected": true,
+  "timestamp": "2026-09-29 12:23:01"
+}

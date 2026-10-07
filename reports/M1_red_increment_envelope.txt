@@ -1,0 +1,10 @@
+tEnvelopeCheck/insideEnvelopePasses                          RED_EXPECTED
+tEnvelopeCheck/outsideEnvelopeFailsAtTheRightTime            RED_EXPECTED
+tEnvelopeCheck/spreadTermWidensTheBand                       RED_EXPECTED
+tEnvelopeCheck/relativeFloorUsesReferenceScale               RED_EXPECTED
+tEnvelopeCheck/differentTimeBasesAreInterpolated             RED_EXPECTED
+tEnvelopeCheck/onlyOverlappingTimesAreCompared               RED_EXPECTED
+tEnvelopeCheck/noReferenceIsAnError                          RED_EXPECTED
+tEnvelopeCheck/nonFiniteResidualIsAnError                    RED_EXPECTED
+tAtmosphere/matchesNescConsensus                             RED_EXPECTED
+RED_EXPECTED 9 of 9, RED_UNEXPECTED 0

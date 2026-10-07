@@ -1,0 +1,7 @@
+VITAL sabotage check M3  2026-09-29 12:23:01
+S3-1     DETECTED     +vital/+aircraft/+f16/loads.m            tF16Plant/aeroInputsAreConvertedToModelUnits
+S3-2     DETECTED     +vital/+plant/derivatives.m              tF16Plant/gravityEntersOnlyThroughTheCg
+S3-3     DETECTED     +vital/+aircraft/+f16/config.m           tF16Plant/datumInvariance
+S3-4     DETECTED     +vital/+aircraft/+f16/config.m           tF16Plant/configMatchesNescData
+S3-5     DETECTED     +vital/+eom/rigidBodyDerivs.m            tRigidBody/rotationalEquationWithGyro, tRigidBody/torqueFreeConservesMomentumAndEnergy
+tree unchanged: 1   all detected: 1

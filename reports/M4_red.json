@@ -1,0 +1,1368 @@
+{
+  "summary": {
+    "milestone": "M4",
+    "phase": "red",
+    "total": 190,
+    "counts": {
+      "PASS": 175,
+      "FAIL": 0,
+      "RED_EXPECTED": 14,
+      "RED_UNEXPECTED": 0,
+      "RED_SUSPICIOUS": 0,
+      "VACUOUS": 0,
+      "REGRESSION": 1,
+      "EXCLUDED": 0
+    },
+    "gateOK": false,
+    "needsReview": [],
+    "excluded": [],
+    "elapsed_s": 98.7065075,
+    "checksLogged": 1224,
+    "checksBySource": {
+      "PUB": 1083,
+      "INDEP": 16,
+      "ANALYTIC": 125,
+      "REG": 0
+    },
+    "files": {
+      "txt": "C:\\VITAL\\reports\\M4_red.txt",
+      "json": "C:\\VITAL\\reports\\M4_red.json",
+      "xml": "C:\\VITAL\\reports\\M4_red.xml",
+      "provenance": "C:\\VITAL\\reports\\M4_red_provenance.json"
+    },
+    "timestamp": "2026-09-29 12:25:20",
+    "vitalVersion": "0.1.0-M1"
+  },
+  "tests": [
+    {
+      "name": "tRunnerClassification/notImplementedIsRedExpected",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/otherErrorIsRedUnexpected",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/verifyErrorCatchingNotImplementedIsExpected",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/assertionWithoutNotImplementedIsSuspicious",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/passingNewTestInRedIsVacuous",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/earlierMilestonePassIsPass",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/earlierMilestoneFailureIsRegression",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/redGateInvalidOnUnexpectedOrRegression",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/greenGateRequiresZeroFailures",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/milestoneSelectionIsCumulative",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/milestoneTagM1DoesNotMatchM10",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/fixturesExcludedByDefault",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/badMilestoneNameErrors",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/reportsWrittenAndCountsMatch",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/definitionsLoad",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/malformedDefinitionErrors",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/missingPatternErrors",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/ambiguousPatternErrors",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/unknownTargetErrors",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/originalTreeUnchanged",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/treeHashIsDeterministicAndSensitive",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/sabotageTurnsTargetRedAndBaselineIsGreen",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/requiredDocsExist",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/catalogueTestsExistOrPlanned",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/catalogueCoversRequiredFailureModes",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/ruleSchemaAcceptsValidRecord",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/ruleSchemaRejectsMissingCitation",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/ruleSchemaRejectsBadClass",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/ruleSchemaRejectsNonMonotoneLevels",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/manifestHashesMatch",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/nescCaseMatrixComplete",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/passingCheckPasses",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/failingCheckFails",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/nanVsNanFails",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/infActualFails",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/badSourceErrors",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/badModeErrors",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/absModeIgnoresRelTolerance",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/relModeRejectsZeroExpected",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/withinAndExact",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/vectorFailsOnOneBadElement",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/recordHasAllFields",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/failingCheckIsLogged",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/provenanceWritesJson",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tAirData/alphaBetaQbarMach",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tAirData/nondimensionalRates",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tAirData/tailwindReducesAirspeedExactly",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tAirData/windIsRotatedIntoBodyAxes",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tAirData/vaneAnglesAreExactKinematics",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tAirData/vaneCorrectionSignsE1",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tAirData/seaLevelCasEqualsTas",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tAirData/casEasMatchCorrectairspeed",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tAtmosphere/matchesNescConsensus",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tAtmosphere/matchesAtmoscoesa",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tAtmosphere/tropopauseAnalytic",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tAtmosphere/seaLevel",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tAtmosphere/geopotentialConversion",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tAtmosphere/deltaIsaShiftsTemperatureOnly",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tAtmosphere/vectorInputKeepsShape",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tEnvelopeCheck/insideEnvelopePasses",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tEnvelopeCheck/outsideEnvelopeFailsAtTheRightTime",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tEnvelopeCheck/spreadTermWidensTheBand",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tEnvelopeCheck/relativeFloorUsesReferenceScale",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tEnvelopeCheck/differentTimeBasesAreInterpolated",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tEnvelopeCheck/onlyOverlappingTimesAreCompared",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tEnvelopeCheck/singleSampleReferencesAreCompared",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "REGRESSION",
+      "detail": "Error occurred in tEnvelopeCheck/singleSampleReferencesAreCompared and it did not run to completion. --------- Error ID: --------- 'MATLAB:griddedInterpolant:DegenerateGridErrId' -------------- Error Details: -------------- Error using matlab.internal.math.interp1 Interpolation requires at least two sample points for each grid dimension. Error in interp1 (line 188) VqLite = matlab.internal.math.interp1(X,V,method,method,Xqcol); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in vital.verify.envelopeCheck (line 36) Rm(:, s) = interp1(tu, rs(iu), min(max(tc, tu(1)), tu(end"
+    },
+    {
+      "name": "tEnvelopeCheck/noReferenceIsAnError",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tEnvelopeCheck/nonFiniteResidualIsAnError",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tFrames/dcmOrthonormalAndProper",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tFrames/eulerDcmRoundTrip",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tFrames/eulerQuatDcmRoundTrip",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tFrames/roundTripNearGimbalLock",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tFrames/gimbalConventionAtNinetyDegrees",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tFrames/matchesAngle2dcm",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tFrames/matchesToolboxQuaternions",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tFrames/dcm2quatHasNonNegativeScalar",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tFrames/stationToBodyPoint",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tFrames/stationToBodyInertiaSigns",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tGeo/constantsMatchTable73",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tGeo/llaToEcefMatchesToolbox",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tGeo/ecefToLlaRoundTrip",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tGeo/ecefToLlaMatchesToolbox",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tGeo/sphereModelIsSpherical",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tGeo/nedDcmMatchesToolbox",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tGeo/j2GravitationMatchesGravityzonal",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tGeo/j2GravitationIsPotentialGradient",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tGeo/nescLocalGravitationCase1",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tGeo/nescLocalGravitationHighLatitude",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tGeo/nescInverseSquareSphereCase4",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tGeo/nescCsvReaderShape",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tLoads/transferKnownCase",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tLoads/pureCoupleInvariant",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tLoads/transferRoundTrip",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tLoads/gravityLevel",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tLoads/gravityNinetyBank",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tLoads/gravityNinetyPitch",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tLoads/componentMomentTransferredToCg",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tLoads/datumInvariantMomentAtCg",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=dcm321NaN)",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=eul2quatInf)",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=quat2dcmNaN)",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=dcm2eulNaN)",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=lla2ecefNaN)",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=gravitationInf)",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=transferLoadNaN)",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=massPropsNaN)",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=atmosphereNaN)",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=airDataNaN)",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/zeroQuaternionRejected",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/nonUnitQuaternionNormalizedWithWarning",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/unitQuaternionRaisesNoWarning",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/negativeMassRejected",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/zeroTotalMassRejected",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/nonPhysicalInertiaRejected",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/altitudeBelowModelRejected",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/altitudeAboveModelRejected",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/zeroAirspeedRejected",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tM1FailureModes/supersonicCasRejected",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tMass/twoPointMassesAnalytic",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tMass/boxWithSelfInertiaIsExact",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tMass/midpointMassesAreOnePercentShort",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tMass/productOfInertiaSign",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tMass/inertiaTensorFromPublishedProducts",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tMass/cgShiftsWithFuelBurn",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerIntegrity/excludedTestFileFailsGate",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerIntegrity/excludedFileFailsRedGateToo",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerIntegrity/cleanSuiteHasNoExclusions",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerIntegrity/runnerWorksWithoutStartup",
+      "milestone": "M1",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlFailures/unsupportedElementIsReportedWithLocation",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlFailures/truncatedFileIsParseError",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlFailures/nonMonotonicBreakpointsRejected",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlFailures/tableSizeMismatchRejected",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlFailures/missingUnitsRejected",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlFailures/undefinedVariableRejected",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlFailures/missingFileRejected",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlOperators/arithmeticAndOperandOrder",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlOperators/piecewiseBranches",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlOperators/piecewiseNestedInsideApply",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlOperators/piecewiseWrappedInApplyAsNasaWritesIt",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlOperators/minMaxValueSaturate",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlOperators/initialValueConstant",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlOperators/missingInputIsAnError",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlParser/f16AeroStructure",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlParser/f16PropStructure",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlParser/f16InertiaStructure",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlParser/saturationAttributesAreRead",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlParser/tableStorageOrderLastBreakpointFastest",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlParser/sourceHashRecorded",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlTables/gridPointsAndInterpolation",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlTables/neitherClampsAndFlags",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlTables/bothExtrapolatesLinearly",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tDavemlTables/f16TablesRoundTripAtEveryBreakpoint",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16CheckData/aeroCheckData",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16CheckData/propCheckData",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16CheckData/inertiaAtNescCg",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16CheckData/generatedFilesAreCurrent",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16CheckData/checkDataMismatchIsDetected",
+      "milestone": "M2",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16Plant/configMatchesNescData",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16Plant/controlSignsMatchVitalConventions",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16Plant/aeroInputsAreConvertedToModelUnits",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16Plant/momentTransferredFromMrcToCg",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16Plant/aftCgIsLessStableInPitch",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16Plant/datumInvariance",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16Plant/gravityEntersOnlyThroughTheCg",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16Plant/outOfEnvelopeFlagPropagates",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16Plant/nonFiniteStateRejected",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16Plant/badControlVectorRejected",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16Plant/nonFiniteDerivativeRejected",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16Plant/badCgInputRejected",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRigidBody/translationalEquation",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRigidBody/rotationalEquationWithGyro",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRigidBody/torqueFreeConservesMomentumAndEnergy",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRigidBody/quaternionKinematicsMatchDcmRate",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRigidBody/positionRateIsNedVelocity",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRigidBody/droppedMassFallsAtG",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRigidBody/nonFiniteInputRejected",
+      "milestone": "M3",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tF16Trim/readmeTrimTable11",
+      "milestone": "M4",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tF16Trim/readmeTrimTable11 and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.trim.solve is not implemented yet. Error in vital.trim.solve (line 3) vital.notImplemented('vital.trim.solve'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tF16Trim/readmeTrimTable11 (line 55) tr = vital.trim.solve(tc.AC, tc.envG(32.174), tc.readmeCondition()); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tF16Trim/nescCase11PitchAttitude",
+      "milestone": "M4",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tF16Trim/nescCase11PitchAttitude and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.trim.solve is not implemented yet. Error in vital.trim.solve (line 3) vital.notImplemented('vital.trim.solve'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tF16Trim/nescCase11PitchAttitude (line 66) tr = vital.trim.solve(tc.AC, env, cond); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tF16Trim/gravityModelExplainsReadmeVersusNesc",
+      "milestone": "M4",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tF16Trim/gravityModelExplainsReadmeVersusNesc and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.trim.solve is not implemented yet. Error in vital.trim.solve (line 3) vital.notImplemented('vital.trim.solve'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tF16Trim/gravityModelExplainsReadmeVersusNesc (line 83) trA = vital.trim.solve(tc.AC, tc.envG(32.174), cond); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tF16Trim/trimIsAnEquilibrium",
+      "milestone": "M4",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tF16Trim/trimIsAnEquilibrium and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.trim.solve is not implemented yet. Error in vital.trim.solve (line 3) vital.notImplemented('vital.trim.solve'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tF16Trim/trimIsAnEquilibrium (line 97) tr = vital.trim.solve(tc.AC, tc.envG(32.174), tc.readmeCondition()); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tF16Trim/climbTrimKinematics",
+      "milestone": "M4",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tF16Trim/climbTrimKinematics and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.trim.solve is not implemented yet. Error in vital.trim.solve (line 3) vital.notImplemented('vital.trim.solve'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tF16Trim/climbTrimKinematics (line 106) tr = vital.trim.solve(tc.AC, tc.envG(32.174), cond); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tF16Trim/speedSweepAlphaDecreases",
+      "milestone": "M4",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tF16Trim/speedSweepAlphaDecreases and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.trim.solve is not implemented yet. Error in vital.trim.solve (line 3) vital.notImplemented('vital.trim.solve'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tF16Trim/speedSweepAlphaDecreases (line 116) tr = vital.trim.solve(tc.AC, tc.envG(32.174), cond); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tF16Trim/stallLimitedIsInfeasible",
+      "milestone": "M4",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tF16Trim/stallLimitedIsInfeasible and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.trim.solve is not implemented yet. Error in vital.trim.solve (line 3) vital.notImplemented('vital.trim.solve'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tF16Trim/stallLimitedIsInfeasible (line 126) tr = vital.trim.solve(tc.AC, tc.envG(32.174), cond); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tF16Trim/controlBoundIsInfeasible",
+      "milestone": "M4",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tF16Trim/controlBoundIsInfeasible and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.trim.solve is not implemented yet. Error in vital.trim.solve (line 3) vital.notImplemented('vital.trim.solve'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tF16Trim/controlBoundIsInfeasible (line 132) tr = vital.trim.solve(tc.AC, tc.envG(32.174), tc.readmeCondition(), 'Bounds', struct('de_deg', [-1 1])); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tF16Trim/nonConvergenceIsReported",
+      "milestone": "M4",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tF16Trim/nonConvergenceIsReported and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.trim.solve is not implemented yet. Error in vital.trim.solve (line 3) vital.notImplemented('vital.trim.solve'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tF16Trim/nonConvergenceIsReported (line 138) tr = vital.trim.solve(tc.AC, tc.envG(32.174), tc.readmeCondition(), 'MaxIterations', 1, 'Retries', 0); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tF16Trim/outOfDataEnvelopeIsNotOk",
+      "milestone": "M4",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tF16Trim/outOfDataEnvelopeIsNotOk and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.trim.solve is not implemented yet. Error in vital.trim.solve (line 3) vital.notImplemented('vital.trim.solve'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tF16Trim/outOfDataEnvelopeIsNotOk (line 144) tr = vital.trim.solve(tc.AC, tc.envG(32.174), cond); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tF16Trim/nonSquareSpecificationRejected",
+      "milestone": "M4",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tF16Trim/nonSquareSpecificationRejected. --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:trim:notSquare' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.trim.solve is not implemented yet. Error in vital.trim.solve (line 3) vital.notImplemented('vital.trim.solve'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tF16Trim>@()vital.trim.solve(tc.AC,tc.envG(32.174),tc.readmeCondition(),'Unknowns',{'"
+    },
+    {
+      "name": "tF16Trim/badConditionRejected",
+      "milestone": "M4",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tF16Trim/badConditionRejected. --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:trim:badCondition' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.trim.solve is not implemented yet. Error in vital.trim.solve (line 3) vital.notImplemented('vital.trim.solve'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tF16Trim>@()vital.trim.solve(tc.AC,tc.envG(32.174),cond) (line 156) tc.verifyError(@() vital"
+    },
+    {
+      "name": "tF16Trim/okStatusMeansConvergedAndInsideData",
+      "milestone": "M4",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tF16Trim/okStatusMeansConvergedAndInsideData and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.trim.solve is not implemented yet. Error in vital.trim.solve (line 3) vital.notImplemented('vital.trim.solve'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tF16Trim/okStatusMeansConvergedAndInsideData (line 164) tr = vital.trim.solve(tc.AC, tc.envG(32.174), tc.readmeCondition()); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tF16Trim/userTrimFunctionReportsPublishedUnits",
+      "milestone": "M4",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tF16Trim/userTrimFunctionReportsPublishedUnits and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.aircraft.f16.trimLevel is not implemented yet. Error in vital.aircraft.f16.trimLevel (line 3) vital.notImplemented('vital.aircraft.f16.trimLevel'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tF16Trim/userTrimFunctionReportsPublishedUnits (line 171) r = vital.aircraft.f16.trimLevel(565.6854, 10013, 'g_ftps2', 32.174); ^^^^^^^^^^^^^^^"
+    }
+  ]
+}

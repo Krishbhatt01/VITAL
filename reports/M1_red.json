@@ -1,0 +1,834 @@
+{
+  "summary": {
+    "milestone": "M1",
+    "phase": "red",
+    "total": 114,
+    "counts": {
+      "PASS": 44,
+      "FAIL": 0,
+      "RED_EXPECTED": 70,
+      "RED_UNEXPECTED": 0,
+      "RED_SUSPICIOUS": 0,
+      "VACUOUS": 0,
+      "REGRESSION": 0
+    },
+    "gateOK": true,
+    "needsReview": [],
+    "elapsed_s": 52.4489605,
+    "checksLogged": 0,
+    "checksBySource": {
+      "PUB": 0,
+      "INDEP": 0,
+      "ANALYTIC": 0,
+      "REG": 0
+    },
+    "files": {
+      "txt": "C:\\VITAL\\reports\\M1_red.txt",
+      "json": "C:\\VITAL\\reports\\M1_red.json",
+      "xml": "C:\\VITAL\\reports\\M1_red.xml",
+      "provenance": "C:\\VITAL\\reports\\M1_red_provenance.json"
+    },
+    "timestamp": "2026-09-29 07:12:35",
+    "vitalVersion": "0.0.0-M0"
+  },
+  "tests": [
+    {
+      "name": "tRunnerClassification/notImplementedIsRedExpected",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/otherErrorIsRedUnexpected",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/verifyErrorCatchingNotImplementedIsExpected",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/assertionWithoutNotImplementedIsSuspicious",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/passingNewTestInRedIsVacuous",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/earlierMilestonePassIsPass",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/earlierMilestoneFailureIsRegression",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/redGateInvalidOnUnexpectedOrRegression",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/greenGateRequiresZeroFailures",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/milestoneSelectionIsCumulative",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/milestoneTagM1DoesNotMatchM10",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/fixturesExcludedByDefault",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/badMilestoneNameErrors",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/reportsWrittenAndCountsMatch",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/definitionsLoad",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/malformedDefinitionErrors",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/missingPatternErrors",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/ambiguousPatternErrors",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/unknownTargetErrors",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/originalTreeUnchanged",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/treeHashIsDeterministicAndSensitive",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/sabotageTurnsTargetRedAndBaselineIsGreen",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/requiredDocsExist",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/catalogueTestsExistOrPlanned",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/catalogueCoversRequiredFailureModes",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/ruleSchemaAcceptsValidRecord",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/ruleSchemaRejectsMissingCitation",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/ruleSchemaRejectsBadClass",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/ruleSchemaRejectsNonMonotoneLevels",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/manifestHashesMatch",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/nescCaseMatrixComplete",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/passingCheckPasses",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/failingCheckFails",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/nanVsNanFails",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/infActualFails",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/badSourceErrors",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/badModeErrors",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/absModeIgnoresRelTolerance",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/relModeRejectsZeroExpected",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/withinAndExact",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/vectorFailsOnOneBadElement",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/recordHasAllFields",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/failingCheckIsLogged",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/provenanceWritesJson",
+      "milestone": "M0",
+      "isNew": false,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tAirData/alphaBetaQbarMach",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tAirData/alphaBetaQbarMach and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.env.atmosphereUS76 is not implemented yet. Error in vital.env.atmosphereUS76 (line 3) vital.notImplemented('vital.env.atmosphereUS76'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tAirData/alphaBetaQbarMach (line 11) atm = vital.env.atmosphereUS76(0); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tAirData/nondimensionalRates",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tAirData/nondimensionalRates and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.env.atmosphereUS76 is not implemented yet. Error in vital.env.atmosphereUS76 (line 3) vital.notImplemented('vital.env.atmosphereUS76'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tAirData/nondimensionalRates (line 23) atm = vital.env.atmosphereUS76(0); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tAirData/tailwindReducesAirspeedExactly",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tAirData/tailwindReducesAirspeedExactly and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.env.atmosphereUS76 is not implemented yet. Error in vital.env.atmosphereUS76 (line 3) vital.notImplemented('vital.env.atmosphereUS76'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tAirData/tailwindReducesAirspeedExactly (line 30) atm = vital.env.atmosphereUS76(0); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tAirData/windIsRotatedIntoBodyAxes",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tAirData/windIsRotatedIntoBodyAxes and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.env.atmosphereUS76 is not implemented yet. Error in vital.env.atmosphereUS76 (line 3) vital.notImplemented('vital.env.atmosphereUS76'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tAirData/windIsRotatedIntoBodyAxes (line 36) atm = vital.env.atmosphereUS76(0); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tAirData/vaneCorrectionSignsE1",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tAirData/vaneCorrectionSignsE1 and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.airdata.vaneAngles is not implemented yet. Error in vital.airdata.vaneAngles (line 3) vital.notImplemented('vital.airdata.vaneAngles'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tAirData/vaneCorrectionSignsE1 (line 47) [av, bv] = vital.airdata.vaneAngles(v, w, r); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tAirData/seaLevelCasEqualsTas",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tAirData/seaLevelCasEqualsTas and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.env.atmosphereUS76 is not implemented yet. Error in vital.env.atmosphereUS76 (line 3) vital.notImplemented('vital.env.atmosphereUS76'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tAirData/seaLevelCasEqualsTas (line 57) atm = vital.env.atmosphereUS76(0); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tAirData/casEasMatchCorrectairspeed",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tAirData/casEasMatchCorrectairspeed and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.env.atmosphereUS76 is not implemented yet. Error in vital.env.atmosphereUS76 (line 3) vital.notImplemented('vital.env.atmosphereUS76'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tAirData/casEasMatchCorrectairspeed (line 67) atm = vital.env.atmosphereUS76(h(i)); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tAtmosphere/matchesNescConsensus",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tAtmosphere/matchesNescConsensus and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.io.readNescCsv is not implemented yet. Error in vital.io.readNescCsv (line 3) vital.notImplemented('vital.io.readNescCsv'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tAtmosphere/matchesNescConsensus (line 12) t = vital.io.readNescCsv('Atmos_01_DroppedSphere', sim); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tAtmosphere/matchesAtmoscoesa",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tAtmosphere/matchesAtmoscoesa and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.env.atmosphereUS76 is not implemented yet. Error in vital.env.atmosphereUS76 (line 3) vital.notImplemented('vital.env.atmosphereUS76'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tAtmosphere/matchesAtmoscoesa (line 25) atm = vital.env.atmosphereUS76(h); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tAtmosphere/tropopauseAnalytic",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tAtmosphere/tropopauseAnalytic and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.env.atmosphereUS76 is not implemented yet. Error in vital.env.atmosphereUS76 (line 3) vital.notImplemented('vital.env.atmosphereUS76'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tAtmosphere/tropopauseAnalytic (line 39) atm = vital.env.atmosphereUS76(h); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tAtmosphere/seaLevel",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tAtmosphere/seaLevel and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.env.atmosphereUS76 is not implemented yet. Error in vital.env.atmosphereUS76 (line 3) vital.notImplemented('vital.env.atmosphereUS76'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tAtmosphere/seaLevel (line 47) atm = vital.env.atmosphereUS76(0); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tAtmosphere/geopotentialConversion",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tAtmosphere/geopotentialConversion and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.env.geometricToGeopotential is not implemented yet. Error in vital.env.geometricToGeopotential (line 3) vital.notImplemented('vital.env.geometricToGeopotential'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tAtmosphere/geopotentialConversion (line 56) H = vital.env.geometricToGeopotential(h); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tAtmosphere/deltaIsaShiftsTemperatureOnly",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tAtmosphere/deltaIsaShiftsTemperatureOnly and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.env.atmosphereUS76 is not implemented yet. Error in vital.env.atmosphereUS76 (line 3) vital.notImplemented('vital.env.atmosphereUS76'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tAtmosphere/deltaIsaShiftsTemperatureOnly (line 63) std = vital.env.atmosphereUS76(3000); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tAtmosphere/vectorInputKeepsShape",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tAtmosphere/vectorInputKeepsShape and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.env.atmosphereUS76 is not implemented yet. Error in vital.env.atmosphereUS76 (line 3) vital.notImplemented('vital.env.atmosphereUS76'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tAtmosphere/vectorInputKeepsShape (line 73) atm = vital.env.atmosphereUS76([0 1000; 2000 3000]); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tFrames/dcmOrthonormalAndProper",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tFrames/dcmOrthonormalAndProper and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.frames.dcm321 is not implemented yet. Error in vital.frames.dcm321 (line 3) vital.notImplemented('vital.frames.dcm321'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tFrames/dcmOrthonormalAndProper (line 22) C = vital.frames.dcm321(tc.Att(k,1), tc.Att(k,2), tc.Att(k,3)); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tFrames/eulerDcmRoundTrip",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tFrames/eulerDcmRoundTrip and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.frames.dcm321 is not implemented yet. Error in vital.frames.dcm321 (line 3) vital.notImplemented('vital.frames.dcm321'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tFrames/eulerDcmRoundTrip (line 33) e = vital.frames.dcm2eul(vital.frames.dcm321(tc.Att(k,1), tc.Att(k,2), tc.Att(k,3))); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tFrames/eulerQuatDcmRoundTrip",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tFrames/eulerQuatDcmRoundTrip and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.frames.eul2quat is not implemented yet. Error in vital.frames.eul2quat (line 3) vital.notImplemented('vital.frames.eul2quat'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tFrames/eulerQuatDcmRoundTrip (line 42) q = vital.frames.eul2quat(tc.Att(k,1), tc.Att(k,2), tc.Att(k,3)); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tFrames/roundTripNearGimbalLock",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tFrames/roundTripNearGimbalLock and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.frames.dcm321 is not implemented yet. Error in vital.frames.dcm321 (line 3) vital.notImplemented('vital.frames.dcm321'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tFrames/roundTripNearGimbalLock (line 55) e = vital.frames.dcm2eul(vital.frames.dcm321(a(1), a(2), a(3))); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tFrames/gimbalConventionAtNinetyDegrees",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tFrames/gimbalConventionAtNinetyDegrees and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.frames.dcm321 is not implemented yet. Error in vital.frames.dcm321 (line 3) vital.notImplemented('vital.frames.dcm321'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tFrames/gimbalConventionAtNinetyDegrees (line 63) C = vital.frames.dcm321(0.3, th, 0.5); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tFrames/matchesAngle2dcm",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tFrames/matchesAngle2dcm and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.frames.dcm321 is not implemented yet. Error in vital.frames.dcm321 (line 3) vital.notImplemented('vital.frames.dcm321'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tFrames/matchesAngle2dcm (line 76) C = vital.frames.dcm321(tc.Att(k,1), tc.Att(k,2), tc.Att(k,3)); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tFrames/matchesToolboxQuaternions",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tFrames/matchesToolboxQuaternions and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.frames.eul2quat is not implemented yet. Error in vital.frames.eul2quat (line 3) vital.notImplemented('vital.frames.eul2quat'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tFrames/matchesToolboxQuaternions (line 86) q = vital.frames.eul2quat(tc.Att(k,1), tc.Att(k,2), tc.Att(k,3)); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tFrames/dcm2quatHasNonNegativeScalar",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tFrames/dcm2quatHasNonNegativeScalar and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.frames.dcm321 is not implemented yet. Error in vital.frames.dcm321 (line 3) vital.notImplemented('vital.frames.dcm321'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tFrames/dcm2quatHasNonNegativeScalar (line 98) q = vital.frames.dcm2quat(vital.frames.dcm321(0.1, 0.2, 3.1)); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tFrames/stationToBodyPoint",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tFrames/stationToBodyPoint and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.frames.stationToBody is not implemented yet. Error in vital.frames.stationToBody (line 3) vital.notImplemented('vital.frames.stationToBody'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tFrames/stationToBodyPoint (line 104) r = vital.frames.stationToBody([10; 2; 3], [4; 0; 1]); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tFrames/stationToBodyInertiaSigns",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tFrames/stationToBodyInertiaSigns and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.frames.inertiaStationToBody is not implemented yet. Error in vital.frames.inertiaStationToBody (line 3) vital.notImplemented('vital.frames.inertiaStationToBody'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tFrames/stationToBodyInertiaSigns (line 110) IR = vital.frames.inertiaStationToBody(IS); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tGeo/constantsMatchTable73",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred while setting up or tearing down tGeo. As a result, all tGeo tests failed and did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.geo.constants is not implemented yet. Error in vital.geo.constants (line 3) vital.notImplemented('vital.geo.constants'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tGeo/setup (line 14) tc.K = vital.geo.constants('wgs84'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tGeo/llaToEcefMatchesToolbox",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred while setting up or tearing down tGeo. As a result, all tGeo tests failed and did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.geo.constants is not implemented yet. Error in vital.geo.constants (line 3) vital.notImplemented('vital.geo.constants'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tGeo/setup (line 14) tc.K = vital.geo.constants('wgs84'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tGeo/ecefToLlaRoundTrip",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred while setting up or tearing down tGeo. As a result, all tGeo tests failed and did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.geo.constants is not implemented yet. Error in vital.geo.constants (line 3) vital.notImplemented('vital.geo.constants'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tGeo/setup (line 14) tc.K = vital.geo.constants('wgs84'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tGeo/ecefToLlaMatchesToolbox",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred while setting up or tearing down tGeo. As a result, all tGeo tests failed and did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.geo.constants is not implemented yet. Error in vital.geo.constants (line 3) vital.notImplemented('vital.geo.constants'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tGeo/setup (line 14) tc.K = vital.geo.constants('wgs84'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tGeo/sphereModelIsSpherical",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred while setting up or tearing down tGeo. As a result, all tGeo tests failed and did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.geo.constants is not implemented yet. Error in vital.geo.constants (line 3) vital.notImplemented('vital.geo.constants'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tGeo/setup (line 14) tc.K = vital.geo.constants('wgs84'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tGeo/nedDcmMatchesToolbox",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred while setting up or tearing down tGeo. As a result, all tGeo tests failed and did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.geo.constants is not implemented yet. Error in vital.geo.constants (line 3) vital.notImplemented('vital.geo.constants'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tGeo/setup (line 14) tc.K = vital.geo.constants('wgs84'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tGeo/j2GravitationMatchesGravityzonal",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred while setting up or tearing down tGeo. As a result, all tGeo tests failed and did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.geo.constants is not implemented yet. Error in vital.geo.constants (line 3) vital.notImplemented('vital.geo.constants'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tGeo/setup (line 14) tc.K = vital.geo.constants('wgs84'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tGeo/j2GravitationIsPotentialGradient",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred while setting up or tearing down tGeo. As a result, all tGeo tests failed and did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.geo.constants is not implemented yet. Error in vital.geo.constants (line 3) vital.notImplemented('vital.geo.constants'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tGeo/setup (line 14) tc.K = vital.geo.constants('wgs84'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tGeo/nescLocalGravitationCase1",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred while setting up or tearing down tGeo. As a result, all tGeo tests failed and did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.geo.constants is not implemented yet. Error in vital.geo.constants (line 3) vital.notImplemented('vital.geo.constants'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tGeo/setup (line 14) tc.K = vital.geo.constants('wgs84'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tGeo/nescLocalGravitationHighLatitude",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred while setting up or tearing down tGeo. As a result, all tGeo tests failed and did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.geo.constants is not implemented yet. Error in vital.geo.constants (line 3) vital.notImplemented('vital.geo.constants'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tGeo/setup (line 14) tc.K = vital.geo.constants('wgs84'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tGeo/nescInverseSquareSphereCase4",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred while setting up or tearing down tGeo. As a result, all tGeo tests failed and did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.geo.constants is not implemented yet. Error in vital.geo.constants (line 3) vital.notImplemented('vital.geo.constants'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tGeo/setup (line 14) tc.K = vital.geo.constants('wgs84'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tGeo/nescCsvReaderShape",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred while setting up or tearing down tGeo. As a result, all tGeo tests failed and did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.geo.constants is not implemented yet. Error in vital.geo.constants (line 3) vital.notImplemented('vital.geo.constants'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tGeo/setup (line 14) tc.K = vital.geo.constants('wgs84'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tLoads/transferKnownCase",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tLoads/transferKnownCase and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.loads.transferLoad is not implemented yet. Error in vital.loads.transferLoad (line 3) vital.notImplemented('vital.loads.transferLoad'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tLoads/transferKnownCase (line 9) [F, M] = vital.loads.transferLoad([0;0;-10], [0;0;0], [2;0;0], eye(3)); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tLoads/pureCoupleInvariant",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tLoads/pureCoupleInvariant and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.loads.transferLoad is not implemented yet. Error in vital.loads.transferLoad (line 3) vital.notImplemented('vital.loads.transferLoad'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tLoads/pureCoupleInvariant (line 15) [~, M] = vital.loads.transferLoad([0;0;0], [1;2;3], [5;-7;11], eye(3)); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tLoads/transferRoundTrip",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tLoads/transferRoundTrip and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.frames.dcm321 is not implemented yet. Error in vital.frames.dcm321 (line 3) vital.notImplemented('vital.frames.dcm321'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tLoads/transferRoundTrip (line 22) C = vital.frames.dcm321(0.3, -0.2, 1.1); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tLoads/gravityLevel",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tLoads/gravityLevel and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.loads.sumLoadsAtCG is not implemented yet. Error in vital.loads.sumLoadsAtCG (line 3) vital.notImplemented('vital.loads.sumLoadsAtCG'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tLoads/gravityLevel (line 30) [F, M] = vital.loads.sumLoadsAtCG(zeros(3,0), zeros(3,0), [0;0;0], 2, eye(3), [0;0;9.80665]); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tLoads/gravityNinetyBank",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tLoads/gravityNinetyBank and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.frames.dcm321 is not implemented yet. Error in vital.frames.dcm321 (line 3) vital.notImplemented('vital.frames.dcm321'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tLoads/gravityNinetyBank (line 36) C = vital.frames.dcm321(pi/2, 0, 0); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tLoads/gravityNinetyPitch",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tLoads/gravityNinetyPitch and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.frames.dcm321 is not implemented yet. Error in vital.frames.dcm321 (line 3) vital.notImplemented('vital.frames.dcm321'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tLoads/gravityNinetyPitch (line 42) C = vital.frames.dcm321(0, pi/2, 0); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tLoads/componentMomentTransferredToCg",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tLoads/componentMomentTransferredToCg and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.loads.sumLoadsAtCG is not implemented yet. Error in vital.loads.sumLoadsAtCG (line 3) vital.notImplemented('vital.loads.sumLoadsAtCG'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tLoads/componentMomentTransferredToCg (line 50) [F, M] = vital.loads.sumLoadsAtCG([0;0;-100], [0;0;0], [1;0;0], 1, eye(3), [0;0;0]); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tLoads/datumInvariantMomentAtCg",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tLoads/datumInvariantMomentAtCg and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.loads.sumLoadsAtCG is not implemented yet. Error in vital.loads.sumLoadsAtCG (line 3) vital.notImplemented('vital.loads.sumLoadsAtCG'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tLoads/datumInvariantMomentAtCg (line 61) [~, M] = vital.loads.sumLoadsAtCG(F, MR, cg - d, 1, eye(3), [0;0;0]); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=dcm321NaN)",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tM1FailureModes/nanInfInputRejected(badCall=dcm321NaN). --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:badInput' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.frames.dcm321 is not implemented yet. Error in vital.frames.dcm321 (line 3) vital.notImplemented('vital.frames.dcm321'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.frames.dcm321(NaN,0,0) Evaluated Functi"
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=eul2quatInf)",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tM1FailureModes/nanInfInputRejected(badCall=eul2quatInf). --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:badInput' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.frames.eul2quat is not implemented yet. Error in vital.frames.eul2quat (line 3) vital.notImplemented('vital.frames.eul2quat'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.frames.eul2quat(0,Inf,0) Eval"
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=quat2dcmNaN)",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tM1FailureModes/nanInfInputRejected(badCall=quat2dcmNaN). --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:badInput' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.frames.quat2dcm is not implemented yet. Error in vital.frames.quat2dcm (line 3) vital.notImplemented('vital.frames.quat2dcm'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.frames.quat2dcm([NaN;0;0;1]) "
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=dcm2eulNaN)",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tM1FailureModes/nanInfInputRejected(badCall=dcm2eulNaN). --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:badInput' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.frames.dcm2eul is not implemented yet. Error in vital.frames.dcm2eul (line 3) vital.notImplemented('vital.frames.dcm2eul'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.frames.dcm2eul(nan(3)) Evaluated F"
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=lla2ecefNaN)",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tM1FailureModes/nanInfInputRejected(badCall=lla2ecefNaN). --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:badInput' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.geo.constants is not implemented yet. Error in vital.geo.constants (line 3) vital.notImplemented('vital.geo.constants'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.geo.lla2ecef(NaN,0,0,vital.geo.consta"
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=gravitationInf)",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tM1FailureModes/nanInfInputRejected(badCall=gravitationInf). --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:badInput' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.geo.constants is not implemented yet. Error in vital.geo.constants (line 3) vital.notImplemented('vital.geo.constants'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.geo.gravitation([Inf;0;0],vital.ge"
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=transferLoadNaN)",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tM1FailureModes/nanInfInputRejected(badCall=transferLoadNaN). --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:badInput' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.loads.transferLoad is not implemented yet. Error in vital.loads.transferLoad (line 3) vital.notImplemented('vital.loads.transferLoad'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.loads.transfe"
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=massPropsNaN)",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tM1FailureModes/nanInfInputRejected(badCall=massPropsNaN). --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:badInput' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.mass.massProps is not implemented yet. Error in vital.mass.massProps (line 3) vital.notImplemented('vital.mass.massProps'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.mass.massProps(struct('m',NaN,'r"
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=atmosphereNaN)",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tM1FailureModes/nanInfInputRejected(badCall=atmosphereNaN). --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:badInput' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.env.atmosphereUS76 is not implemented yet. Error in vital.env.atmosphereUS76 (line 3) vital.notImplemented('vital.env.atmosphereUS76'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.env.atmosphereU"
+    },
+    {
+      "name": "tM1FailureModes/nanInfInputRejected(badCall=airDataNaN)",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tM1FailureModes/nanInfInputRejected(badCall=airDataNaN). --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:badInput' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.env.atmosphereUS76 is not implemented yet. Error in vital.env.atmosphereUS76 (line 3) vital.notImplemented('vital.env.atmosphereUS76'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.airdata.airData([N"
+    },
+    {
+      "name": "tM1FailureModes/zeroQuaternionRejected",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tM1FailureModes/zeroQuaternionRejected. --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:badInput' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.frames.quat2dcm is not implemented yet. Error in vital.frames.quat2dcm (line 3) vital.notImplemented('vital.frames.quat2dcm'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.frames.quat2dcm([0;0;0;0]) (line 26) tc.verifyE"
+    },
+    {
+      "name": "tM1FailureModes/nonUnitQuaternionNormalizedWithWarning",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tM1FailureModes/nonUnitQuaternionNormalizedWithWarning and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.frames.quatNormalize is not implemented yet. Error in vital.frames.quatNormalize (line 3) vital.notImplemented('vital.frames.quatNormalize'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.frames.quatNormalize(q) (line 31) tc.verifyWarning(@() vital.frames.quatNormalize(q), 'vital:frames:quatNotUnit'); ^^^"
+    },
+    {
+      "name": "tM1FailureModes/unitQuaternionRaisesNoWarning",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tM1FailureModes/unitQuaternionRaisesNoWarning and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.frames.quatNormalize is not implemented yet. Error in vital.frames.quatNormalize (line 3) vital.notImplemented('vital.frames.quatNormalize'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.frames.quatNormalize([1;0;0;0]) (line 39) tc.verifyWarningFree(@() vital.frames.quatNormalize([1;0;0;0])); ^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tM1FailureModes/negativeMassRejected",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tM1FailureModes/negativeMassRejected. --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:mass:negativeMass' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.mass.massProps is not implemented yet. Error in vital.mass.massProps (line 3) vital.notImplemented('vital.mass.massProps'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.mass.massProps(struct('m',-1,'r',[0;0;0],'J'"
+    },
+    {
+      "name": "tM1FailureModes/zeroTotalMassRejected",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tM1FailureModes/zeroTotalMassRejected. --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:mass:negativeMass' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.mass.massProps is not implemented yet. Error in vital.mass.massProps (line 3) vital.notImplemented('vital.mass.massProps'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.mass.massProps(struct('m',0,'r',[0;0;0],'J'"
+    },
+    {
+      "name": "tM1FailureModes/nonPhysicalInertiaRejected",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tM1FailureModes/nonPhysicalInertiaRejected. --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:mass:nonPhysicalInertia' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.mass.inertiaTensor is not implemented yet. Error in vital.mass.inertiaTensor (line 3) vital.notImplemented('vital.mass.inertiaTensor'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.mass.inertiaTens"
+    },
+    {
+      "name": "tM1FailureModes/altitudeBelowModelRejected",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tM1FailureModes/altitudeBelowModelRejected. --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:env:altitudeOutOfRange' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.env.atmosphereUS76 is not implemented yet. Error in vital.env.atmosphereUS76 (line 3) vital.notImplemented('vital.env.atmosphereUS76'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.env.atmosphereUS7"
+    },
+    {
+      "name": "tM1FailureModes/altitudeAboveModelRejected",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tM1FailureModes/altitudeAboveModelRejected. --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:env:altitudeOutOfRange' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.env.atmosphereUS76 is not implemented yet. Error in vital.env.atmosphereUS76 (line 3) vital.notImplemented('vital.env.atmosphereUS76'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.env.atmosphereUS7"
+    },
+    {
+      "name": "tM1FailureModes/zeroAirspeedRejected",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Verification failed in tM1FailureModes/zeroAirspeedRejected. --------------------- Framework Diagnostic: --------------------- verifyError failed. --> The function threw the wrong exception. Actual Exception: 'vital:notImplemented' Expected Exception: 'vital:airdata:zeroAirspeed' --> Actual Error Report: Error using vital.notImplemented (line 8) vital.env.atmosphereUS76 is not implemented yet. Error in vital.env.atmosphereUS76 (line 3) vital.notImplemented('vital.env.atmosphereUS76'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes>@()vital.airdata.airData([0;0;0],["
+    },
+    {
+      "name": "tM1FailureModes/supersonicCasRejected",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tM1FailureModes/supersonicCasRejected and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.env.atmosphereUS76 is not implemented yet. Error in vital.env.atmosphereUS76 (line 3) vital.notImplemented('vital.env.atmosphereUS76'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tM1FailureModes/supersonicCasRejected (line 72) atm = vital.env.atmosphereUS76(0); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tMass/twoPointMassesAnalytic",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tMass/twoPointMassesAnalytic and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.mass.massProps is not implemented yet. Error in vital.mass.massProps (line 3) vital.notImplemented('vital.mass.massProps'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tMass/twoPointMassesAnalytic (line 8) [M, rcg, J] = vital.mass.massProps(items); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tMass/boxWithSelfInertiaIsExact",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tMass/boxWithSelfInertiaIsExact and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.mass.massProps is not implemented yet. Error in vital.mass.massProps (line 3) vital.notImplemented('vital.mass.massProps'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tMass/boxWithSelfInertiaIsExact (line 18) [M, rcg, J] = vital.mass.massProps(items); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tMass/midpointMassesAreOnePercentShort",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tMass/midpointMassesAreOnePercentShort and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.mass.massProps is not implemented yet. Error in vital.mass.massProps (line 3) vital.notImplemented('vital.mass.massProps'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tMass/midpointMassesAreOnePercentShort (line 30) [~, ~, J] = vital.mass.massProps(items); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tMass/productOfInertiaSign",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tMass/productOfInertiaSign and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.mass.massProps is not implemented yet. Error in vital.mass.massProps (line 3) vital.notImplemented('vital.mass.massProps'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tMass/productOfInertiaSign (line 39) [~, ~, J] = vital.mass.massProps(items); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tMass/inertiaTensorFromPublishedProducts",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tMass/inertiaTensorFromPublishedProducts and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.mass.inertiaTensor is not implemented yet. Error in vital.mass.inertiaTensor (line 3) vital.notImplemented('vital.mass.inertiaTensor'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tMass/inertiaTensorFromPublishedProducts (line 46) J = vital.mass.inertiaTensor(9496, 55814, 63100, 0, 982, 0); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    },
+    {
+      "name": "tMass/cgShiftsWithFuelBurn",
+      "milestone": "M1",
+      "isNew": true,
+      "class": "RED_EXPECTED",
+      "detail": "Error occurred in tMass/cgShiftsWithFuelBurn and it did not run to completion. --------- Error ID: --------- 'vital:notImplemented' -------------- Error Details: -------------- Error using vital.notImplemented (line 8) vital.mass.massProps is not implemented yet. Error in vital.mass.massProps (line 3) vital.notImplemented('vital.mass.massProps'); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error in tMass/cgShiftsWithFuelBurn (line 56) [~, r1] = vital.mass.massProps(full); ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    }
+  ]
+}

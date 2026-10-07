@@ -1,0 +1,127 @@
+{
+  "milestone": "M1",
+  "treeUnchanged": true,
+  "treeHash": "f90e380d4f5a35e42bd376c45021db20d22e185a16f63ad8c3e6c20ad32cc321",
+  "sabotages": [
+    {
+      "id": "S1-1",
+      "file": "+vital/+loads/transferLoad.m",
+      "targets": [
+        "tLoads/transferKnownCase"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tLoads/transferKnownCase",
+        "passed": false
+      },
+      "rationale": "A reversed lever-arm sign is the most common load-transfer bug."
+    },
+    {
+      "id": "S1-2",
+      "file": "+vital/+frames/dcm321.m",
+      "targets": [
+        "tFrames/matchesAngle2dcm"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tFrames/matchesAngle2dcm",
+        "passed": false
+      },
+      "rationale": "Swapping the Euler rotation order must be caught against the independent Toolbox DCM."
+    },
+    {
+      "id": "S1-3",
+      "file": "+vital/+env/atmosphereUS76.m",
+      "targets": [
+        "tAtmosphere/matchesNescConsensus"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tAtmosphere/matchesNescConsensus",
+        "passed": false
+      },
+      "rationale": "Using geometric height as geopotential (a 13 m shift at 30000 ft) must be caught by the published NESC atmosphere."
+    },
+    {
+      "id": "S1-4",
+      "file": "+vital/+mass/massProps.m",
+      "targets": [
+        "tMass/boxWithSelfInertiaIsExact"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tMass/boxWithSelfInertiaIsExact",
+        "passed": false
+      },
+      "rationale": "Dropping each item's own inertia (point-mass approximation) must be caught: it is the 1 % error behind correction E7."
+    },
+    {
+      "id": "S1-5",
+      "file": "+vital/+verify/envelopeCheck.m",
+      "targets": [
+        "tEnvelopeCheck/spreadTermWidensTheBand"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tEnvelopeCheck/spreadTermWidensTheBand",
+        "passed": false
+      },
+      "rationale": "Dropping the k*spread term would make the NESC criterion stricter than NASA's own inter-tool disagreement, contrary to ADR-009."
+    },
+    {
+      "id": "S1-6",
+      "file": "run_vital_tests.m",
+      "targets": [
+        "tRunnerIntegrity/excludedTestFileFailsGate"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tRunnerIntegrity/excludedTestFileFailsGate",
+        "passed": false
+      },
+      "rationale": "A runner that ignores excluded test files could pass a gate with tests silently missing (FC-111)."
+    },
+    {
+      "id": "S1-7",
+      "file": "run_vital_tests.m",
+      "targets": [
+        "tRunnerIncrements/redIncrementClassifiesOnlyListedFilesAsNew",
+        "tRunnerIncrements/greenIncrementSkipsUnlistedCurrentMilestoneFiles"
+      ],
+      "detected": true,
+      "results": [
+        {
+          "name": "tRunnerIncrements/redIncrementClassifiesOnlyListedFilesAsNew",
+          "passed": false
+        },
+        {
+          "name": "tRunnerIncrements/greenIncrementSkipsUnlistedCurrentMilestoneFiles",
+          "passed": false
+        }
+      ],
+      "rationale": "An increment gate that does not skip other increments' work in progress breaks parallel development (or hides it)."
+    },
+    {
+      "id": "S1-8",
+      "file": "+vital/+test/classifyResults.m",
+      "targets": [
+        "tRunnerIncrements/redIncrementClassifiesOnlyListedFilesAsNew",
+        "tRunnerIncrements/baselineFailureIsRegression"
+      ],
+      "detected": true,
+      "results": [
+        {
+          "name": "tRunnerIncrements/redIncrementClassifiesOnlyListedFilesAsNew",
+          "passed": false
+        },
+        {
+          "name": "tRunnerIncrements/baselineFailureIsRegression",
+          "passed": false
+        }
+      ],
+      "rationale": "A broken finished increment must be a REGRESSION, not a RED test that looks expected."
+    }
+  ],
+  "allDetected": true,
+  "timestamp": "2026-09-29 14:38:23"
+}

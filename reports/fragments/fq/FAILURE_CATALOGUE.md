@@ -1,0 +1,27 @@
+# Failure-catalogue rows from agent `fq` (M6)
+
+Replacements for the two PLANNED rows, then new rows (six-column format). Revised 2026-10-05 after review R2: FC-702 no longer claims "or improving a Level" for its first test (R2 MINOR 9); that claim now rests on FC-715. FC-713 also covers descending trims. FC-714 to FC-721 are new.
+
+| ID | Milestone | Failure mode | Detection | Error / status ID | Test |
+|---|---|---|---|---|---|
+| FC-701 | M6 | Every condition point infeasible (or otherwise unusable) | engine: no used point for the record/group | `NOT_ASSESSABLE` | `tests/M6/tFqEngine.m#allInfeasibleIsNotAssessable` |
+| FC-702 | M6 | NaN or failed point taken as the critical minimum | status-aware search: only points with OK point and metric status and a non-NaN value are used; excluded points counted by reason | excluded (`<stage>:<status>`), `PARTIAL` | `tests/M6/tFqEngine.m#nonOkPointsNeverCriticalOrImproving` |
+| FC-703 | M6 | A metric read from a mode that is not OK (e.g. a stable split short period) | metric extractor copies the mode status, value NaN | `NOT_OSCILLATORY` / `MODE_MISSING` (metric status) | `tests/M6/tFqMetrics.m#nonOscillatoryModeGivesStatusNotNumber` |
+| FC-704 | M6 | Rule record bound not traceable to the transcribed specification | every bound re-derived from candidates_from_extract.json and found in a verbatim extract quote; second reader: a bound table typed from the PDF page images | test failure | `tests/M6/tFqRulesR2.m#boundsMatchPdfTable` |
+| FC-705 | M6 | A MIL-F-8785C criterion silently omitted | every candidate curated or in coverage.json with class and reason (disjoint) | test failure | `tests/M6/tFqRules.m#everyCandidateCuratedOrCovered` |
+| FC-706 | M6 | Terminal-phase (Category C) rule rated on a clean configuration | category policy of the condition space | `NOT_ASSESSABLE` | `tests/M6/tF16Fq.m#categoryCNotAssessable` |
+| FC-707 | M6 | Bad condition space (non-increasing, non-finite or empty axis; unknown grid; a validity quantity that exists nowhere) | validation | `vital:fq:badConditions` | `tests/M6/tFqEngine.m#badInputsRejected` |
+| FC-708 | M6 | Rule record names a metric with no extractor | loader | `vital:fq:unknownMetric` | `tests/M6/tFqRules.m#badRecordsRejected` |
+| FC-709 | M6 | Duplicate rule id, or no records at all | loader / engine | `vital:fq:badRule`, `vital:fq:noRules` | `tests/M6/tFqRules.m#badRecordsRejected` |
+| FC-710 | M6 | Strict ("exceed", "greater than") boundary treated as inclusive, or the reverse | per-record strict flag; equality on a grid point | Level from the correct comparison | `tests/M6/tFqEngine.m#levelBoundaryOnGridPoint` |
+| FC-711 | M6 | Invalid aerodynamic mutation multiplier (unknown or old name, negative, NaN, non-scalar) | config validation | `vital:badInput` | `tests/M6/tAeroScale.m#badAeroScaleRejected` |
+| FC-712 | M6 | Mutation multiplier changes the default model, scales the wrong term, or is read as a CG derivative | default path bit-identical; each multiplier changes exactly its own term; effective CG-derivative ratios registered | test failure | `tests/M6/tAeroScale.m#eachMultiplierScalesOnlyItsTerm` |
+| FC-713 | M6 | Non-level (climbing or descending) trim used for n/alpha / CAP | abs(gamma0) check | `NOT_LEVEL` (metric status) | `tests/M6/tFqMetricsR2.m#descendingTrimIsNotLevel` |
+| FC-714 | M6 | An aperiodic longitudinal divergence (any unstable real longitudinal root, also a split short period) passes every longitudinal rule (R2 B1) | lon_divergence_rate_1_s and the 3.2.2.2 records; split short period with an unstable root is DIVERGENT (used, fails every Level) | `DIVERGENT` (metric status), Level 4 | `tests/M6/tF16FqR2.m#pitchDivergencePointFails` |
+| FC-715 | M6 | An excluded (unrated) point hides a worse Level (R2 B2, MINOR 9) | group `complete` false, `levelHeadline` NaN unless Level 4 is certain, levelText "or worse (k unrated)" | `PARTIAL`, headline NaN | `tests/M6/tFqEngineR2.m#excludedPointNeverHidesWorseLevel` |
+| FC-716 | M6 | A mode the classifier cannot name (roll at high alpha) silently drops the point (R2 B2) | roll-mode fallback: fastest lateral real root; disagreement recorded | metric reason "fallback" | `tests/M6/tF16FqR2.m#lowSpeedRollModeRated` |
+| FC-717 | M6 | A missing or unclassified mode counted as passing | only NOT_APPLICABLE passes; every other non-OK status is excluded and counted | `metric:MODE_MISSING` (excluded) | `tests/M6/tFqEngineR2.m#missingModeNeverPasses` |
+| FC-718 | M6 | A Level reported from points outside the model's stated validity envelope without saying so (R2 M8) | every point tagged IN / EXTRAPOLATED; headline = in-envelope Level; extrapolated Level reported separately | `envelope` tag, `.inEnvelope` / `.extrapolated` | `tests/M6/tF16FqR2.m#defaultGridHeadlineAndExtrapolation` |
+| FC-719 | M6 | The delivered report overwritten by another run (R2 M9) | files named by grid and AeroScale; an existing file is kept unless 'Overwrite' is true | timestamped file name | `tests/M6/tF16FqR2.m#reportNamingNeverOverwritesDefault` |
+| FC-720 | M6 | A record filed in the group of another Category (R2-1) | group = paragraph-Cat<category>[-subset] | test failure | `tests/M6/tFqRulesR2.m#groupMatchesCategory` |
+| FC-721 | M6 | An interpreted (not transcribed) bound enters without registration | records with source.interpretation must match a registered interpretation table | test failure | `tests/M6/tFqRulesR2.m#interpretedRecordsRegistered` |

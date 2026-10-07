@@ -1,0 +1,9 @@
+VITAL sabotage check M4  2026-09-29 13:58:38
+S4-1     DETECTED     +vital/+trim/solve.m                     tF16Trim/stallLimitedIsInfeasible, tF16Trim/nonConvergenceIsReported
+S4-2     DETECTED     +vital/+trim/solve.m                     tF16Trim/climbTrimKinematics
+S4-3     DETECTED     +vital/+geo/levelFlightGravity.m         tLevelFlightGravity/eastwardAtEquatorShowsEotvosEffect, tF16Trim/rotatingEarthExplainsNescTrim
+S4-4     DETECTED     +vital/+trim/solve.m                     tF16Trim/nonSquareSpecificationRejected
+S4-5     DETECTED     +vital/+trim/solve.m                     tF16Trim/outOfDataEnvelopeIsNotOk
+S4-6     DETECTED     +vital/+aircraft/+f16/loadsReport.m      tF16LoadsReport/rowsAddUpToPlantTotalAndTrimIsBalanced, tF16LoadsReport/aeroRowIsCoefficientsTimesQbarS
+S4-7     DETECTED     +vital/+aircraft/+f16/loadsReport.m      tF16LoadsReport/windAxisBalanceLevelAndClimb
+tree unchanged: 1   all detected: 1

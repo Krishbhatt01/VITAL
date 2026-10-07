@@ -1,0 +1,9 @@
+tCatalogueRules/closedMilestonePlannedRowIsAProblem                RED_EXPECTED
+tCatalogueRules/closedMilestoneRealTestIsFine                      RED_EXPECTED
+tCatalogueRules/openMilestoneMayBePlanned                          RED_EXPECTED
+tCatalogueRules/openMilestoneNamedTestMustExist                    RED_EXPECTED
+tCatalogueRules/notStartedMilestoneMustBePlanned                   RED_EXPECTED
+tCatalogueRules/milestonesFileRecordsClosedGates                   RED_EXPECTED
+tSpecDocs/catalogueTestsExistOrPlanned                             RED_EXPECTED
+tSpecDocs/catalogueCoversRequiredFailureModes                      VACUOUS
+regressions / unexpected / excluded: 0

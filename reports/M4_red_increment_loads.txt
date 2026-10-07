@@ -1,0 +1,9 @@
+tF16LoadsReport/rowsAddUpToPlantTotalAndTrimIsBalanced         RED_EXPECTED
+tF16LoadsReport/gravityRowIsTheWeight                          RED_EXPECTED
+tF16LoadsReport/aeroRowIsCoefficientsTimesQbarS                RED_EXPECTED
+tF16LoadsReport/windAxisBalanceLevelAndClimb                   RED_EXPECTED
+tF16LoadsReport/specifiedStateGivesAccelerations               RED_EXPECTED
+tF16LoadsReport/failedTrimIsReportedNotHidden                  RED_EXPECTED
+tF16LoadsReport/printsBreakdownWithoutOutput                   RED_EXPECTED
+tF16LoadsReport/badInputRefused                                RED_EXPECTED
+earlier-milestone regressions / unexpected / excluded: 0

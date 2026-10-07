@@ -1,0 +1,344 @@
+{
+  "summary": {
+    "milestone": "M0",
+    "phase": "green",
+    "total": 44,
+    "counts": {
+      "PASS": 44,
+      "FAIL": 0,
+      "RED_EXPECTED": 0,
+      "RED_UNEXPECTED": 0,
+      "RED_SUSPICIOUS": 0,
+      "VACUOUS": 0,
+      "REGRESSION": 0
+    },
+    "gateOK": true,
+    "needsReview": [],
+    "elapsed_s": 47.4477479,
+    "checksLogged": 0,
+    "checksBySource": {
+      "PUB": 0,
+      "INDEP": 0,
+      "ANALYTIC": 0,
+      "REG": 0
+    },
+    "files": {
+      "txt": "C:\\VITAL\\reports\\M0_green.txt",
+      "json": "C:\\VITAL\\reports\\M0_green.json",
+      "xml": "C:\\VITAL\\reports\\M0_green.xml",
+      "provenance": "C:\\VITAL\\reports\\M0_green_provenance.json"
+    },
+    "timestamp": "2026-09-29 01:02:05",
+    "vitalVersion": "0.0.0-M0"
+  },
+  "tests": [
+    {
+      "name": "tRunnerClassification/notImplementedIsRedExpected",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/otherErrorIsRedUnexpected",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/verifyErrorCatchingNotImplementedIsExpected",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/assertionWithoutNotImplementedIsSuspicious",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/passingNewTestInRedIsVacuous",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/earlierMilestonePassIsPass",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/earlierMilestoneFailureIsRegression",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/redGateInvalidOnUnexpectedOrRegression",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/greenGateRequiresZeroFailures",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/milestoneSelectionIsCumulative",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/milestoneTagM1DoesNotMatchM10",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/fixturesExcludedByDefault",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/badMilestoneNameErrors",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRunnerClassification/reportsWrittenAndCountsMatch",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/definitionsLoad",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/malformedDefinitionErrors",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/missingPatternErrors",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/ambiguousPatternErrors",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/unknownTargetErrors",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/originalTreeUnchanged",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/treeHashIsDeterministicAndSensitive",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageHarness/sabotageTurnsTargetRedAndBaselineIsGreen",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/requiredDocsExist",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/catalogueTestsExistOrPlanned",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/catalogueCoversRequiredFailureModes",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/ruleSchemaAcceptsValidRecord",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/ruleSchemaRejectsMissingCitation",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/ruleSchemaRejectsBadClass",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/ruleSchemaRejectsNonMonotoneLevels",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/manifestHashesMatch",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSpecDocs/nescCaseMatrixComplete",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/passingCheckPasses",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/failingCheckFails",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/nanVsNanFails",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/infActualFails",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/badSourceErrors",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/badModeErrors",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/absModeIgnoresRelTolerance",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/relModeRejectsZeroExpected",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/withinAndExact",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/vectorFailsOnOneBadElement",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/recordHasAllFields",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/failingCheckIsLogged",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tVitalTestCase/provenanceWritesJson",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "milestone": "M4",
+  "treeUnchanged": true,
+  "treeHash": "fdd68fdc68dd1a3130bf75327a5ff384e93cdbff5a624bfa947d4714265b72e1",
+  "sabotages": [
+    {
+      "id": "S4-1",
+      "file": "+vital/+trim/solve.m",
+      "targets": [
+        "tF16Trim/stallLimitedIsInfeasible",
+        "tF16Trim/nonConvergenceIsReported"
+      ],
+      "detected": true,
+      "results": [
+        {
+          "name": "tF16Trim/stallLimitedIsInfeasible",
+          "passed": false
+        },
+        {
+          "name": "tF16Trim/nonConvergenceIsReported",
+          "passed": false
+        }
+      ],
+      "rationale": "A solver that reports OK regardless of the residual would call an untrimmable condition a trim."
+    },
+    {
+      "id": "S4-2",
+      "file": "+vital/+trim/solve.m",
+      "targets": [
+        "tF16Trim/climbTrimKinematics"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tF16Trim/climbTrimKinematics",
+        "passed": false
+      },
+      "rationale": "theta = alpha + gamma; dropping gamma trims a climb as level flight."
+    },
+    {
+      "id": "S4-3",
+      "file": "+vital/+geo/levelFlightGravity.m",
+      "targets": [
+        "tLevelFlightGravity/eastwardAtEquatorShowsEotvosEffect",
+        "tF16Trim/rotatingEarthExplainsNescTrim"
+      ],
+      "detected": true,
+      "results": [
+        {
+          "name": "tLevelFlightGravity/eastwardAtEquatorShowsEotvosEffect",
+          "passed": false
+        },
+        {
+          "name": "tF16Trim/rotatingEarthExplainsNescTrim",
+          "passed": false
+        }
+      ],
+      "rationale": "The Coriolis (Eotvos) sign decides whether eastward flight is lighter; NESC's pitch attitude depends on it."
+    },
+    {
+      "id": "S4-4",
+      "file": "+vital/+trim/solve.m",
+      "targets": [
+        "tF16Trim/nonSquareSpecificationRejected"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tF16Trim/nonSquareSpecificationRejected",
+        "passed": false
+      },
+      "rationale": "A non-square trim has no exact solution (or infinitely many); it must be refused (correction E2)."
+    },
+    {
+      "id": "S4-5",
+      "file": "+vital/+trim/solve.m",
+      "targets": [
+        "tF16Trim/outOfDataEnvelopeIsNotOk"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tF16Trim/outOfDataEnvelopeIsNotOk",
+        "passed": false
+      },
+      "rationale": "A trim that needed clamped (extrapolated) data must never be reported as OK."
+    },
+    {
+      "id": "S4-6",
+      "file": "+vital/+aircraft/+f16/loadsReport.m",
+      "targets": [
+        "tF16LoadsReport/rowsAddUpToPlantTotalAndTrimIsBalanced",
+        "tF16LoadsReport/aeroRowIsCoefficientsTimesQbarS"
+      ],
+      "detected": true,
+      "results": [
+        {
+          "name": "tF16LoadsReport/rowsAddUpToPlantTotalAndTrimIsBalanced",
+          "passed": false
+        },
+        {
+          "name": "tF16LoadsReport/aeroRowIsCoefficientsTimesQbarS",
+          "passed": false
+        }
+      ],
+      "rationale": "Aero moments are published about the MRC (35 % MAC); showing them as CG moments without the transfer misreports the pitching moment."
+    },
+    {
+      "id": "S4-7",
+      "file": "+vital/+aircraft/+f16/loadsReport.m",
+      "targets": [
+        "tF16LoadsReport/windAxisBalanceLevelAndClimb"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tF16LoadsReport/windAxisBalanceLevelAndClimb",
+        "passed": false
+      },
+      "rationale": "Lift acts along the negative wind z axis; a sign slip would show negative lift in level flight."
+    }
+  ],
+  "allDetected": true,
+  "timestamp": "2026-09-29 13:58:38"
+}

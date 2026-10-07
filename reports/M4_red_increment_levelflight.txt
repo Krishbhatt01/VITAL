@@ -1,0 +1,5 @@
+tLevelFlightGravity/atRestIsGravitationPlusCentrifugal       RED_EXPECTED
+tLevelFlightGravity/eastwardAtEquatorShowsEotvosEffect       RED_EXPECTED
+tLevelFlightGravity/westwardIsHeavierThanEastward            RED_EXPECTED
+tLevelFlightGravity/nonFiniteInputRejected                   RED_EXPECTED
+tF16Trim/rotatingEarthExplainsNescTrim                       RED_EXPECTED

@@ -1,0 +1,7 @@
+VITAL sabotage check M2  2026-09-29 12:14:23
+S2-1     DETECTED     +vital/+daveml/read.m                    tDavemlOperators/arithmeticAndOperandOrder
+S2-2     DETECTED     +vital/+daveml/read.m                    tDavemlParser/tableStorageOrderLastBreakpointFastest
+S2-3     DETECTED     +vital/+daveml/lookup.m                  tDavemlTables/neitherClampsAndFlags
+S2-4     DETECTED     +vital/+daveml/compile.m                 tDavemlOperators/minMaxValueSaturate
+S2-5     DETECTED     +vital/+models/+f16/aero.m               tF16CheckData/aeroCheckData, tF16CheckData/generatedFilesAreCurrent
+tree unchanged: 1   all detected: 1

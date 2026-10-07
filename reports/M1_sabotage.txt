@@ -1,0 +1,10 @@
+VITAL sabotage check M1  2026-09-29 14:38:23
+S1-1     DETECTED     +vital/+loads/transferLoad.m             tLoads/transferKnownCase
+S1-2     DETECTED     +vital/+frames/dcm321.m                  tFrames/matchesAngle2dcm
+S1-3     DETECTED     +vital/+env/atmosphereUS76.m             tAtmosphere/matchesNescConsensus
+S1-4     DETECTED     +vital/+mass/massProps.m                 tMass/boxWithSelfInertiaIsExact
+S1-5     DETECTED     +vital/+verify/envelopeCheck.m           tEnvelopeCheck/spreadTermWidensTheBand
+S1-6     DETECTED     run_vital_tests.m                        tRunnerIntegrity/excludedTestFileFailsGate
+S1-7     DETECTED     run_vital_tests.m                        tRunnerIncrements/redIncrementClassifiesOnlyListedFilesAsNew, tRunnerIncrements/greenIncrementSkipsUnlistedCurrentMilestoneFiles
+S1-8     DETECTED     +vital/+test/classifyResults.m           tRunnerIncrements/redIncrementClassifiesOnlyListedFilesAsNew, tRunnerIncrements/baselineFailureIsRegression
+tree unchanged: 1   all detected: 1

@@ -1,0 +1,81 @@
+{
+  "milestone": "M2",
+  "treeUnchanged": true,
+  "treeHash": "725f602a6b79a4c8c0d59ea797e6068c02916597366fa6864c3e87babfbdba07",
+  "sabotages": [
+    {
+      "id": "S2-1",
+      "file": "+vital/+daveml/read.m",
+      "targets": [
+        "tDavemlOperators/arithmeticAndOperandOrder"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tDavemlOperators/arithmeticAndOperandOrder",
+        "passed": false
+      },
+      "rationale": "MathML operand order: reversed binary minus is the classic XML-reader bug (readstruct loses order)."
+    },
+    {
+      "id": "S2-2",
+      "file": "+vital/+daveml/read.m",
+      "targets": [
+        "tDavemlParser/tableStorageOrderLastBreakpointFastest"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tDavemlParser/tableStorageOrderLastBreakpointFastest",
+        "passed": false
+      },
+      "rationale": "DAVE-ML stores the last breakpoint fastest; a MATLAB column-major reshape transposes every table."
+    },
+    {
+      "id": "S2-3",
+      "file": "+vital/+daveml/lookup.m",
+      "targets": [
+        "tDavemlTables/neitherClampsAndFlags"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tDavemlTables/neitherClampsAndFlags",
+        "passed": false
+      },
+      "rationale": "Dropping the clamp would extrapolate beyond the published data (extrapolate=\"neither\") and never flag OUT_OF_DATA_ENVELOPE."
+    },
+    {
+      "id": "S2-4",
+      "file": "+vital/+daveml/compile.m",
+      "targets": [
+        "tDavemlOperators/minMaxValueSaturate"
+      ],
+      "detected": true,
+      "results": {
+        "name": "tDavemlOperators/minMaxValueSaturate",
+        "passed": false
+      },
+      "rationale": "minValue/maxValue are saturations (ADR-014); ignoring them breaks the NESC control laws."
+    },
+    {
+      "id": "S2-5",
+      "file": "+vital/+models/+f16/aero.m",
+      "targets": [
+        "tF16CheckData/aeroCheckData",
+        "tF16CheckData/generatedFilesAreCurrent"
+      ],
+      "detected": true,
+      "results": [
+        {
+          "name": "tF16CheckData/aeroCheckData",
+          "passed": false
+        },
+        {
+          "name": "tF16CheckData/generatedFilesAreCurrent",
+          "passed": false
+        }
+      ],
+      "rationale": "A hand edit to the generated F-16 model (pitch damping sign) must be caught by NASA's checkData and by the regeneration check."
+    }
+  ],
+  "allDetected": true,
+  "timestamp": "2026-09-29 12:14:23"
+}

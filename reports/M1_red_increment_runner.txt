@@ -1,0 +1,20 @@
+Running tRunnerIntegrity
+Verification failed in tRunnerIntegrity/excludedTestFileFailsGate.
+    In C:\VITAL\tests\M1\tRunnerIntegrity.m (tRunnerIntegrity.excludedTestFileFailsGate) at 14
+Error occurred in tRunnerIntegrity/excludedTestFileFailsGate and it did not run to completion.
+    Error in tRunnerIntegrity/excludedTestFileFailsGate (line 15)
+Verification failed in tRunnerIntegrity/excludedFileFailsRedGateToo.
+    In C:\VITAL\tests\M1\tRunnerIntegrity.m (tRunnerIntegrity.excludedFileFailsRedGateToo) at 26
+Error occurred in tRunnerIntegrity/cleanSuiteHasNoExclusions and it did not run to completion.
+    Error in tRunnerIntegrity/cleanSuiteHasNoExclusions (line 33)
+Verification failed in tRunnerIntegrity/runnerWorksWithoutStartup.
+    In C:\VITAL\tests\M1\tRunnerIntegrity.m (tRunnerIntegrity.runnerWorksWithoutStartup) at 51
+Done tRunnerIntegrity
+     tRunnerIntegrity/excludedTestFileFailsGate      X         X       Failed by verification.
+     tRunnerIntegrity/excludedFileFailsRedGateToo    X                 Failed by verification.
+     tRunnerIntegrity/cleanSuiteHasNoExclusions      X         X       Errored.
+     tRunnerIntegrity/runnerWorksWithoutStartup      X                 Failed by verification.
+tRunnerIntegrity/excludedTestFileFailsGate    passed=0  Verification failed in tRunnerIntegrity/excludedTestFileFailsGate. ---------------- Test Diagnostic: ---------------- a gate with an excluded test file must not be OK --------------------- Framework Diagnostic: --------------------- verifyFalse failed. --> The
+tRunnerIntegrity/excludedFileFailsRedGateToo  passed=0  Verification failed in tRunnerIntegrity/excludedFileFailsRedGateToo. --------------------- Framework Diagnostic: --------------------- verifyFalse failed. --> The value must evaluate to "false". Actual Value: logical 1 ------------------ Stack Information: ---
+tRunnerIntegrity/cleanSuiteHasNoExclusions    passed=0  Error occurred in tRunnerIntegrity/cleanSuiteHasNoExclusions and it did not run to completion. --------- Error ID: --------- 'MATLAB:nonExistentField' -------------- Error Details: -------------- Unrecognized field name "EXCLUDED". Error in tRunnerIntegrity/cl
+tRunnerIntegrity/runnerWorksWithoutStartup    passed=0  Verification failed in tRunnerIntegrity/runnerWorksWithoutStartup. ---------------- Test Diagnostic: ---------------- total / passed / excluded in a session without startup_vital --------------------- Framework Diagnostic: --------------------- verifyEqual fai
