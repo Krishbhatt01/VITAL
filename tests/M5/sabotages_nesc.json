@@ -1,0 +1,144 @@
+[
+ {
+  "id": "S5C-1",
+  "file": "+vital/+eom/rotatingRigidBody.m",
+  "pattern": "vdot = C.' * F_b(:) / m + g_e(:) - 2 * cross(we, v) - cross(we, cross(we, r));",
+  "replacement": "vdot = C.' * F_b(:) / m + g_e(:) + 2 * cross(we, v) - cross(we, cross(we, r));",
+  "targets": [
+   "tRotatingEom/coriolisAccelerationAndDeflection",
+   "tRotatingEom/matchesInertialIntegration"
+  ],
+  "rationale": "A Coriolis sign error in the ECEF equations: invisible for a body at rest in ECEF, but the Eotvos lift and the westward drift of the northward cannonball reverse."
+ },
+ {
+  "id": "S5C-2",
+  "file": "+vital/+plant/derivativesRotating.m",
+  "pattern": "g_e = vital.geo.gravitation(r, Kg);",
+  "replacement": "g_e = vital.geo.gravitation(r, Kg) - cross([0; 0; omega], cross([0; 0; omega], r));",
+  "targets": [
+   "tRotatingEom/j2GravitationMatchesAerospaceToolbox",
+   "tNescCases01to10/case01"
+  ],
+  "rationale": "Using GRAVITY (gravitation plus centrifugal) in a rotating-frame EOM double-counts the centrifugal term, ~0.034 m/s^2 at the Equator (CONVENTIONS 4), and reports the wrong localGravity."
+ },
+ {
+  "id": "S5C-3",
+  "file": "+vital/+nesc/caseDef.m",
+  "pattern": "cd.env.wind_n = [0; 20; 0] * ft;",
+  "replacement": "cd.env.wind_n = [0; -20; 0] * ft;",
+  "targets": [
+   "tNescCases01to10/case07"
+  ],
+  "rationale": "'Wind from the west' read as a wind blowing toward the west: the sphere is pushed the wrong way and its aero side force changes sign."
+ },
+ {
+  "id": "S5C-4",
+  "file": "+vital/+models/+f16/control.m",
+  "pattern": "v_totLongStk = min(v_totLongStk, 1);",
+  "replacement": "v_totLongStk = v_totLongStk;",
+  "targets": [
+   "tF16ControlLaw/everyLimitIsObservableAndApplied"
+  ],
+  "rationale": "A DAVE-ML maxValue ignored (treated as documentation, not a saturation) on the stick total: the longitudinal stick exceeds +1 and the elevator exceeds its 25 deg authority (ADR-014). The first test (saturationsAreApplied) drove only the LOWER limit and missed it; everyLimitIsObservableAndApplied drives every limit on both sides."
+ },
+ {
+  "id": "S5C-5",
+  "file": "+vital/+models/+f16/control.m",
+  "pattern": "v_chiErr = vital.daveml.piecewise([(abs(v_chiErrUnwrapped) > 180)], [vital.daveml.piecewise([(v_chiErrUnwrapped > 0)], [(v_chiErrUnwrapped - 360)], (v_chiErrUnwrapped + 360))], v_chiErrUnwrapped);",
+  "replacement": "v_chiErr = v_chiErrUnwrapped;",
+  "targets": [
+   "tF16ControlLaw/courseErrorWraps"
+  ],
+  "rationale": "The +/-180 deg course-error wrap dropped: across north the autopilot would command a 358 deg turn the long way round."
+ },
+ {
+  "id": "S5C-6",
+  "file": "+vital/+nesc/compare.m",
+  "pattern": "c.status = 'NOT_ASSESSABLE';",
+  "replacement": "c.status = 'PASS';",
+  "targets": [
+   "tNescCases01to10/signalWithoutReferenceIsNotAssessable"
+  ],
+  "rationale": "A signal no reference simulation records is silently reported as passing instead of NOT_ASSESSABLE (a quiet skip dressed as evidence)."
+ },
+ {
+  "id": "S5C-7",
+  "file": "+vital/+nesc/compare.m",
+  "pattern": "short = res.t(end) < cd.duration - 1e-9;",
+  "replacement": "short = false;",
+  "targets": [
+   "tNescCases01to10/shortRunFailsEverySignal"
+  ],
+  "rationale": "A VITAL run stopped early by a guard would be compared only over the part it flew and could pass."
+ },
+ {
+  "id": "S5C-8",
+  "file": "+vital/+models/+f16/control.m",
+  "pattern": "v_totLatStk = max(v_totLatStk, -1);",
+  "replacement": "v_totLatStk = v_totLatStk;",
+  "targets": [
+   "tF16ControlLaw/everyLimitIsObservableAndApplied"
+  ],
+  "rationale": "The aileron stick-total lower limit ignored: the aileron command exceeds -21.5 deg authority in a large left-roll demand."
+ },
+ {
+  "id": "S5C-9",
+  "file": "+vital/+models/+f16/control.m",
+  "pattern": "v_totPedal = min(v_totPedal, 1);",
+  "replacement": "v_totPedal = v_totPedal;",
+  "targets": [
+   "tF16ControlLaw/everyLimitIsObservableAndApplied"
+  ],
+  "rationale": "The pedal-total upper limit ignored: the rudder command exceeds its 30 deg authority."
+ },
+ {
+  "id": "S5C-10",
+  "file": "+vital/+models/+f16/control.m",
+  "pattern": "v_totThrottle = max(v_totThrottle, 0);",
+  "replacement": "v_totThrottle = v_totThrottle;",
+  "targets": [
+   "tF16ControlLaw/everyLimitIsObservableAndApplied"
+  ],
+  "rationale": "The throttle-total lower limit ignored: a negative power-lever command below idle is passed to the thrust model."
+ },
+ {
+  "id": "S5C-11",
+  "file": "+vital/+models/+f16/control.m",
+  "pattern": "v_longStk = min(v_longStk, 1);",
+  "replacement": "v_longStk = v_longStk;",
+  "targets": [
+   "tF16ControlLaw/everyLimitIsObservableAndApplied"
+  ],
+  "rationale": "The pilot longitudinal-stick input limit ignored: an out-of-range pilot input is added unclamped to the trim and LQR terms (observable only when the LQR term offsets it)."
+ },
+ {
+  "id": "S5C-12",
+  "file": "+vital/+models/+f16/control.m",
+  "pattern": "v_phiCmd = min(v_phiCmd, 30);",
+  "replacement": "v_phiCmd = v_phiCmd;",
+  "targets": [
+   "tF16ControlLaw/everyLimitIsObservableAndApplied"
+  ],
+  "rationale": "The autopilot 30 deg bank-command limit ignored: the course loop would command more than the 30 deg bank the NESC reference flies (phi = 30.00 deg in cases 13.3, 13.4, 15, 16)."
+ },
+ {
+  "id": "S5C-13",
+  "file": "+vital/+nesc/runCase.m",
+  "pattern": "if ~(strcmp(tr.status, 'OK') || (strcmp(id, '12') && strcmp(tr.status, 'OUT_OF_DATA_ENVELOPE')))",
+  "replacement": "if false",
+  "targets": [
+   "tNescF16Cases/nonOkTrimIsRefusedAndOverrideIsScoped"
+  ],
+  "rationale": "An F-16 case flown from a trim that did not converge or is infeasible (stall-limited) is simulated anyway instead of being refused: every downstream comparison would then be meaningless."
+ },
+ {
+  "id": "S5C-14",
+  "file": "+vital/+models/+f16/gnc.m",
+  "pattern": "v_totThrottle = min(v_totThrottle, 1);",
+  "replacement": "v_totThrottle = v_totThrottle;",
+  "targets": [
+   "tF16ControlLaw/everyLimitIsObservableAndApplied"
+  ],
+  "rationale": "The GNC variant (F16_gnc.dml, used by cases 15 and 16) has its own copy of every limit; the throttle-total upper limit ignored there lets a power-lever command above 100 % reach the thrust model."
+ }
+]

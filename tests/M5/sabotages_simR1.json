@@ -1,0 +1,174 @@
+[
+ {
+  "id": "S5SR-1",
+  "file": "+vital/+sim/run.m",
+  "pattern": "[reason, detail] = checkGuards(gopt, y, tk);",
+  "replacement": "if k > 0, [reason, detail] = checkGuards(gopt, y, tk); end",
+  "targets": [
+   "tSimR1/guardFiresAtTimeZero"
+  ],
+  "rationale": "R1-S1: guards skipped at t = 0 would let a run start outside its envelope."
+ },
+ {
+  "id": "S5SR-2",
+  "file": "+vital/+sim/run.m",
+  "pattern": "[reason, detail] = checkGuards(gopt, y, tk);",
+  "replacement": "if k == N, break; end, [reason, detail] = checkGuards(gopt, y, tk);",
+  "targets": [
+   "tSimR1/guardFiresAtFinalSample"
+  ],
+  "rationale": "R1-S2: guards skipped at the final sample would report a violating run as COMPLETED."
+ },
+ {
+  "id": "S5SR-3",
+  "file": "+vital/+sim/run.m",
+  "pattern": "if g.useQuat && ~(abs(y.quatNorm - 1) <= g.quatNormTol)",
+  "replacement": "if g.useQuat && abs(y.quatNorm - 1) > g.quatNormTol",
+  "targets": [
+   "tSimR1/nanQuatNormTrips"
+  ],
+  "rationale": "R1-S3: a NaN quaternion norm must trip the guard (NaN comparisons are false)."
+ },
+ {
+  "id": "S5SR-4",
+  "file": "+vital/+sim/run.m",
+  "pattern": "if ~(all(v(:) >= lim(1)) && all(v(:) <= lim(2)))",
+  "replacement": "if any(v(:) < lim(1)) || any(v(:) > lim(2))",
+  "targets": [
+   "tSimR1/nanEnvelopeValueTrips"
+  ],
+  "rationale": "R1-S4: a NaN envelope value must trip the guard."
+ },
+ {
+  "id": "S5SR-5",
+  "file": "+vital/+plant/derivatives.m",
+  "pattern": "y.nz = -y.specificForce_b(3) / env.g;",
+  "replacement": "y.nz = y.specificForce_b(3) / env.g;",
+  "targets": [
+   "tF16Sim/diagnosticsAtTrim",
+   "tSimR1/controllerSeesAppliedCommand"
+  ],
+  "rationale": "R1-S5: nz sign (positive up)."
+ },
+ {
+  "id": "S5SR-6",
+  "file": "run_f16_sim.m",
+  "pattern": "channels = {'elevator', 'aileron', 'rudder', 'throttle'};",
+  "replacement": "channels = {'elevator', 'rudder', 'aileron', 'throttle'};",
+  "targets": [
+   "tSimR1/runF16SimChannelMap"
+  ],
+  "rationale": "R1-S6: a swapped channel map would apply the user's aileron input to the rudder."
+ },
+ {
+  "id": "S5SR-7",
+  "file": "+vital/+sim/run.m",
+  "pattern": "[~, yc] = plant(x, uLeft, AC, env);",
+  "replacement": "[~, yc] = plant(x, uHeld, AC, env);",
+  "targets": [
+   "tSimR1/controllerSeesAppliedCommand"
+  ],
+  "rationale": "R1-S7 (original replacement): at k = 0 the held command is u0, not u_ref(0) (ADR-026)."
+ },
+ {
+  "id": "S5SR-8",
+  "file": "+vital/+sim/run.m",
+  "pattern": "[~, yc] = plant(x, uLeft, AC, env);",
+  "replacement": "[~, yc] = plant(x, uref, AC, env);",
+  "targets": [
+   "tSimR1/controllerSeesAppliedCommand"
+  ],
+  "rationale": "ADR-021 semantics (y at u_ref) instead of ADR-026 (y at the applied command): an nz-feedback controller would sense the pilot command before the airframe responds."
+ },
+ {
+  "id": "S5SR-9",
+  "file": "+vital/+sim/run.m",
+  "pattern": "tm = tStep + dt/2;",
+  "replacement": "tm = tStep;",
+  "targets": [
+   "tSimCore/doubletAndStepSwitchOnStepBoundaries"
+  ],
+  "rationale": "R1-S8: piecewise inputs evaluated exactly at the switch instant are ambiguous in floating point."
+ },
+ {
+  "id": "S5SR-10",
+  "file": "+vital/+sim/run.m",
+  "pattern": "u1 = uLeft;",
+  "replacement": "u1 = uStage(:, 1);",
+  "targets": [
+   "tSimR1/finalSampleLogsLeftLimitCommand"
+  ],
+  "rationale": "R1-S9: the final sample must log the command applied at the end of the last step."
+ },
+ {
+  "id": "S5SR-11",
+  "file": "+vital/+sim/run.m",
+  "pattern": "g.quatNormTol = 1e-6; g.quatNote = '';",
+  "replacement": "g.quatNormTol = 1; g.quatNote = '';",
+  "targets": [
+   "tSimR1/defaultQuatNormTolerance"
+  ],
+  "rationale": "R1-S10: the documented default quaternion-norm tolerance."
+ },
+ {
+  "id": "S5SR-12",
+  "file": "+vital/+sim/rk4Step.m",
+  "pattern": "k2 = f(t + dt/2, x2);",
+  "replacement": "k2 = f(t, x2);",
+  "targets": [
+   "tSimCore/rk4OrderSmoothInputThroughRun"
+  ],
+  "rationale": "R1-S11: wrong stage-2 time loses 4th order for time-varying inputs."
+ },
+ {
+  "id": "S5SR-13",
+  "file": "+vital/+sim/sampleController.m",
+  "pattern": "if any(~isfinite(u))",
+  "replacement": "if false",
+  "targets": [
+   "tSimR1/nonFiniteControllerOutputIsNanState"
+  ],
+  "rationale": "R1-S12: a non-finite controller output must stop the run at the controller sample."
+ },
+ {
+  "id": "S5SR-14",
+  "file": "+vital/+sim/run.m",
+  "pattern": "mod(k, ctrl.nHold) == 0",
+  "replacement": "mod(k + 1, ctrl.nHold) == 0",
+  "targets": [
+   "tSimCore/controllerHeldAndSampledAtRate"
+  ],
+  "rationale": "R1-S13: controller sample instants off by one step."
+ },
+ {
+  "id": "S5SR-15",
+  "file": "+vital/+sim/run.m",
+  "pattern": "bad = ~(uc >= clLim.lo & uc <= clLim.hi);",
+  "replacement": "bad = false(size(uc));",
+  "targets": [
+   "tSimR1/aileronBeyondLimitIsRecordedNotClipped",
+   "tSimR1/elevatorBetweenLimitAndTableEdgeIsFlagged"
+  ],
+  "rationale": "R1 M6: a command beyond AC.limits (60 deg aileron) must not pass silently."
+ },
+ {
+  "id": "S5SR-16",
+  "file": "+vital/+sim/sampleController.m",
+  "pattern": "stop = struct('reason', 'vital:sim:controllerError'",
+  "replacement": "rethrow(err); stop = struct('reason', 'vital:sim:controllerError'",
+  "targets": [
+   "tSimR1/controllerErrorIsAStop"
+  ],
+  "rationale": "ADR-026: a controller error is a stop with its identifier kept, not an exception."
+ },
+ {
+  "id": "S5SR-17",
+  "file": "+vital/+sim/run.m",
+  "pattern": "checkPiecewiseConstant(e.fcn, dt, N);",
+  "replacement": "% piecewise constancy not checked",
+  "targets": [
+   "tSimR1/piecewiseStructMustBeConstant"
+  ],
+  "rationale": "R1 MINOR 4: a struct input that varies inside a step is silently integrated to 2nd order only."
+ }
+]

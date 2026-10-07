@@ -1,0 +1,53 @@
+[
+ {
+  "id": "S3-1",
+  "file": "+vital/+aircraft/+f16/loads.m",
+  "pattern": "'alpha', rad2deg(ad.alpha)",
+  "replacement": "'alpha', ad.alpha",
+  "targets": [
+   "tF16Plant/aeroInputsAreConvertedToModelUnits"
+  ],
+  "rationale": "Passing radians to a model tabulated in degrees is the classic unit error at a data-model boundary."
+ },
+ {
+  "id": "S3-2",
+  "file": "+vital/+plant/derivatives.m",
+  "pattern": "[0; 0; env.g]",
+  "replacement": "[0; 0; -env.g]",
+  "targets": [
+   "tF16Plant/gravityEntersOnlyThroughTheCg"
+  ],
+  "rationale": "Gravity must point down (NED +z)."
+ },
+ {
+  "id": "S3-3",
+  "file": "+vital/+aircraft/+f16/config.m",
+  "pattern": "AC.r_cg = r_cg_wrt_mrc - opts.BfrpOffset;",
+  "replacement": "AC.r_cg = r_cg_wrt_mrc + opts.BfrpOffset;",
+  "targets": [
+   "tF16Plant/datumInvariance"
+  ],
+  "rationale": "A lever arm taken from the wrong point is the most common load-transfer bug; datum invariance must catch it."
+ },
+ {
+  "id": "S3-4",
+  "file": "+vital/+aircraft/+f16/config.m",
+  "pattern": "ine.XIXY, ine.XIZX, ine.XIYZ",
+  "replacement": "ine.XIXY, -ine.XIZX, ine.XIYZ",
+  "targets": [
+   "tF16Plant/configMatchesNescData"
+  ],
+  "rationale": "The Ixz product-of-inertia sign changes Dutch roll and roll-yaw coupling."
+ },
+ {
+  "id": "S3-5",
+  "file": "+vital/+eom/rigidBodyDerivs.m",
+  "pattern": "wdot = J \\ (M_cg(:) - cross(w, J*w + h_rot(:)) - hdot_rot(:));",
+  "replacement": "wdot = J \\ M_cg(:);",
+  "targets": [
+   "tRigidBody/rotationalEquationWithGyro",
+   "tRigidBody/torqueFreeConservesMomentumAndEnergy"
+  ],
+  "rationale": "Dropping the gyroscopic/inertial coupling term breaks rotational dynamics."
+ }
+]

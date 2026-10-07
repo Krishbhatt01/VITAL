@@ -1,0 +1,298 @@
+
+%%% Preamble Requirements %%%
+% \usepackage{geometry}
+% \usepackage{amsfonts}
+% \usepackage{amsmath}
+% \usepackage{amssymb}
+% \usepackage{tikz}
+
+% Optional packages such as sfmath set through python interface
+% \usepackage{}
+
+% \usetikzlibrary{arrows,chains,positioning,scopes,shapes.geometric,shapes.misc,shadows}
+
+%%% End Preamble Requirements %%%
+
+\input{"C:/Users/krish/AppData/Local/Programs/Python/Python310/lib/site-packages/pyxdsm/diagram_styles"}
+\begin{tikzpicture}
+
+\matrix[MatrixSetup]{
+%Row 0
+&
+&
+&
+&
+\node [DataIO] (output_cfg) {$\begin{array}{c}\text{CG position,} \\ \text{gravity}\end{array}$};&
+&
+\node [DataIO] (output_trim) {$\begin{array}{c}\text{speed V, altitude h,} \\ \text{climb angle}\end{array}$};&
+&
+\node [DataIO] (output_sim) {$\begin{array}{c}\text{input du(t),} \\ \text{controller}\end{array}$};&
+\node [DataIO] (output_rot) {$\text{case id (1 to 16)}$};&
+\node [DataIO] (output_ver) {$\text{NASA reference CSVs}$};&
+&
+\\
+%Row 1
+\node [Function] (data) {$\begin{array}{c}\text{1: NASA data files} \\ \texttt{data/nesc}\end{array}$};&
+\node [DataInter] (data-read) {$\text{.dml files}$};&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+\\
+%Row 2
+&
+\node [Function] (read) {$\begin{array}{c}\text{2: DAVE-ML reader (M2)} \\ \texttt{+daveml}\end{array}$};&
+\node [DataInter] (read-mod) {$\text{generated MATLAB code}$};&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+\\
+%Row 3
+&
+&
+\node [Function] (mod) {$\begin{array}{c}\text{3: Generated F-16 models} \\ \texttt{+models/+f16}\end{array}$};&
+&
+\node [DataInter] (mod-cfg) {$\begin{array}{c}\text{mass, inertia,} \\ \text{CG offset}\end{array}$};&
+\node [DataInter] (mod-plant) {$\begin{array}{c}\text{aero + engine} \\ \text{tables}\end{array}$};&
+&
+&
+&
+\node [DataInter] (mod-rot) {$\text{NASA control law}$};&
+&
+&
+\\
+%Row 4
+&
+&
+&
+\node [Function] (phys) {$\begin{array}{c}\text{4: Physics blocks (M1, M3)} \\ \texttt{frames geo env airdata loads mass eom}\end{array}$};&
+&
+\node [DataInter] (phys-plant) {$\begin{array}{c}\text{air, gravity,} \\ \text{force sum, EOM}\end{array}$};&
+&
+&
+&
+\node [DataInter] (phys-rot) {$\begin{array}{c}\text{gravitation,} \\ \text{atmosphere}\end{array}$};&
+&
+&
+\\
+%Row 5
+&
+&
+&
+&
+\node [Function] (cfg) {$\begin{array}{c}\text{5: Aircraft struct AC (M3)} \\ \texttt{+aircraft/+f16/config}\end{array}$};&
+\node [DataInter] (cfg-plant) {$\begin{array}{c}\text{AC: mass, J,} \\ \text{CG, limits}\end{array}$};&
+&
+&
+&
+\node [DataInter] (cfg-rot) {$\text{AC or vehicle}$};&
+&
+&
+\\
+%Row 6
+&
+&
+&
+&
+&
+\node [Function] (plant) {$\begin{array}{c}\text{6: Plant (M3)} \\ \texttt{+plant/derivatives}\end{array}$};&
+\node [DataInter] (plant-trim) {$\text{accelerations}$};&
+\node [DataInter] (plant-lin) {$\text{xdot}$};&
+\node [DataInter] (plant-sim) {$\text{xdot, y}$};&
+&
+&
+&
+\\
+%Row 7
+&
+&
+&
+&
+&
+\node [DataInter] (trim-plant) {$\begin{array}{c}\text{guess of} \\ \text{alpha, elevator, throttle}\end{array}$};&
+\node [MDA] (trim) {$\begin{array}{c}\text{7: Trim (M4)} \\ \texttt{+trim/solve}\end{array}$};&
+\node [DataInter] (trim-lin) {$\begin{array}{c}\text{trim point} \\ \text{(only if OK)}\end{array}$};&
+\node [DataInter] (trim-sim) {$\text{start state x0, u0}$};&
+&
+&
+&
+\node [DataIO] (right_output_trim) {$\begin{array}{c}\text{x*, u*} \\ \text{(steady flight)}\end{array}$};\\
+%Row 8
+&
+&
+&
+&
+&
+\node [DataInter] (lin-plant) {$\text{perturbed x, u}$};&
+&
+\node [Function] (lin) {$\begin{array}{c}\text{8: Linearize + modes (M5-A)} \\ \texttt{+linear}\end{array}$};&
+&
+&
+&
+&
+\node [DataIO] (right_output_lin) {$\begin{array}{c}\text{A, B, modes:} \\ \text{wn, zeta, tau}\end{array}$};\\
+%Row 9
+&
+&
+&
+&
+&
+\node [DataInter] (sim-plant) {$\text{x(t), u(t)}$};&
+&
+&
+\node [MDA] (sim) {$\begin{array}{c}\text{9: Time simulation (M5-B)} \\ \texttt{+sim/run}\end{array}$};&
+\node [DataInter] (sim-rot) {$\text{x(t), u}$};&
+&
+&
+\node [DataIO] (right_output_sim) {$\begin{array}{c}\text{x(t), logs,} \\ \text{stop reason}\end{array}$};\\
+%Row 10
+&
+&
+&
+&
+&
+&
+&
+&
+\node [DataInter] (rot-sim) {$\text{xdot, y}$};&
+\node [Function] (rot) {$\begin{array}{c}\text{10: Rotating Earth (M5-C)} \\ \texttt{derivativesRotating}\end{array}$};&
+\node [DataInter] (rot-ver) {$\text{NESC-named histories}$};&
+&
+\\
+%Row 11
+&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+\node [Function] (ver) {$\begin{array}{c}\text{11: Check against NASA (M5-C)} \\ \texttt{+nesc/compare}\end{array}$};&
+&
+\node [DataIO] (right_output_ver) {$\begin{array}{c}\text{PASS / FAIL} \\ \text{per signal}\end{array}$};\\
+%Row 12
+&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+\\
+};
+
+% XDSM process chains
+{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (data);
+\chainin (read) [join=by ProcessHVA];
+\chainin (mod) [join=by ProcessHVA];
+\chainin (cfg) [join=by ProcessHVA];
+\chainin (plant) [join=by ProcessHVA];
+\chainin (trim) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (trim);
+\chainin (plant) [join=by ProcessHVA];
+\chainin (trim) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (trim);
+\chainin (lin) [join=by ProcessHVA];
+\chainin (plant) [join=by ProcessHVA];
+\chainin (lin) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (lin);
+\chainin (sim) [join=by ProcessHVA];
+\chainin (plant) [join=by ProcessHVA];
+\chainin (sim) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (sim);
+\chainin (rot) [join=by ProcessHVA];
+\chainin (sim) [join=by ProcessHVA];
+\chainin (ver) [join=by ProcessHVA];
+\end{pgfonlayer}
+}
+
+\begin{pgfonlayer}{data}
+\path
+% Horizontal edges
+(data) edge [DataLine] (data-read)
+(read) edge [DataLine] (read-mod)
+(mod) edge [DataLine] (mod-cfg)
+(mod) edge [DataLine] (mod-plant)
+(phys) edge [DataLine] (phys-plant)
+(cfg) edge [DataLine] (cfg-plant)
+(plant) edge [DataLine] (plant-trim)
+(trim) edge [DataLine] (trim-plant)
+(trim) edge [DataLine] (trim-lin)
+(plant) edge [DataLine] (plant-lin)
+(lin) edge [DataLine] (lin-plant)
+(trim) edge [DataLine] (trim-sim)
+(plant) edge [DataLine] (plant-sim)
+(sim) edge [DataLine] (sim-plant)
+(phys) edge [DataLine] (phys-rot)
+(cfg) edge [DataLine] (cfg-rot)
+(mod) edge [DataLine] (mod-rot)
+(sim) edge [DataLine] (sim-rot)
+(rot) edge [DataLine] (rot-sim)
+(rot) edge [DataLine] (rot-ver)
+(trim) edge [DataLine] (right_output_trim)
+(lin) edge [DataLine] (right_output_lin)
+(sim) edge [DataLine] (right_output_sim)
+(ver) edge [DataLine] (right_output_ver)
+% Vertical edges
+(data-read) edge [DataLine] (read)
+(read-mod) edge [DataLine] (mod)
+(mod-cfg) edge [DataLine] (cfg)
+(mod-plant) edge [DataLine] (plant)
+(phys-plant) edge [DataLine] (plant)
+(cfg-plant) edge [DataLine] (plant)
+(plant-trim) edge [DataLine] (trim)
+(trim-plant) edge [DataLine] (plant)
+(trim-lin) edge [DataLine] (lin)
+(plant-lin) edge [DataLine] (lin)
+(lin-plant) edge [DataLine] (plant)
+(trim-sim) edge [DataLine] (sim)
+(plant-sim) edge [DataLine] (sim)
+(sim-plant) edge [DataLine] (plant)
+(phys-rot) edge [DataLine] (rot)
+(cfg-rot) edge [DataLine] (rot)
+(mod-rot) edge [DataLine] (rot)
+(sim-rot) edge [DataLine] (rot)
+(rot-sim) edge [DataLine] (sim)
+(rot-ver) edge [DataLine] (ver)
+(cfg) edge [DataLine] (output_cfg)
+(trim) edge [DataLine] (output_trim)
+(sim) edge [DataLine] (output_sim)
+(rot) edge [DataLine] (output_rot)
+(ver) edge [DataLine] (output_ver);
+\end{pgfonlayer}
+
+\end{tikzpicture}

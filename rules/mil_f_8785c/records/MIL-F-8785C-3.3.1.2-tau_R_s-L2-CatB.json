@@ -1,0 +1,66 @@
+{
+  "id": "MIL-F-8785C-3.3.1.2-tau_R_s-L2-CatB",
+  "title": "Roll-mode time constant maximum (Table VII): Level 2, Category B",
+  "ruleset": {
+    "name": "MIL-F-8785C",
+    "revision": "5 November 1980 (supersedes MIL-F-8785B)",
+    "basis": "Class IV; bare airframe; the classical modes of the linear model are the equivalent system (3.1.12)"
+  },
+  "class": "Q-SPEC",
+  "source": {
+    "document": "MIL-F-8785C (5 Nov 1980)",
+    "paragraph": "3.3.1.2",
+    "page": "23 (PDF 22)",
+    "table_or_figure": "Table VII",
+    "candidate_id": "MIL-F-8785C-3.3.1.2-tau_R_s-L2-CatB",
+    "extract_quote": "| B | All | 1.4 | 3.0 | 10 |",
+    "transcribed_by": "agent fq (M6) from rules/mil_f_8785c/candidates_from_extract.json and docs/MIL8785C_EXTRACT.md",
+    "verified": false
+  },
+  "applicability": {
+    "aircraft_class": [
+      "IV"
+    ],
+    "flight_phase_category": [
+      "B"
+    ]
+  },
+  "group": "3.3.1.2-CatB",
+  "metric": "tau_R_s",
+  "criterion": {
+    "type": "levels",
+    "levels": [
+      {
+        "level": 2,
+        "category": "B",
+        "max": 3,
+        "strict": false
+      }
+    ]
+  },
+  "scale": 3,
+  "scale_basis": "the magnitude of the upper bound",
+  "conditions": {
+    "file": "rules/mil_f_8785c/conditions_f16.json",
+    "axes": [
+      "h_ft",
+      "mach",
+      "cg_pct_mac"
+    ],
+    "search": "grid, optional one-step local refinement around the critical point"
+  },
+  "status_policy": {
+    "OK": "use",
+    "DIVERGENT": "fail",
+    "INFEASIBLE": "exclude_and_count",
+    "NOT_CONVERGED": "exclude_and_count",
+    "OUT_OF_DATA_ENVELOPE": "exclude_and_count",
+    "ERROR": "exclude_and_count",
+    "NOT_OSCILLATORY": "exclude_and_count",
+    "UNCLASSIFIED": "exclude_and_count",
+    "MODE_MISSING": "exclude_and_count",
+    "NOT_APPLICABLE": "not_applicable",
+    "rule": "No status other than OK can improve a verdict (FC-702); a DIVERGENT point fails every Level; no usable point gives NOT_ASSESSABLE (FC-701)"
+  },
+  "notes": "Table VII, Class IV rows (A: I, IV; B: All; C: I, II-C, IV). Level 3 value 10 s is a single entry spanning all rows. tau_R positive for stable mode (6.2.6)."
+}

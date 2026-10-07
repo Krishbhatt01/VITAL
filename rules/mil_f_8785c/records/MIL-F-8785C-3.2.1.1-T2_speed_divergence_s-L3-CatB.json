@@ -1,0 +1,66 @@
+{
+  "id": "MIL-F-8785C-3.2.1.1-T2_speed_divergence_s-L3-CatB",
+  "title": "Longitudinal static stability - Level 3 minimum time to double amplitude of aperiodic speed divergence: Level 3, Category B",
+  "ruleset": {
+    "name": "MIL-F-8785C",
+    "revision": "5 November 1980 (supersedes MIL-F-8785B)",
+    "basis": "Class IV; bare airframe; the classical modes of the linear model are the equivalent system (3.1.12)"
+  },
+  "class": "Q-SPEC",
+  "source": {
+    "document": "MIL-F-8785C (5 Nov 1980)",
+    "paragraph": "3.2.1.1",
+    "page": "11 (PDF 10)",
+    "table_or_figure": "3.2.1.1 text",
+    "candidate_id": "MIL-F-8785C-3.2.1.1-T2_speed_divergence_s-L3-CatAll",
+    "extract_quote": "In no event shall its time to double amplitude be less than 6 seconds",
+    "transcribed_by": "agent fq (M6) from rules/mil_f_8785c/candidates_from_extract.json and docs/MIL8785C_EXTRACT.md",
+    "verified": false
+  },
+  "applicability": {
+    "aircraft_class": [
+      "IV"
+    ],
+    "flight_phase_category": [
+      "B"
+    ]
+  },
+  "group": "3.2.1.1-CatB",
+  "metric": "T2_speed_divergence_s",
+  "criterion": {
+    "type": "levels",
+    "levels": [
+      {
+        "level": 3,
+        "category": "B",
+        "min": 6,
+        "strict": false
+      }
+    ]
+  },
+  "scale": 6,
+  "scale_basis": "the magnitude of the lower bound",
+  "conditions": {
+    "file": "rules/mil_f_8785c/conditions_f16.json",
+    "axes": [
+      "h_ft",
+      "mach",
+      "cg_pct_mac"
+    ],
+    "search": "grid, optional one-step local refinement around the critical point"
+  },
+  "status_policy": {
+    "OK": "use",
+    "DIVERGENT": "fail",
+    "INFEASIBLE": "exclude_and_count",
+    "NOT_CONVERGED": "exclude_and_count",
+    "OUT_OF_DATA_ENVELOPE": "exclude_and_count",
+    "ERROR": "exclude_and_count",
+    "NOT_OSCILLATORY": "exclude_and_count",
+    "UNCLASSIFIED": "exclude_and_count",
+    "MODE_MISSING": "exclude_and_count",
+    "NOT_APPLICABLE": "not_applicable",
+    "rule": "No status other than OK can improve a verdict (FC-702); a DIVERGENT point fails every Level; no usable point gives NOT_ASSESSABLE (FC-701)"
+  },
+  "notes": "Levels 1 and 2: no aperiodic airspeed divergence, controls fixed and free; pitch force and position vs airspeed smooth with stable local gradients (trimmer/throttle fixed, 1g, constant altitude, over trim speed +/-15 percent or +/-50 kt EAS whichever is less). Alternatively satisfied via FCS even with zero gradients. Level 3 may be relaxed subject to procuring-activity approval but 'In no event shall its time to double amplitude be less than 6 seconds'. L1/L2 check is qualitative (sign of dFs/dV and d(delta_s)/dV: nose-down control for faster speed)."
+}

@@ -1,0 +1,75 @@
+[
+ {
+  "id": "S4-1",
+  "file": "+vital/+trim/solve.m",
+  "pattern": "if best.res < opts.Tol\n    if y.outOfEnvelope",
+  "replacement": "if true\n    if y.outOfEnvelope",
+  "targets": [
+   "tF16Trim/stallLimitedIsInfeasible",
+   "tF16Trim/nonConvergenceIsReported"
+  ],
+  "rationale": "A solver that reports OK regardless of the residual would call an untrimmable condition a trim."
+ },
+ {
+  "id": "S4-2",
+  "file": "+vital/+trim/solve.m",
+  "pattern": "a = zz(1); th = a + cond.gamma;",
+  "replacement": "a = zz(1); th = a;",
+  "targets": [
+   "tF16Trim/climbTrimKinematics"
+  ],
+  "rationale": "theta = alpha + gamma; dropping gamma trims a climb as level flight."
+ },
+ {
+  "id": "S4-3",
+  "file": "+vital/+geo/levelFlightGravity.m",
+  "pattern": "cor = -2 * cross(C * wE, v_ned);",
+  "replacement": "cor = 2 * cross(C * wE, v_ned);",
+  "targets": [
+   "tLevelFlightGravity/eastwardAtEquatorShowsEotvosEffect",
+   "tF16Trim/rotatingEarthExplainsNescTrim"
+  ],
+  "rationale": "The Coriolis (Eotvos) sign decides whether eastward flight is lighter; NESC's pitch attitude depends on it."
+ },
+ {
+  "id": "S4-4",
+  "file": "+vital/+trim/solve.m",
+  "pattern": "if numel(opts.Unknowns) ~= numel(opts.Residuals)",
+  "replacement": "if false",
+  "targets": [
+   "tF16Trim/nonSquareSpecificationRejected"
+  ],
+  "rationale": "A non-square trim has no exact solution (or infinitely many); it must be refused (correction E2)."
+ },
+ {
+  "id": "S4-5",
+  "file": "+vital/+trim/solve.m",
+  "pattern": "    if y.outOfEnvelope\n        tr.status = 'OUT_OF_DATA_ENVELOPE';",
+  "replacement": "    if false\n        tr.status = 'OUT_OF_DATA_ENVELOPE';",
+  "targets": [
+   "tF16Trim/outOfDataEnvelopeIsNotOk"
+  ],
+  "rationale": "A trim that needed clamped (extrapolated) data must never be reported as OK."
+ },
+ {
+  "id": "S4-6",
+  "file": "+vital/+aircraft/+f16/loadsReport.m",
+  "pattern": "F_a = y.F_aero; M_a = y.M_aero + cross(d, F_a);",
+  "replacement": "F_a = y.F_aero; M_a = y.M_aero;",
+  "targets": [
+   "tF16LoadsReport/rowsAddUpToPlantTotalAndTrimIsBalanced",
+   "tF16LoadsReport/aeroRowIsCoefficientsTimesQbarS"
+  ],
+  "rationale": "Aero moments are published about the MRC (35 % MAC); showing them as CG moments without the transfer misreports the pitching moment."
+ },
+ {
+  "id": "S4-7",
+  "file": "+vital/+aircraft/+f16/loadsReport.m",
+  "pattern": "r.lift_lbf = -F_aw(3);",
+  "replacement": "r.lift_lbf = F_aw(3);",
+  "targets": [
+   "tF16LoadsReport/windAxisBalanceLevelAndClimb"
+  ],
+  "rationale": "Lift acts along the negative wind z axis; a sign slip would show negative lift in level flight."
+ }
+]

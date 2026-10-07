@@ -1,0 +1,58 @@
+{
+  "id": "F16-NESC-OFE-PROXY-2",
+  "model": "NASA NESC F-16 (NASA/TM-2015-218675 DAVE-ML: F16_aero.dml, F16_prop.dml, F16_inertia.dml), bare airframe, flat Earth, zero wind, US 1976 standard day",
+  "fixed": {
+    "gamma_deg": 0,
+    "g_ftps2": 32.174
+  },
+  "category_policy": {
+    "A": {
+      "assess": true,
+      "reason": "Category A (CO, GA, WD, AR, RC, RR, TF, AS, FF; MIL-F-8785C 1.4): nonterminal phases flown in the clean configuration, which is the only configuration of the NESC model"
+    },
+    "B": {
+      "assess": true,
+      "reason": "Category B (CL, CR, LO, RT, D, ED, DE, AD): nonterminal phases flown in the clean configuration"
+    },
+    "C": {
+      "assess": false,
+      "reason": "Category C (terminal phases TO, CT, PA, WO, L) is NOT_ASSESSABLE for this model: the NESC F-16 has no landing configuration (no gear, flap or speed-brake terms in F16_aero.dml), and a clean configuration at low speed is not an approach configuration (proposed ADR, reports/fragments/fq/DECISIONS.md)"
+    }
+  },
+  "validity": {
+    "description": "NESC F16_package README (data/nesc/extracted/Atmospheric_models/F16_package/F16_package/README/README.html, line 910, Assumptions and Limitations): \"Flight envelope is limited to the vicinity of 10,000 ft MSL and 287.8 knots equivalent airspeed\"; the LQR section adds that flight at other speed/altitude combinations may be sub-optimal or even unstable.",
+    "judgment": "JUDGMENT (agent fq, 2026-10-05; the README gives no radius): IN = |h - 10,000 ft| <= 5,000 ft and |KEAS - 287.8| <= 20 % (230.24-345.36 KEAS), CG not restricted (20-30 % MAC accepted). Points outside are EXTRAPOLATED: their Levels are reported separately and are indicative only (review R2 M8).",
+    "bounds": [
+      { "quantity": "h_ft", "min": 5000, "max": 15000 },
+      { "quantity": "keas", "min": 230.24, "max": 345.36 }
+    ]
+  },
+  "ofe_proxy": "Operational Flight Envelope PROXY, not the F-16 OFE. MIL-F-8785C 3.1.7 / Table I bound Category A-B phases by speeds (1.4 V_S ... V_MAT) and altitudes (MSL ... combat or cruising ceiling) that the NESC model does not define: it has no stall or buffet boundary, no thrust-limited ceilings, and its aero tables have NO Mach dependence (low-speed data; only the thrust table depends on Mach, 0-1). The NESC README limits the model's validity to the vicinity of 10,000 ft MSL and 287.8 KEAS (see 'validity'); the headline Levels are those inside that envelope and every other point is reported as EXTRAPOLATED. Grids: 'default' = altitudes 5,000-37,000 ft x Mach 0.30-0.76 x CG 20-30 % MAC, denser inside the validity envelope (5,000, 8,000 and 13,000 ft; Mach 0.45, 0.50, 0.55); 'exploration' = the earlier wide 5 x 5 x 3 grid. Grid values AND their refinement midpoints avoid the thrust-table breakpoints (altitude every 10,000 ft, Mach every 0.2): there the h column of the linearization is one-sided (FC-510), the 8-state metrics are still computed (linear ADR-028 column status) and the phugoid metrics are NOT_CONVERGED. At the low-speed, high-altitude corner the trim alpha reaches about 25 deg (29,000 ft, Mach 0.30). Points that do not trim are excluded and counted, never extrapolated. See reports/fragments/fq/DECISIONS.md.",
+  "grids": {
+    "default": {
+      "h_ft": [5000, 8000, 13000, 21000, 29000, 37000],
+      "mach": [0.3, 0.37, 0.45, 0.5, 0.55, 0.63, 0.76],
+      "cg_pct_mac": [20, 25, 30]
+    },
+    "exploration": {
+      "h_ft": [5000, 13000, 21000, 29000, 37000],
+      "mach": [0.3, 0.37, 0.5, 0.63, 0.76],
+      "cg_pct_mac": [20, 25, 30]
+    },
+    "test": {
+      "h_ft": [5000, 35000],
+      "mach": [0.3, 0.7],
+      "cg_pct_mac": [25]
+    },
+    "readme": {
+      "h_ft": [10013],
+      "V_ftps": [565.6854],
+      "cg_pct_mac": [25]
+    },
+    "mutation": {
+      "h_ft": [10013],
+      "V_ftps": [565.6854, 700],
+      "cg_pct_mac": [25]
+    }
+  }
+}

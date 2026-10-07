@@ -1,0 +1,4 @@
+[
+ {"id": "P-1", "file": "+fxs/addOne.m", "pattern": "y = x + 1;", "replacement": "y = x;",
+  "targets": ["tAddOne/addsOne"], "rationale": "fixture: part file B"}
+]

@@ -1,0 +1,56 @@
+[
+ {
+  "id": "S6F-1",
+  "file": "+vital/+fq/assess.m",
+  "pattern": "D.cls{r, i} = 'EXCLUDED'; D.why{r, i} = [p.stage ':' p.status]; continue",
+  "replacement": "D.why{r, i} = [p.stage ':' p.status];",
+  "targets": [
+   "tFqEngine/nonOkPointsNeverCriticalOrImproving",
+   "tFqEngine/allInfeasibleIsNotAssessable"
+  ],
+  "rationale": "FC-702/FC-701: the point-status guard is skipped, so the metrics a failed (INFEASIBLE) trim point happens to carry are evaluated as if the point were OK; a failed point then becomes the critical minimum, and an all-infeasible grid gets a Level instead of NOT_ASSESSABLE."
+ },
+ {
+  "id": "S6F-2",
+  "file": "+vital/+fq/assess.m",
+  "pattern": "if isfinite(ru.hi), mHi = (ru.hi - y) / ru.scale; end",
+  "replacement": "if isfinite(ru.hi), mHi = (y - ru.hi) / ru.scale; end",
+  "targets": [
+   "tFqEngine/knownMinimumFoundExactly",
+   "tFqEngine/figureBoundaryEncoding"
+  ],
+  "rationale": "A Level-boundary comparison flipped: the upper-bound margin sign is reversed, so a value below a maximum (e.g. tau_R <= 1 s, CAP <= 3.6) reads as a violation and one above it as a pass."
+ },
+ {
+  "id": "S6F-3",
+  "file": "+vital/+fq/metrics.m",
+  "pattern": "M = put(M, 'CAP', sp.wn^2 / na.value, 'OK', '');",
+  "replacement": "M = put(M, 'CAP', sp.wn / na.value, 'OK', '');",
+  "targets": [
+   "tFqMetrics/shortPeriodAndCapClosedForm",
+   "tF16Fq/metricsEqualModesDirectly"
+  ],
+  "rationale": "CAP computed with omega_nsp instead of omega_nsp^2: the Control Anticipation Parameter of 3.2.2.1.1 is omega^2/(n/alpha); the error moves every point across the Figure 1-3 lines."
+ },
+ {
+  "id": "S6F-4",
+  "file": "rules/mil_f_8785c/records/MIL-F-8785C-3.2.2.1.1-n_alpha_g_per_rad-L1-CatC.json",
+  "pattern": "\"min\": 2.7",
+  "replacement": "\"min\": 1.7",
+  "targets": [
+   "tFqRules/recordBoundsTraceToCandidates",
+   "tFqEngine/figureBoundaryEncoding"
+  ],
+  "rationale": "A figure boundary mis-encoded: the Figure 3 Level 1 n/alpha box edge (about 2.7 g/rad) is entered as the Level 2 edge (1.7), widening the Category C Level 1 region."
+ },
+ {
+  "id": "S6F-5",
+  "file": "+vital/+aircraft/+f16/loads.m",
+  "pattern": "a.cn = (s.Cnt_table * a.cnt + a.dcnda * a.dail + a.dcndr * a.drdr) + a.b2v * ((a.cnp * a.p) + (a.cnr * a.r));",
+  "replacement": "a.cn = (a.cnt + a.dcnda * a.dail + a.dcndr * a.drdr) + a.b2v * ((a.cnp * a.p) + (s.Cnt_table * a.cnr * a.r));",
+  "targets": [
+   "tAeroScale/eachMultiplierScalesOnlyItsTerm"
+  ],
+  "rationale": "AeroScale applied to the wrong term: the Cnt_table (formerly Cn_beta) multiplier scales the yaw-damping term cnr instead of the static sideslip table cnt, so the 'Cn_beta x 0.2' mutation would test yaw damping instead of directional stiffness."
+ }
+]

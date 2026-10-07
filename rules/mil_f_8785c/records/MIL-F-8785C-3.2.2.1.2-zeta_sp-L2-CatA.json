@@ -1,0 +1,67 @@
+{
+  "id": "MIL-F-8785C-3.2.2.1.2-zeta_sp-L2-CatA",
+  "title": "Short-period damping ratio (Table IV): Level 2, Category A",
+  "ruleset": {
+    "name": "MIL-F-8785C",
+    "revision": "5 November 1980 (supersedes MIL-F-8785B)",
+    "basis": "Class IV; bare airframe; the classical modes of the linear model are the equivalent system (3.1.12)"
+  },
+  "class": "Q-SPEC",
+  "source": {
+    "document": "MIL-F-8785C (5 Nov 1980)",
+    "paragraph": "3.2.2.1.2",
+    "page": "13 (PDF 12)",
+    "table_or_figure": "Table IV",
+    "candidate_id": "MIL-F-8785C-3.2.2.1.2-zeta_sp-L2-CatA&C",
+    "extract_quote": "| 2 | 0.25 | 2.00 | 0.20 | 2.00 |",
+    "transcribed_by": "agent fq (M6) from rules/mil_f_8785c/candidates_from_extract.json and docs/MIL8785C_EXTRACT.md",
+    "verified": false
+  },
+  "applicability": {
+    "aircraft_class": [
+      "IV"
+    ],
+    "flight_phase_category": [
+      "A"
+    ]
+  },
+  "group": "3.2.2.1.2-CatA",
+  "metric": "zeta_sp",
+  "criterion": {
+    "type": "levels",
+    "levels": [
+      {
+        "level": 2,
+        "category": "A",
+        "min": 0.25,
+        "max": 2,
+        "strict": false
+      }
+    ]
+  },
+  "scale": 0.25,
+  "scale_basis": "the magnitude of the lower bound",
+  "conditions": {
+    "file": "rules/mil_f_8785c/conditions_f16.json",
+    "axes": [
+      "h_ft",
+      "mach",
+      "cg_pct_mac"
+    ],
+    "search": "grid, optional one-step local refinement around the critical point"
+  },
+  "status_policy": {
+    "OK": "use",
+    "DIVERGENT": "fail",
+    "INFEASIBLE": "exclude_and_count",
+    "NOT_CONVERGED": "exclude_and_count",
+    "OUT_OF_DATA_ENVELOPE": "exclude_and_count",
+    "ERROR": "exclude_and_count",
+    "NOT_OSCILLATORY": "exclude_and_count",
+    "UNCLASSIFIED": "exclude_and_count",
+    "MODE_MISSING": "exclude_and_count",
+    "NOT_APPLICABLE": "not_applicable",
+    "rule": "No status other than OK can improve a verdict (FC-702); a DIVERGENT point fails every Level; no usable point gives NOT_ASSESSABLE (FC-701)"
+  },
+  "notes": "Table IV. Level 3 minimum 0.15 'May be reduced at altitudes above 20,000 feet if approved by the procuring activity'. Equivalent-system zeta_sp; control free and fixed."
+}

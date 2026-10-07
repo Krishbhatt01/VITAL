@@ -1,0 +1,208 @@
+
+%%% Preamble Requirements %%%
+% \usepackage{geometry}
+% \usepackage{amsfonts}
+% \usepackage{amsmath}
+% \usepackage{amssymb}
+% \usepackage{tikz}
+
+% Optional packages such as sfmath set through python interface
+% \usepackage{}
+
+% \usetikzlibrary{arrows,chains,positioning,scopes,shapes.geometric,shapes.misc,shadows}
+
+%%% End Preamble Requirements %%%
+
+\input{"C:/Users/krish/AppData/Local/Programs/Python/Python310/lib/site-packages/pyxdsm/diagram_styles"}
+\begin{tikzpicture}
+
+\matrix[MatrixSetup]{
+%Row 0
+&
+\node [DataIO] (output_trim) {$\begin{array}{c}\text{V, h, gamma,} \\ \text{CG, g}\end{array}$};&
+&
+&
+&
+\node [DataIO] (output_sim) {$\begin{array}{c}\text{input du(t), dt,} \\ \text{T\_final, guards}\end{array}$};&
+\node [DataIO] (output_ctl) {$\text{controller (M7)}$};&
+&
+&
+\\
+%Row 1
+\node [Function] (plant) {$\begin{array}{c}\text{1: Plant} \\ \texttt{derivatives}\end{array}$};&
+\node [DataInter] (plant-trim) {$\text{residuals}$};&
+&
+\node [DataInter] (plant-jac) {$\text{f(z +/- h)}$};&
+&
+\node [DataInter] (plant-sim) {$\text{xdot, y}$};&
+&
+&
+&
+\\
+%Row 2
+\node [DataInter] (trim-plant) {$\begin{array}{c}\text{guess} \\ \text{alpha, de, thr}\end{array}$};&
+\node [MDA] (trim) {$\begin{array}{c}\text{2: Trim solver (M4)} \\ \texttt{+trim/solve}\end{array}$};&
+\node [DataInter] (trim-lin) {$\begin{array}{c}\text{x0, u0} \\ \text{(status OK)}\end{array}$};&
+&
+&
+\node [DataInter] (trim-sim) {$\text{x0, u0}$};&
+&
+&
+&
+\node [DataIO] (right_output_trim) {$\begin{array}{c}\text{x*, u*,} \\ \text{status}\end{array}$};\\
+%Row 3
+&
+&
+\node [Function] (lin) {$\begin{array}{c}\text{3: Linearize (M5-A)} \\ \texttt{+linear/linearize}\end{array}$};&
+\node [DataInter] (lin-jac) {$\text{f, z0, steps}$};&
+\node [DataInter] (lin-modes) {$\text{A (8 states)}$};&
+&
+&
+\node [DataInter] (lin-xchk) {$\text{A, B}$};&
+&
+\\
+%Row 4
+\node [DataInter] (jac-plant) {$\text{z +/- h}$};&
+&
+\node [DataInter] (jac-lin) {$\begin{array}{c}\text{derivatives,} \\ \text{column status}\end{array}$};&
+\node [ImplicitFunction] (jac) {$\begin{array}{c}\text{4: Jacobian step study} \\ \texttt{+linear/jacobian}\end{array}$};&
+&
+&
+&
+&
+&
+\\
+%Row 5
+&
+&
+&
+&
+\node [Function] (modes) {$\begin{array}{c}\text{5: Flight modes} \\ \texttt{+linear/modes}\end{array}$};&
+&
+&
+&
+&
+\node [DataIO] (right_output_modes) {$\begin{array}{c}\text{wn, zeta, tau,} \\ \text{participation}\end{array}$};\\
+%Row 6
+\node [DataInter] (sim-plant) {$\text{x(t), u(t)}$};&
+&
+&
+&
+&
+\node [MDA] (sim) {$\begin{array}{c}\text{6: Time simulation (M5-B)} \\ \texttt{+sim/run}\end{array}$};&
+\node [DataInter] (sim-ctl) {$\text{t, x, y}$};&
+\node [DataInter] (sim-xchk) {$\text{nonlinear response}$};&
+&
+\node [DataIO] (right_output_sim) {$\begin{array}{c}\text{x(t), log,} \\ \text{stop reason}\end{array}$};\\
+%Row 7
+&
+&
+&
+&
+&
+\node [DataInter] (ctl-sim) {$\text{u (held)}$};&
+\node [Function] (ctl) {$\begin{array}{c}\text{7: Controller slot} \\ \texttt{+sim/sampleController}\end{array}$};&
+&
+&
+\\
+%Row 8
+&
+&
+&
+&
+&
+&
+&
+\node [Function] (xchk) {$\begin{array}{c}\text{8: Linear vs nonlinear (M5-X)} \\ \texttt{+linear/response}\end{array}$};&
+&
+\node [DataIO] (right_output_xchk) {$\begin{array}{c}\text{agreement} \\ \text{vs amplitude}\end{array}$};\\
+%Row 9
+&
+&
+&
+&
+&
+&
+&
+&
+&
+\\
+};
+
+% XDSM process chains
+{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (trim);
+\chainin (plant) [join=by ProcessHVA];
+\chainin (trim) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (trim);
+\chainin (lin) [join=by ProcessHVA];
+\chainin (jac) [join=by ProcessHVA];
+\chainin (plant) [join=by ProcessHVA];
+\chainin (jac) [join=by ProcessHVA];
+\chainin (lin) [join=by ProcessHVA];
+\chainin (modes) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (trim);
+\chainin (sim) [join=by ProcessHVA];
+\chainin (plant) [join=by ProcessHVA];
+\chainin (sim) [join=by ProcessHVA];
+\chainin (ctl) [join=by ProcessHVA];
+\chainin (sim) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (lin);
+\chainin (xchk) [join=by ProcessHVA];
+\end{pgfonlayer}
+}
+
+\begin{pgfonlayer}{data}
+\path
+% Horizontal edges
+(trim) edge [DataLine] (trim-plant)
+(plant) edge [DataLine] (plant-trim)
+(trim) edge [DataLine] (trim-lin)
+(lin) edge [DataLine] (lin-jac)
+(jac) edge [DataLine] (jac-plant)
+(plant) edge [DataLine] (plant-jac)
+(jac) edge [DataLine] (jac-lin)
+(lin) edge [DataLine] (lin-modes)
+(trim) edge [DataLine] (trim-sim)
+(sim) edge [DataLine] (sim-plant)
+(plant) edge [DataLine] (plant-sim)
+(sim) edge [DataLine] (sim-ctl)
+(ctl) edge [DataLine] (ctl-sim)
+(lin) edge [DataLine] (lin-xchk)
+(sim) edge [DataLine] (sim-xchk)
+(trim) edge [DataLine] (right_output_trim)
+(modes) edge [DataLine] (right_output_modes)
+(sim) edge [DataLine] (right_output_sim)
+(xchk) edge [DataLine] (right_output_xchk)
+% Vertical edges
+(trim-plant) edge [DataLine] (plant)
+(plant-trim) edge [DataLine] (trim)
+(trim-lin) edge [DataLine] (lin)
+(lin-jac) edge [DataLine] (jac)
+(jac-plant) edge [DataLine] (plant)
+(plant-jac) edge [DataLine] (jac)
+(jac-lin) edge [DataLine] (lin)
+(lin-modes) edge [DataLine] (modes)
+(trim-sim) edge [DataLine] (sim)
+(sim-plant) edge [DataLine] (plant)
+(plant-sim) edge [DataLine] (sim)
+(sim-ctl) edge [DataLine] (ctl)
+(ctl-sim) edge [DataLine] (sim)
+(lin-xchk) edge [DataLine] (xchk)
+(sim-xchk) edge [DataLine] (xchk)
+(trim) edge [DataLine] (output_trim)
+(sim) edge [DataLine] (output_sim)
+(ctl) edge [DataLine] (output_ctl);
+\end{pgfonlayer}
+
+\end{tikzpicture}

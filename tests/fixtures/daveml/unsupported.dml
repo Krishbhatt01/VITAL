@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DAVEfunc xmlns="http://daveml.org/2010/DAVEML">
+  <fileHeader name="VITAL fixture"><author name="VITAL test fixture"/><creationDate date="2026-09-29"/></fileHeader>
+  <variableDef name="a" varID="a" units="nd"><isInput/></variableDef>
+  <variableDef name="f" varID="f" units="nd"><calculation><math xmlns="http://www.w3.org/1998/Math/MathML"><apply><factorial/><ci>a</ci></apply></math></calculation><isOutput/></variableDef>
+</DAVEfunc>

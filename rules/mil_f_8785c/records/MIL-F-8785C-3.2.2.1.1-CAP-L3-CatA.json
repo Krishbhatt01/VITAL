@@ -1,0 +1,66 @@
+{
+  "id": "MIL-F-8785C-3.2.2.1.1-CAP-L3-CatA",
+  "title": "Short-period frequency / acceleration sensitivity (Figure 1, Category A): Level 3, Category A",
+  "ruleset": {
+    "name": "MIL-F-8785C",
+    "revision": "5 November 1980 (supersedes MIL-F-8785B)",
+    "basis": "Class IV; bare airframe; the classical modes of the linear model are the equivalent system (3.1.12)"
+  },
+  "class": "Q-SPEC",
+  "source": {
+    "document": "MIL-F-8785C (5 Nov 1980)",
+    "paragraph": "3.2.2.1.1",
+    "page": "14 (PDF 13)",
+    "table_or_figure": "Figure 1",
+    "candidate_id": "MIL-F-8785C-3.2.2.1.1-CAP-L3-CatA",
+    "extract_quote": "CAP ≥ 0.16 (\"LEVELS 2 & 3\" line), no upper limit",
+    "transcribed_by": "agent fq (M6) from rules/mil_f_8785c/candidates_from_extract.json and docs/MIL8785C_EXTRACT.md",
+    "verified": false
+  },
+  "applicability": {
+    "aircraft_class": [
+      "IV"
+    ],
+    "flight_phase_category": [
+      "A"
+    ]
+  },
+  "group": "3.2.2.1.1-CatA",
+  "metric": "CAP",
+  "criterion": {
+    "type": "levels",
+    "levels": [
+      {
+        "level": 3,
+        "category": "A",
+        "min": 0.16,
+        "strict": false
+      }
+    ]
+  },
+  "scale": 0.16,
+  "scale_basis": "the magnitude of the lower bound",
+  "conditions": {
+    "file": "rules/mil_f_8785c/conditions_f16.json",
+    "axes": [
+      "h_ft",
+      "mach",
+      "cg_pct_mac"
+    ],
+    "search": "grid, optional one-step local refinement around the critical point"
+  },
+  "status_policy": {
+    "OK": "use",
+    "DIVERGENT": "fail",
+    "INFEASIBLE": "exclude_and_count",
+    "NOT_CONVERGED": "exclude_and_count",
+    "OUT_OF_DATA_ENVELOPE": "exclude_and_count",
+    "ERROR": "exclude_and_count",
+    "NOT_OSCILLATORY": "exclude_and_count",
+    "UNCLASSIFIED": "exclude_and_count",
+    "MODE_MISSING": "exclude_and_count",
+    "NOT_APPLICABLE": "not_applicable",
+    "rule": "No status other than OK can improve a verdict (FC-702); a DIVERGENT point fails every Level; no usable point gives NOT_ASSESSABLE (FC-701)"
+  },
+  "notes": "CAP = omega_nsp^2/(n/alpha), omega in rad/s, n/alpha in g/rad. Boundaries are straight lines of constant omega^2/(n/alpha) on log-log paper, labeled on the figure. Values of n/alpha outside the plotted range (1-100 g/rad) are defined by straight-line extensions. Equivalent-system parameters apply (3.1.12). Figure 1."
+}

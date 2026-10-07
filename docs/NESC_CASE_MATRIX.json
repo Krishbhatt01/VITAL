@@ -1,0 +1,5463 @@
+{
+ "description": "NESC atmospheric check-cases 1-16 (excluding 14 and 17) as reproduced by VITAL. Every value is taken from NASA/TM-2015-218675 Vols I-II, Initial_Conditions.xlsx, the DAVE-ML files or the reference CSVs, with citations; see docs/nesc/NESC_EXTRACT_*.md. The band is pre-registered (ADR-009) before any VITAL run.",
+ "band_rule": "pass if VITAL(t) in [min_s ref_s(t) - delta, max_s ref_s(t) + delta] over sims s not excluded, delta = max(floor, rel_floor*max_t|ref|, k*(max_s-min_s)(t)), on the reference time base (linear interpolation of VITAL onto reference times)",
+ "constants_source": "TM Vol II Table 73 p.93 (ADR-008)",
+ "common_f16": {
+  "earth": "WGS-84 ellipsoid, rotating; re=6378137.0 m (20925646.32546 ft), 1/f=298.257223563, omegaE=7.292115e-5 rad/s (V2 Table 73 p.93/PDF97). XLSX uses Re=20925646.99508 ft, omega=7.292113023867704e-5 rad/s, mu=1.407644311e16 ft3/s2 (Atmos!D5:D9)",
+  "gravity": "J2: mu=3.986004418e14 m3/s2 (1.407644175720511e16 ft3/s2), J2=0.00108262982, eqs 29-31 V2 p.47/PDF51",
+  "atmosphere": "US Standard 1976 (V2 B.5.1 p.48/PDF52)",
+  "wind": "none (still air)",
+  "cm": "25% MAC (V2 p.604/PDF608; README.html:1234); MRC 35% MAC",
+  "record_dt_s": 0.1,
+  "csv_header_sim_02": "time,feVelocity_ft_s_X,feVelocity_ft_s_Y,feVelocity_ft_s_Z,altitudeMsl_ft,longitude_deg,latitude_deg,localGravity_ft_s2,eulerAngle_deg_Yaw,eulerAngle_deg_Pitch,eulerAngle_deg_Roll,bodyAngularRateWrtEi_deg_s_Roll,bodyAngularRateWrtEi_deg_s_Pitch,bodyAngularRateWrtEi_deg_s_Yaw,altitudeRateWrtMsl_ft_min,speedOfSound_ft_s,airDensity_slug_ft3,ambientPressure_lbf_ft2,ambientTemperature_dgR,aero_bodyForce_lbf_X,aero_bodyForce_lbf_Y,aero_bodyForce_lbf_Z,aero_bodyMoment_ftlbf_L,aero_bodyMoment_ftlbf_M,aero_bodyMoment_ftlbf_N,mach,trueAirspeed_nmi_h",
+  "csv_header_sim_04": "time,eiPosition_ft_X,eiPosition_ft_Y,eiPosition_ft_Z,eiVelocity_ft_s_X,eiVelocity_ft_s_Y,eiVelocity_ft_s_Z,feVelocity_ft_s_X,feVelocity_ft_s_Y,feVelocity_ft_s_Z,altitudeMsl_ft,longitude_deg,latitude_deg,localGravity_ft_s2,eulerAngle_deg_Yaw,eulerAngle_deg_Pitch,eulerAngle_deg_Roll,bodyAngularRateWrtEi_deg_s_Roll,bodyAngularRateWrtEi_deg_s_Pitch,bodyAngularRateWrtEi_deg_s_Yaw,speedOfSound_ft_s,airDensity_slug_ft3,ambientPressure_lbf_ft2,ambientTemperature_dgR,aero_bodyForce_lbf_X,aero_bodyForce_lbf_Y,aero_bodyForce_lbf_Z,aero_bodyMoment_ftlbf_L,aero_bodyMoment_ftlbf_M,aero_bodyMoment_ftlbf_N,mach,dynamicPressure_lbf_ft2",
+  "csv_header_sim_05": "time,eiPosition_ft_X,eiPosition_ft_Y,eiPosition_ft_Z,gePosition_ft_X,gePosition_ft_Y,gePosition_ft_Z,eiVelocity_ft_s_X,eiVelocity_ft_s_Y,eiVelocity_ft_s_Z,feVelocity_ft_s_X,feVelocity_ft_s_Y,feVelocity_ft_s_Z,altitudeMsl_ft,longitude_deg,latitude_deg,localGravity_ft_s2,eulerAngle_deg_Yaw,eulerAngle_deg_Pitch,eulerAngle_deg_Roll,bodyAngularRateWrtEi_deg_s_Roll,bodyAngularRateWrtEi_deg_s_Pitch,bodyAngularRateWrtEi_deg_s_Yaw,altitudeRateWrtMsl_ft_min,speedOfSound_ft_s,airDensity_slug_ft3,ambientPressure_lbf_ft2,ambientTemperature_dgR,aero_bodyForce_lbf_X,aero_bodyForce_lbf_Y,aero_bodyForce_lbf_Z,aero_bodyMoment_ftlbf_L,aero_bodyMoment_ftlbf_M,aero_bodyMoment_ftlbf_N,mach,dynamicPressure_lbf_ft2,trueAirspeed_nmi_h,feVelocity_ft_s_Z",
+  "criterion_global": "none (V1 p.10/PDF14); Appendix E eq.38 max % diff vs ensemble avg, first 8 s ignored, SIM 2 excluded (V2 pp.588-590/PDF592-594)"
+ },
+ "cases": [
+  {
+   "id": "1",
+   "title": "Dragless sphere",
+   "vehicle": "sphere/brick",
+   "earth": "WGS-84 ellipsoid (re=20925646.32546 ft, 1/f=298.257223563); rotation yes, 7.292115e-5 rad/s",
+   "gravity": "J2 gravitation (eqs 29-31), mu=1.407644175720511e16 ft3/s2, J2=0.00108262982; CSV localGravity excludes centrifugal",
+   "atmosphere": "US Standard Atmosphere 1976",
+   "wind": "none",
+   "vehicle_files": [
+    "cannonball_inertia.dml",
+    "cannonball_aero.dml (CD forced to 0)"
+   ],
+   "ic": {
+    "lat_deg": 0,
+    "lon_deg": 0,
+    "alt_ft": 30000,
+    "v_ned_ft_s": [
+     0,
+     0,
+     0
+    ],
+    "euler_rpy_deg": [
+     0,
+     0,
+     0
+    ],
+    "rate_earth_rel_body_deg_s": [
+     -0.004178073,
+     0,
+     0
+    ],
+    "rate_inertial_body_deg_s": [
+     0,
+     0,
+     0
+    ]
+   },
+   "duration_s": 30,
+   "csv_columns": "H1..H6 per sim (see section 0.6); sim_05 = H5",
+   "sims": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "criterion_in_TM": "none stated (Table 77 achieved max 0.139%)",
+   "pages": "V2 p.12 (PDF16), p.56-57 (PDF60-61), p.93 (PDF97), p.97-109 (PDF101-113), p.591 (PDF595); V1 p.15 (PDF19)",
+   "controller": "none",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft at the equator"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4)"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589)"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "2",
+   "title": "Tumbling brick with no damping or drag",
+   "vehicle": "sphere/brick",
+   "earth": "WGS-84 ellipsoid; rotation yes, 7.292115e-5 rad/s",
+   "gravity": "J2 gravitation",
+   "atmosphere": "US Standard Atmosphere 1976",
+   "wind": "none",
+   "vehicle_files": [
+    "brick_inertia.dml",
+    "brick_aero.dml (all coefficients forced to 0)"
+   ],
+   "ic": {
+    "lat_deg": 0,
+    "lon_deg": 0,
+    "alt_ft": "CONFLICT: Table 26 and XLSX = 0; text and all CSVs = 30000",
+    "v_ned_ft_s": [
+     0,
+     0,
+     0
+    ],
+    "euler_rpy_deg": [
+     0,
+     0,
+     0
+    ],
+    "rate_earth_rel_body_deg_s": [
+     9.995821927,
+     20,
+     30
+    ],
+    "rate_inertial_body_deg_s": [
+     10,
+     20,
+     30
+    ]
+   },
+   "duration_s": 30,
+   "csv_columns": "sim_05 = H5",
+   "sims": [
+    1,
+    2,
+    4,
+    5,
+    6
+   ],
+   "criterion_in_TM": "none stated (Table 77 max 0.133%)",
+   "pages": "V2 p.13 (PDF17), p.57-58 (PDF61-62), p.110-122 (PDF114-126), p.591",
+   "controller": "none",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft at the equator"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4)"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589)"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "3",
+   "title": "Tumbling brick with damping but no drag",
+   "vehicle": "sphere/brick",
+   "earth": "WGS-84 ellipsoid; rotation yes, 7.292115e-5 rad/s",
+   "gravity": "J2 gravitation",
+   "atmosphere": "US Standard Atmosphere 1976",
+   "wind": "none",
+   "vehicle_files": [
+    "brick_inertia.dml",
+    "brick_aero.dml (CD forced to 0; Clp=Cmq=Cnr=-1)"
+   ],
+   "ic": {
+    "lat_deg": 0,
+    "lon_deg": 0,
+    "alt_ft": "CONFLICT: Table 27 and XLSX = 0; CSVs = 30000",
+    "v_ned_ft_s": [
+     0,
+     0,
+     0
+    ],
+    "euler_rpy_deg": [
+     0,
+     0,
+     0
+    ],
+    "rate_earth_rel_body_deg_s": [
+     9.995821927,
+     20,
+     30
+    ],
+    "rate_inertial_body_deg_s": [
+     10,
+     20,
+     30
+    ]
+   },
+   "duration_s": 30,
+   "csv_columns": "sim_05 = H5",
+   "sims": [
+    1,
+    2,
+    4,
+    5,
+    6
+   ],
+   "criterion_in_TM": "none stated (Table 77 max 0.972%)",
+   "pages": "V2 p.13, p.58 (PDF62), p.123-135 (PDF127-139), p.591",
+   "controller": "none",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft at the equator"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4)"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589)"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "4",
+   "title": "Sphere with round non-rotating Earth",
+   "vehicle": "sphere/brick",
+   "earth": "sphere r2=20902254.5305 ft; rotation no",
+   "gravity": "inverse square, mu=1.407644175720511e16 ft3/s2",
+   "atmosphere": "US Standard Atmosphere 1976",
+   "wind": "none",
+   "vehicle_files": [
+    "cannonball_inertia.dml",
+    "cannonball_aero.dml (CD=0.1)"
+   ],
+   "ic": {
+    "lat_deg": 0,
+    "lon_deg": 0,
+    "alt_ft": 30000,
+    "v_ned_ft_s": [
+     0,
+     0,
+     0
+    ],
+    "euler_rpy_deg": [
+     0,
+     0,
+     0
+    ],
+    "rate_earth_rel_body_deg_s": [
+     10,
+     20,
+     30
+    ],
+    "rate_inertial_body_deg_s": [
+     10,
+     20,
+     30
+    ]
+   },
+   "duration_s": 30,
+   "csv_columns": "sim_05 = H5",
+   "sims": [
+    2,
+    4,
+    5,
+    6
+   ],
+   "criterion_in_TM": "none stated (Table 77 max 9.998%, SIM 2)",
+   "pages": "V2 p.38-39 (PDF42-43), p.47 (PDF51), p.58-59 (PDF62-63), p.93, p.136-148 (PDF140-152), p.591",
+   "controller": "none",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft at the equator"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4); SIM 2 excluded (TM Vol II p.589)"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589)"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 excluded (TM Vol II p.589)"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "5",
+   "title": "Sphere with round rotating Earth",
+   "vehicle": "sphere/brick",
+   "earth": "sphere r2=20902254.5305 ft; rotation yes, 7.292115e-5 rad/s",
+   "gravity": "inverse square",
+   "atmosphere": "US Standard Atmosphere 1976",
+   "wind": "none",
+   "vehicle_files": [
+    "cannonball_inertia.dml",
+    "cannonball_aero.dml (CD=0.1)"
+   ],
+   "ic": {
+    "lat_deg": 0,
+    "lon_deg": 0,
+    "alt_ft": 30000,
+    "v_ned_ft_s": [
+     0,
+     0,
+     0
+    ],
+    "euler_rpy_deg": [
+     0,
+     0,
+     0
+    ],
+    "rate_earth_rel_body_deg_s": [
+     9.995821927,
+     20,
+     30
+    ],
+    "rate_inertial_body_deg_s": [
+     10,
+     20,
+     30
+    ]
+   },
+   "duration_s": 30,
+   "csv_columns": "sim_05 = H5",
+   "sims": [
+    2,
+    4,
+    5,
+    6
+   ],
+   "criterion_in_TM": "none stated (Table 77 max 10.011%, SIM 2)",
+   "pages": "V2 p.59 (PDF63), p.149-161 (PDF153-165), p.591",
+   "controller": "none",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft at the equator"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4); SIM 2 excluded (TM Vol II p.589)"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589)"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 excluded (TM Vol II p.589)"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "6",
+   "title": "Sphere with ellipsoidal rotating Earth",
+   "vehicle": "sphere/brick",
+   "earth": "WGS-84 ellipsoid; rotation yes, 7.292115e-5 rad/s",
+   "gravity": "J2 gravitation",
+   "atmosphere": "US Standard Atmosphere 1976",
+   "wind": "none",
+   "vehicle_files": [
+    "cannonball_inertia.dml",
+    "cannonball_aero.dml (CD=0.1)"
+   ],
+   "ic": {
+    "lat_deg": 0,
+    "lon_deg": 0,
+    "alt_ft": 30000,
+    "v_ned_ft_s": [
+     0,
+     0,
+     0
+    ],
+    "euler_rpy_deg": [
+     0,
+     0,
+     0
+    ],
+    "rate_earth_rel_body_deg_s": [
+     -0.004178073,
+     0,
+     0
+    ],
+    "rate_inertial_body_deg_s": [
+     0,
+     0,
+     0
+    ]
+   },
+   "duration_s": 30,
+   "csv_columns": "sim_05 = H5",
+   "sims": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "criterion_in_TM": "none stated (Table 77 max 0.142%)",
+   "pages": "V2 p.59-60 (PDF63-64), p.162-174 (PDF166-178), p.591",
+   "controller": "none",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft at the equator"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4)"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589)"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      3
+     ],
+     "note": "SIM 3 excluded (TM Vol II p.589)"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "7",
+   "title": "Sphere with steady wind",
+   "vehicle": "sphere/brick",
+   "earth": "WGS-84 ellipsoid; rotation yes, 7.292115e-5 rad/s",
+   "gravity": "J2 gravitation",
+   "atmosphere": "US Standard Atmosphere 1976",
+   "wind": "steady 20 ft/s from due west (airmass moving east); vertical component NOT FOUND",
+   "vehicle_files": [
+    "cannonball_inertia.dml",
+    "cannonball_aero.dml (CD=0.1)"
+   ],
+   "ic": {
+    "lat_deg": 0,
+    "lon_deg": 0,
+    "alt_ft": 30000,
+    "v_ned_ft_s": [
+     0,
+     0,
+     0
+    ],
+    "euler_rpy_deg": [
+     0,
+     0,
+     0
+    ],
+    "rate_earth_rel_body_deg_s": [
+     -0.004178073,
+     0,
+     0
+    ],
+    "rate_inertial_body_deg_s": [
+     0,
+     0,
+     0
+    ]
+   },
+   "duration_s": 30,
+   "csv_columns": "sim_05 = H5",
+   "sims": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "criterion_in_TM": "none stated (Table 77 max 0.142%)",
+   "pages": "V2 p.60 (PDF64), p.175-187 (PDF179-191), p.591, p.604",
+   "controller": "none",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft at the equator"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4)"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589)"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      3
+     ],
+     "note": "SIM 3 excluded (TM Vol II p.589)"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "8",
+   "title": "Sphere with wind shear",
+   "vehicle": "sphere/brick",
+   "earth": "WGS-84 ellipsoid; rotation yes, 7.292115e-5 rad/s",
+   "gravity": "J2 gravitation",
+   "atmosphere": "US Standard Atmosphere 1976",
+   "wind": "Vwind = (0.003*h - 20) ft/s from west, h = height MSL in ft (70 ft/s at 30000 ft)",
+   "vehicle_files": [
+    "cannonball_inertia.dml",
+    "cannonball_aero.dml (CD=0.1)"
+   ],
+   "ic": {
+    "lat_deg": 0,
+    "lon_deg": 0,
+    "alt_ft": 30000,
+    "v_ned_ft_s": [
+     0,
+     0,
+     0
+    ],
+    "euler_rpy_deg": [
+     0,
+     0,
+     0
+    ],
+    "rate_earth_rel_body_deg_s": [
+     -0.004178073,
+     0,
+     0
+    ],
+    "rate_inertial_body_deg_s": [
+     0,
+     0,
+     0
+    ]
+   },
+   "duration_s": 30,
+   "csv_columns": "sim_05 = H5",
+   "sims": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "criterion_in_TM": "none stated (Table 77 max 0.153%)",
+   "pages": "V2 p.60-61 (PDF64-65), p.188-200 (PDF192-204), p.591",
+   "controller": "none",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft at the equator"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4)"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589)"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      3
+     ],
+     "note": "SIM 3 excluded (TM Vol II p.589)"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "9",
+   "title": "Sphere launched ballistically eastward along Equator",
+   "vehicle": "sphere/brick",
+   "earth": "WGS-84 ellipsoid; rotation yes, 7.292115e-5 rad/s",
+   "gravity": "J2 gravitation",
+   "atmosphere": "US Standard Atmosphere 1976",
+   "wind": "none",
+   "vehicle_files": [
+    "cannonball_inertia.dml",
+    "cannonball_aero.dml (CD=0.1)"
+   ],
+   "ic": {
+    "lat_deg": 0,
+    "lon_deg": 0,
+    "alt_ft": 0,
+    "v_ned_ft_s": [
+     0,
+     1000,
+     -1000
+    ],
+    "euler_rpy_deg": [
+     0,
+     0,
+     90
+    ],
+    "rate_earth_rel_body_deg_s": [
+     0,
+     0,
+     0
+    ],
+    "rate_inertial_body_deg_s": [
+     0,
+     -0.004178073,
+     0
+    ]
+   },
+   "duration_s": 30,
+   "csv_columns": "sim_05 = H5",
+   "sims": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "criterion_in_TM": "none stated (Table 77 max 0.144%)",
+   "pages": "V2 p.61 (PDF65), p.201-214 (PDF205-218), p.591",
+   "controller": "none",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft at the equator"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4)"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589)"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "10",
+   "title": "Sphere launched ballistically northward along Prime Meridian",
+   "vehicle": "sphere/brick",
+   "earth": "WGS-84 ellipsoid; rotation yes, 7.292115e-5 rad/s",
+   "gravity": "J2 gravitation",
+   "atmosphere": "US Standard Atmosphere 1976",
+   "wind": "none",
+   "vehicle_files": [
+    "cannonball_inertia.dml",
+    "cannonball_aero.dml (CD=0.1)"
+   ],
+   "ic": {
+    "lat_deg": 0,
+    "lon_deg": 0,
+    "alt_ft": 0,
+    "v_ned_ft_s": [
+     1000,
+     0,
+     -1000
+    ],
+    "euler_rpy_deg": [
+     0,
+     0,
+     0
+    ],
+    "rate_earth_rel_body_deg_s": [
+     0,
+     0,
+     0
+    ],
+    "rate_inertial_body_deg_s": [
+     0.004178073,
+     0,
+     0
+    ]
+   },
+   "duration_s": 30,
+   "csv_columns": "sim_05 = H5",
+   "sims": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "criterion_in_TM": "none stated (Table 77 max 0.281%)",
+   "pages": "V2 p.61-62 (PDF65-66), p.215-227 (PDF219-231), p.591",
+   "controller": "none",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [],
+     "note": "3e-6 deg ~ 1 ft at the equator"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4)"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589)"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": ""
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [],
+     "note": ""
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "11",
+   "title": "Subsonic F-16 trimmed flight across planet / Check-case 11 \u2013 steady flight of a subsonic aircraft / 11: Subsonic winged flight (trimmed straight & level)",
+   "vehicle": "F-16 (F16_*.dml)",
+   "earth": "WGS-84 rotating",
+   "gravity": "J2",
+   "atmosphere": "US 1976",
+   "wind": "none",
+   "vehicle_files": [
+    "F16_aero.dml",
+    "F16_prop.dml",
+    "F16_inertia.dml",
+    "F16_control.dml",
+    "F16_gnc.dml"
+   ],
+   "ic": {
+    "lat_deg": 36.01916667,
+    "lon_deg": -75.67444444,
+    "alt_ft_msl": 10013,
+    "v_ned_ft_s": [
+     400,
+     400,
+     0
+    ],
+    "tas_ft_s": 565.685,
+    "ktas": 335.15,
+    "mach_approx": 0.525,
+    "keas_approx": 287.98,
+    "euler_deg_rpy": [
+     0,
+     0,
+     45
+    ],
+    "body_rate_deg_s": [
+     0,
+     0,
+     0
+    ],
+    "trim": "straight & level; vary pitch, elevator, throttle; SAS/AP off during trim",
+    "xlsx_col": "O"
+   },
+   "duration_s": 180,
+   "csv_columns": "see common.csv_header_sim_0X (identical)",
+   "sims": [
+    2,
+    4,
+    5
+   ],
+   "criterion_in_TM": "none stated; Table 79 worst 2.786 %",
+   "pages": "V2 p.62/PDF66 (C.1.11, Table 35); V2 pp.228-229/PDF232-233 (D.1.11); V2 Table 79 p.593/PDF597; V1 Table 6.3-1 p.16/PDF20",
+   "controller": "none (unaugmented, SAS off, no pilot inputs)",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [
+      2
+     ],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "3e-6 deg ~ 1 ft; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "3e-6 deg ~ 1 ft at the equator; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4); F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589); F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    }
+   ]
+  },
+  {
+   "id": "12",
+   "title": "Supersonic F-16 trimmed flight across planet / Check-case 12 \u2013 steady flight of a supersonic aircraft",
+   "vehicle": "F-16 (F16_*.dml)",
+   "earth": "WGS-84 rotating",
+   "gravity": "J2",
+   "atmosphere": "US 1976",
+   "wind": "none",
+   "vehicle_files": [
+    "F16_aero.dml",
+    "F16_prop.dml",
+    "F16_inertia.dml",
+    "F16_control.dml",
+    "F16_gnc.dml"
+   ],
+   "ic": {
+    "lat_deg": 36.01916667,
+    "lon_deg": -75.67444444,
+    "alt_ft_msl": 30013,
+    "v_ned_ft_s": [
+     1414.213562,
+     1414.213562,
+     0
+    ],
+    "tas_ft_s": 2000,
+    "mach_approx": 2.01,
+    "keas": "NOT FOUND",
+    "euler_deg_rpy": [
+     0,
+     0,
+     45
+    ],
+    "body_rate_deg_s": [
+     0,
+     0,
+     0
+    ],
+    "trim": "straight & level; vary pitch, elevator, throttle",
+    "xlsx_col": "P"
+   },
+   "duration_s": 180,
+   "csv_columns": "see common",
+   "sims": [
+    2,
+    4,
+    5
+   ],
+   "criterion_in_TM": "none stated; Table 79 worst 0.631 % (vertical velocity excluded)",
+   "pages": "V2 p.63/PDF67 (C.1.12, Table 36); V2 p.242/PDF246 (D.1.12)",
+   "controller": "none (unaugmented, SAS off)",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [
+      2
+     ],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "3e-6 deg ~ 1 ft; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "3e-6 deg ~ 1 ft at the equator; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4); F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589); F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    }
+   ]
+  },
+  {
+   "id": "13.1",
+   "title": "Check-case 13.1 \u2013 altitude change of a subsonic aircraft",
+   "vehicle": "F-16 (F16_*.dml)",
+   "earth": "WGS-84 rotating",
+   "gravity": "J2",
+   "atmosphere": "US 1976",
+   "wind": "none",
+   "vehicle_files": [
+    "F16_aero.dml",
+    "F16_prop.dml",
+    "F16_inertia.dml",
+    "F16_control.dml",
+    "F16_gnc.dml"
+   ],
+   "ic": {
+    "same_as": "same as case 11 (XLSX col Q)"
+   },
+   "duration_s": 20,
+   "csv_columns": "see common",
+   "sims": [
+    2,
+    4,
+    5
+   ],
+   "criterion_in_TM": "none stated; Table 79 worst 1.080 %",
+   "pages": "V2 pp.63-64/PDF67-68 (C.1.13, Table 37); V2 pp.255-256/PDF259-260 (D.1.13)",
+   "controller": "F16_control.dml, apOn=1, sasOn=1; t=5 s altitudeMslCommand +100 ft; trueBaseCourseCommand 45 deg, lateralDeviationError 0; KEAS cmd ~287.98 (implied)",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [
+      2
+     ],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "3e-6 deg ~ 1 ft; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "3e-6 deg ~ 1 ft at the equator; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4); F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589); F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    }
+   ]
+  },
+  {
+   "id": "13.2",
+   "title": "Check-case 13.2 \u2013 velocity change of a subsonic aircraft",
+   "vehicle": "F-16 (F16_*.dml)",
+   "earth": "WGS-84 rotating",
+   "gravity": "J2",
+   "atmosphere": "US 1976",
+   "wind": "none",
+   "vehicle_files": [
+    "F16_aero.dml",
+    "F16_prop.dml",
+    "F16_inertia.dml",
+    "F16_control.dml",
+    "F16_gnc.dml"
+   ],
+   "ic": {
+    "same_as": "same as case 11 (XLSX col R)"
+   },
+   "duration_s": 20,
+   "csv_columns": "see common",
+   "sims": [
+    2,
+    4,
+    5
+   ],
+   "criterion_in_TM": "none stated; Table 79 worst 0.218 %",
+   "pages": "V2 p.64/PDF68 (C.1.14, Table 38); V2 p.269/PDF273 (D.1.14); README.html:1967-1970",
+   "controller": "F16_control.dml AP+SAS; t=5 s equivalentAirspeedCommand -5 kt (to 282.98 KEAS); SIM 2 used -10 kt (README also says 10 kt)",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [
+      2
+     ],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "3e-6 deg ~ 1 ft; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "3e-6 deg ~ 1 ft at the equator; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4); F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589); F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    }
+   ]
+  },
+  {
+   "id": "13.3",
+   "title": "Check-case 13.3 \u2013 course change of a subsonic aircraft",
+   "vehicle": "F-16 (F16_*.dml)",
+   "earth": "WGS-84 rotating",
+   "gravity": "J2",
+   "atmosphere": "US 1976",
+   "wind": "none",
+   "vehicle_files": [
+    "F16_aero.dml",
+    "F16_prop.dml",
+    "F16_inertia.dml",
+    "F16_control.dml",
+    "F16_gnc.dml"
+   ],
+   "ic": {
+    "same_as": "same as case 11 (XLSX col S)"
+   },
+   "duration_s": 30,
+   "csv_columns": "see common",
+   "sims": [
+    2,
+    4,
+    5
+   ],
+   "criterion_in_TM": "none stated; Table 79 worst 14.947 %",
+   "pages": "V2 pp.64-65/PDF68-69 (C.1.15, Table 39); V2 p.282/PDF286 (D.1.15)",
+   "controller": "F16_control.dml AP+SAS; t=15 s trueBaseCourseCommand +15 deg (45->60), lateralDeviationError=0",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [
+      2
+     ],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "3e-6 deg ~ 1 ft; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "3e-6 deg ~ 1 ft at the equator; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4); F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589); F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    }
+   ]
+  },
+  {
+   "id": "13.4",
+   "title": "Check-case 13.4 \u2013 lateral offset maneuver of a subsonic aircraft",
+   "vehicle": "F-16 (F16_*.dml)",
+   "earth": "WGS-84 rotating",
+   "gravity": "J2",
+   "atmosphere": "US 1976",
+   "wind": "none",
+   "vehicle_files": [
+    "F16_aero.dml",
+    "F16_prop.dml",
+    "F16_inertia.dml",
+    "F16_control.dml",
+    "F16_gnc.dml"
+   ],
+   "ic": {
+    "same_as": "same as case 11 (XLSX col T)"
+   },
+   "duration_s": 60,
+   "csv_columns": "see common",
+   "sims": [
+    2,
+    4,
+    5
+   ],
+   "criterion_in_TM": "none stated; Table 79 worst 16.312 %",
+   "pages": "V2 p.65/PDF69 (C.1.16, Table 40); V2 pp.295-296/PDF299-300 (D.1.16)",
+   "controller": "F16_control.dml AP+SAS; t=20 s 2,000-ft lateral course offset to the right via lateralDeviationError (+right), recomputed each step by user logic (initial -2000 ft); base course 45 deg",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [
+      2
+     ],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "3e-6 deg ~ 1 ft; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "3e-6 deg ~ 1 ft at the equator; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4); F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589); F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    }
+   ]
+  },
+  {
+   "id": "15",
+   "title": "Circular F-16 flight around North pole / Check-case 15 \u2013 circumnavigation of the North pole",
+   "vehicle": "F-16 (F16_*.dml)",
+   "earth": "WGS-84 rotating",
+   "gravity": "J2",
+   "atmosphere": "US 1976",
+   "wind": "none",
+   "vehicle_files": [
+    "F16_aero.dml",
+    "F16_prop.dml",
+    "F16_inertia.dml",
+    "F16_control.dml",
+    "F16_gnc.dml"
+   ],
+   "ic": {
+    "lat_deg": 89.95,
+    "lon_deg": -45,
+    "alt_ft_msl": 10000,
+    "v_ned_ft_s": [
+     0,
+     563.643,
+     0
+    ],
+    "ktas_approx": 333.95,
+    "mach_approx": 0.523,
+    "keas_approx_computed": 287.0,
+    "euler_deg_rpy": [
+     0,
+     0,
+     90
+    ],
+    "body_rate_deg_s": [
+     0,
+     0,
+     0
+    ],
+    "trim": "trimmed straight and level",
+    "xlsx_col": "V"
+   },
+   "duration_s": 180,
+   "csv_columns": "see common",
+   "sims": [
+    2,
+    4,
+    5
+   ],
+   "criterion_in_TM": "none stated; Table 79 worst 11.845 %",
+   "pages": "V2 pp.66-67/PDF70-71 (C.1.18, Table 42); V2 pp.309-311/PDF313-315 (D.1.17); V2 p.26/PDF30",
+   "controller": "F16_gnc.dml, selectCircumnavigator_disc=1, apOn=sasOn=1 from first time step; 3-nm CCW circle around N pole; geLatitude/geLongitude fed back; alt/KEAS command values NOT FOUND",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [
+      2
+     ],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "3e-6 deg ~ 1 ft; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "3e-6 deg ~ 1 ft at the equator; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4); F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589); F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    }
+   ]
+  },
+  {
+   "id": "16",
+   "title": "Circular F-16 flight around Equator/dateline intersection / Check-case 16 \u2013 circular flight around the Equator-IDL intersection",
+   "vehicle": "F-16 (F16_*.dml)",
+   "earth": "WGS-84 rotating",
+   "gravity": "J2",
+   "atmosphere": "US 1976",
+   "wind": "none",
+   "vehicle_files": [
+    "F16_aero.dml",
+    "F16_prop.dml",
+    "F16_inertia.dml",
+    "F16_control.dml",
+    "F16_gnc.dml"
+   ],
+   "ic": {
+    "lat_deg": 0,
+    "lon_deg": -179.95,
+    "alt_ft_msl": 10000,
+    "v_ned_ft_s": [
+     563.643,
+     0,
+     0
+    ],
+    "ktas_approx": 333.95,
+    "mach_approx": 0.523,
+    "euler_deg_rpy": [
+     0,
+     0,
+     0
+    ],
+    "body_rate_deg_s": [
+     0,
+     0,
+     0
+    ],
+    "trim": "trimmed straight and level",
+    "xlsx_col": "W"
+   },
+   "duration_s": 180,
+   "csv_columns": "see common",
+   "sims": [
+    2,
+    4,
+    5
+   ],
+   "criterion_in_TM": "none stated; Table 79 worst 19.513 %",
+   "pages": "V2 p.67/PDF71 (C.1.19, Table 43); V2 pp.324-325/PDF328-329 (D.1.18); V2 p.590/PDF594",
+   "controller": "F16_gnc.dml, selectCircumnavigator_disc=0, apOn=sasOn=1 from first step; 3-nm CCW circle around (0, +/-180); alt/KEAS command values NOT FOUND",
+   "band": [
+    {
+     "signal": "altitudeMsl_ft",
+     "floor": 1.0,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft",
+     "exclude_sims": [
+      2
+     ],
+     "note": "~1 ft: TM D.1.6 reports -0.6..0.4 ft spread; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "latitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "3e-6 deg ~ 1 ft; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "longitude_deg",
+     "floor": 3e-06,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "3e-6 deg ~ 1 ft at the equator; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_X",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_Y",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "feVelocity_ft_s_Z",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "localGravity_ft_s2",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "gravitation magnitude, no centrifugal (CONVENTIONS 4); F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Roll",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 Euler angles excluded by the TM (Vol II p.589); F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Pitch",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "eulerAngle_deg_Yaw",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Roll",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Pitch",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "bodyAngularRateWrtEi_deg_s_Yaw",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "deg/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "airDensity_slug_ft3",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "slug/ft3",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "ambientPressure_lbf_ft2",
+     "floor": 0.0,
+     "k": 0.5,
+     "rel_floor": 0.0001,
+     "unit": "lbf/ft2",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "ambientTemperature_dgR",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "degR",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "speedOfSound_ft_s",
+     "floor": 0.01,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "ft/s",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_X",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Y",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyForce_lbf_Z",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_L",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "SIM 2 reports moments about the MRC, not the CM; F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_M",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "aero_bodyMoment_ftlbf_N",
+     "floor": 1e-06,
+     "k": 0.5,
+     "rel_floor": 0.001,
+     "unit": "ft-lbf",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "mach",
+     "floor": 0.0001,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    },
+    {
+     "signal": "trueAirspeed_nmi_h",
+     "floor": 0.05,
+     "k": 0.5,
+     "rel_floor": 0.0,
+     "unit": "kt",
+     "exclude_sims": [
+      2
+     ],
+     "note": "F-16 cases: SIM 2 excluded as the TM does (Vol II p.588-590); envelope from SIM 4 and SIM 5"
+    }
+   ]
+  }
+ ]
+}

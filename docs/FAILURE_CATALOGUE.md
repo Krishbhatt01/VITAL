@@ -1,0 +1,136 @@
+# VITAL failure catalogue
+
+Every failure mode VITAL must detect is listed here with:
+- how it is detected
+- the **exact** error identifier or status it produces
+- the test that proves it
+
+The rule, enforced by `tSpecDocs/catalogueTestsExistOrPlanned`: once a milestone's `tests/M<k>` folder exists, each of its rows must name an existing test method. Rows for milestones not yet started say `PLANNED`.
+
+| ID | Milestone | Failure mode | Detection | Error / status ID | Test |
+|---|---|---|---|---|---|
+| FC-001 | M0 | A stub is reached | stub raises | `vital:notImplemented` | `tests/M0/tRunnerClassification.m#notImplementedIsRedExpected` |
+| FC-002 | M0 | A RED test fails for a reason other than "not implemented" | classifier inspects the exception identifier, not message text | `RED_UNEXPECTED` | `tests/M0/tRunnerClassification.m#otherErrorIsRedUnexpected` |
+| FC-003 | M0 | A RED test fails an ordinary check (possible wrong expectation) | classifier | `RED_SUSPICIOUS` | `tests/M0/tRunnerClassification.m#assertionWithoutNotImplementedIsSuspicious` |
+| FC-004 | M0 | A new test passes before its feature exists (vacuous test) | classifier | `VACUOUS` | `tests/M0/tRunnerClassification.m#passingNewTestInRedIsVacuous` |
+| FC-005 | M0 | An earlier milestone's test breaks | classifier | `REGRESSION` | `tests/M0/tRunnerClassification.m#earlierMilestoneFailureIsRegression` |
+| FC-006 | M0 | Gate declared OK despite unexpected errors or regressions | summary.gateOK | `gateOK=false` | `tests/M0/tRunnerClassification.m#redGateInvalidOnUnexpectedOrRegression` |
+| FC-007 | M0 | Bad milestone name | parser | `vital:test:badMilestone` | `tests/M0/tRunnerClassification.m#badMilestoneNameErrors` |
+| FC-008 | M0 | NaN compared with NaN passes | verifyTol rejects non-finite actual values | verification failure | `tests/M0/tVitalTestCase.m#nanVsNanFails` |
+| FC-009 | M0 | A check has an unknown evidence source | tag validation | `vital:test:badSource` | `tests/M0/tVitalTestCase.m#badSourceErrors` |
+| FC-010 | M0 | Absolute tolerance silently falls back to relative | exclusive modes | verification failure | `tests/M0/tVitalTestCase.m#absModeIgnoresRelTolerance` |
+| FC-011 | M0 | Relative tolerance against a zero expected value | guard | `vital:test:relZeroExpected` | `tests/M0/tVitalTestCase.m#relModeRejectsZeroExpected` |
+| FC-012 | M0 | Sabotage pattern not in the file (silent no-op) | occurrence count | `sabotage:patternNotFound` | `tests/M0/tSabotageHarness.m#missingPatternErrors` |
+| FC-013 | M0 | Sabotage pattern ambiguous | occurrence count | `sabotage:patternAmbiguous` | `tests/M0/tSabotageHarness.m#ambiguousPatternErrors` |
+| FC-014 | M0 | Sabotage target test does not exist | pre-run lookup | `sabotage:targetNotFound` | `tests/M0/tSabotageHarness.m#unknownTargetErrors` |
+| FC-015 | M0 | Sabotage modifies the real tree | SHA-256 tree hash before/after | hash mismatch | `tests/M0/tSabotageHarness.m#originalTreeUnchanged` |
+| FC-016 | M0 | Malformed sabotage definition | loader | `sabotage:badDefinition` | `tests/M0/tSabotageHarness.m#malformedDefinitionErrors` |
+| FC-017 | M0 | Rule record without a full citation | schema | `vital:rule:missingField` | `tests/M0/tSpecDocs.m#ruleSchemaRejectsMissingCitation` |
+| FC-018 | M0 | Rule record with an illegal value | schema | `vital:rule:badValue` | `tests/M0/tSpecDocs.m#ruleSchemaRejectsBadClass` |
+| FC-019 | M0 | Reference data altered or corrupted | SHA-256 against manifest | hash mismatch | `tests/M0/tSpecDocs.m#manifestHashesMatch` |
+| FC-101 | M1 | NaN or Inf passed to a public function | argument validation | `vital:badInput` | `tests/M1/tM1FailureModes.m#nanInfInputRejected` |
+| FC-102 | M1 | Zero quaternion | norm check | `vital:badInput` | `tests/M1/tM1FailureModes.m#zeroQuaternionRejected` |
+| FC-103 | M1 | Non-unit quaternion | norm check (normalize + warn) | `vital:frames:quatNotUnit` | `tests/M1/tM1FailureModes.m#nonUnitQuaternionNormalizedWithWarning` |
+| FC-104 | M1 | Negative mass | validation | `vital:mass:negativeMass` | `tests/M1/tM1FailureModes.m#negativeMassRejected` |
+| FC-105 | M1 | Non-physical inertia (triangle inequality) | validation | `vital:mass:nonPhysicalInertia` | `tests/M1/tM1FailureModes.m#nonPhysicalInertiaRejected` |
+| FC-106 | M1 | Altitude outside the atmosphere model | range check (no silent clamp) | `vital:env:altitudeOutOfRange` | `tests/M1/tM1FailureModes.m#altitudeBelowModelRejected` |
+| FC-107 | M1 | Zero airspeed in air data | guard | `vital:airdata:zeroAirspeed` | `tests/M1/tM1FailureModes.m#zeroAirspeedRejected` |
+| FC-108 | M1 | CAS/EAS requested at or above Mach 1 (subsonic pitot formula invalid) | Mach check | `vital:airdata:supersonic` | `tests/M1/tM1FailureModes.m#supersonicCasRejected` |
+| FC-109 | M1 | Reference comparison attempted with no reference simulations | envelope check | `vital:verify:noReference` | `tests/M1/tEnvelopeCheck.m#noReferenceIsAnError` |
+| FC-110 | M1 | Gate run in a session where startup_vital was not run (VITAL not on the path) | runner adds its own folder to the path | runs normally | `tests/M1/tRunnerIntegrity.m#runnerWorksWithoutStartup` |
+| FC-111 | M1 | A test file fails to load and matlab.unittest silently excludes it | every test file must contribute to the suite | `EXCLUDED` (gate not OK) | `tests/M1/tRunnerIntegrity.m#excludedTestFileFailsGate` |
+| FC-201 | M2 | DAVE-ML variableDef without units | reader | `vital:daveml:missingUnits` | `tests/M2/tDavemlFailures.m#missingUnitsRejected` |
+| FC-202 | M2 | Non-monotonic table breakpoints | reader | `vital:daveml:nonMonotonicBreakpoints` | `tests/M2/tDavemlFailures.m#nonMonotonicBreakpointsRejected` |
+| FC-203 | M2 | Unsupported DAVE-ML / MathML element | reader reports it with its location, never ignores it | `vital:daveml:unsupportedElement` | `tests/M2/tDavemlFailures.m#unsupportedElementIsReportedWithLocation` |
+| FC-204 | M2 | Truncated or malformed XML | DOM parser | `vital:daveml:parseError` | `tests/M2/tDavemlFailures.m#truncatedFileIsParseError` |
+| FC-205 | M2 | Imported model disagrees with its embedded checkData | checkData replay (strict) | `vital:daveml:checkDataMismatch` | `tests/M2/tF16CheckData.m#checkDataMismatchIsDetected` |
+| FC-206 | M2 | Table data length does not match its breakpoint grid | reader | `vital:daveml:tableSize` | `tests/M2/tDavemlFailures.m#tableSizeMismatchRejected` |
+| FC-207 | M2 | Calculation references an undefined variable | reader | `vital:daveml:undefinedVariable` | `tests/M2/tDavemlFailures.m#undefinedVariableRejected` |
+| FC-208 | M2 | Generated model called without a required input | generated code | `vital:daveml:missingInput` | `tests/M2/tDavemlOperators.m#missingInputIsAnError` |
+| FC-209 | M2 | DAVE-ML file does not exist | reader | `vital:daveml:fileNotFound` | `tests/M2/tDavemlFailures.m#missingFileRejected` |
+| FC-301 | M5 | Invalid time step or final time (non-positive, non-finite, tFinal not an integer number of steps), an input switch off a step boundary, or a controller rate that is not an integer divisor of the base rate | validation before integration | `vital:sim:badStep` | `tests/M5/tSimGuards.m#badStepErrors` |
+| FC-302 | M5 | Non-finite state during integration (stage state, stage derivative, or `vital:plant:nonFinite` from the plant) | guard (stop at the last finite state, record reason) | `vital:sim:nanState` | `tests/M5/tSimGuards.m#nanStateStopsAtLastFiniteState` |
+| FC-401 | M3 | Table lookup outside its breakpoints | clip + flag through the plant | `OUT_OF_DATA_ENVELOPE` | `tests/M3/tF16Plant.m#outOfEnvelopeFlagPropagates` |
+| FC-402 | M3 | Plant produces a non-finite derivative | guard after every evaluation | `vital:plant:nonFinite` | `tests/M3/tF16Plant.m#nonFiniteDerivativeRejected` |
+| FC-403 | M3 | Non-finite state or wrong-size control vector passed to the plant | argument validation | `vital:badInput` | `tests/M3/tF16Plant.m#nonFiniteStateRejected` |
+| FC-404 | M3 | CG position outside 0-100 % MAC | configuration validation | `vital:badInput` | `tests/M3/tF16Plant.m#badCgInputRejected` |
+| FC-501 | M4 | Trim needs a control beyond its limit | converged to a bound with residual > tol | `INFEASIBLE` | `tests/M4/tF16Trim.m#controlBoundIsInfeasible` |
+| FC-502 | M4 | Trim beyond α_max of the data or CLmax | stall bound | `INFEASIBLE` (stall-limited) | `tests/M4/tF16Trim.m#stallLimitedIsInfeasible` |
+| FC-503 | M4 | Trim does not converge | residual > tol away from bounds, after retries | `NOT_CONVERGED` | `tests/M4/tF16Trim.m#nonConvergenceIsReported` |
+| FC-504 | M4 | Non-square trim specification | unknown/residual count | `vital:trim:notSquare` | `tests/M4/tF16Trim.m#nonSquareSpecificationRejected` |
+| FC-505 | M4 | Invalid trim condition (V ≤ 0, unknown type) | validation | `vital:trim:badCondition` | `tests/M4/tF16Trim.m#badConditionRejected` |
+| FC-508 | M4 | Trim converges but a table input was clamped (outside the published data) | status from plant flag | `OUT_OF_DATA_ENVELOPE` | `tests/M4/tF16Trim.m#outOfDataEnvelopeIsNotOk` |
+| FC-506 | M5 | Linearization step-size plateau not found | step study: three successive central-difference estimates must agree within RelTol 1e-6 of the weighted column | `NOT_CONVERGED` (linearization; column NaN, reason names it) | `tests/M5/tLinearJacobian.m#noisyFunctionHasNoPlateau` |
+| FC-507 | M5 | Mode is not oscillatory (e.g. short period split into real roots) | mode classifier: roots of the group are real | `NOT_OSCILLATORY` (wn, zeta, period NaN) | `tests/M5/tModes.m#shortPeriodSplitIsNotOscillatory` |
+| FC-509 | M4 | Level-flight gravity requested with non-finite position or velocity | argument validation | `vital:badInput` | `tests/M4/tLevelFlightGravity.m#nonFiniteInputRejected` |
+| FC-601 | M5 | Quaternion norm drift beyond tolerance | guard on `y.quatNorm` | `vital:sim:quatNorm` | `tests/M5/tSimGuards.m#quatNormStops` |
+| FC-602 | M5 | State leaves the declared envelope | guard (stop, record reason) | `vital:sim:envelope` | `tests/M5/tSimGuards.m#envelopeStopsAtFirstExcursion` |
+| FC-701 | M6 | Every condition point infeasible (or otherwise unusable) | engine: no used point for the record/group | `NOT_ASSESSABLE` | `tests/M6/tFqEngine.m#allInfeasibleIsNotAssessable` |
+| FC-702 | M6 | NaN or failed point taken as the critical minimum | status-aware search: only points with OK point and metric status and a non-NaN value are used; excluded points counted by reason | excluded (`<stage>:<status>`), `PARTIAL` | `tests/M6/tFqEngine.m#nonOkPointsNeverCriticalOrImproving` |
+| FC-901 | M8 | Bound-worst optimizer does not converge | exit flag | `NOT_ASSESSABLE` | PLANNED (M8) |
+| FC-303 | M5 | Controller sample rate not an integer divisor of the base rate, or faster than the base step | validation | `vital:sim:badStep` | `tests/M5/tSimGuards.m#badControllerRate` |
+| FC-304 | M5 | Plant raises an error during a time simulation | caught per step; identifier and message kept | `vital:sim:plantError` | `tests/M5/tSimGuards.m#plantErrorStopsAndKeepsIdentifier` |
+| FC-603 | M5 | Aircraft descends below the ground limit | guard on `y.h` | `vital:sim:ground` | `tests/M5/tSimGuards.m#groundStops` |
+| FC-604 | M5 | A guard's plant output is missing (guard would silently not run) | guard disabled and recorded in `out.guards` | `active = false` with reason | `tests/M5/tSimGuards.m#absentGuardFieldIsDisabledAndRecorded` |
+| FC-605 | M5 | Table lookups clamped during a simulation | first time recorded; optional stop | `vital:sim:outOfEnvelope` | `tests/M5/tSimGuards.m#outOfEnvelopeRecordedNotStopped` |
+| FC-606 | M5 | Bad initial state or controls given to a simulation | validation plus the first plant evaluation | `vital:badInput` | `tests/M5/tSimGuards.m#badInputErrors` |
+| FC-510 | M5 | Linearization at a table breakpoint (left and right slopes differ; a central difference would silently return their average) | one-sided asymmetry (f(z+h) - 2f(z) + f(z-h))/h does not shrink with h at the plateau | `NOT_CONVERGED` (reason "kink/breakpoint"; column NaN) | `tests/M5/tLinearJacobian.m#kinkAtPointIsDetectedNotAveraged` |
+| FC-511 | M5 | Linearization requested about a trim that is not OK | trim status check | `vital:linear:notTrimmed` | `tests/M5/tF16Linearize.m#untrimmedIsRefused` |
+| FC-512 | M5 | Modal analysis of a linear model that is not converged | lin.status check | `vital:linear:notConverged` | `tests/M5/tModes.m#refusesBadLinearization` |
+| FC-513 | M5 | A dynamic (stateful) controller would be linearized as static | `static = true` declaration required; returned state compared with the initial state at every call | `vital:linear:dynamicController` | `tests/M5/tClosedLoopLinearize.m#dynamicControllerRefused` |
+| FC-514 | M5 | Closed-loop linearization about a point that is not a closed-loop equilibrium | controller output at the trim vs trim controls (1e-9) | `vital:linear:controllerNotAtTrim` | `tests/M5/tClosedLoopLinearize.m#controllerNotAtTrimRefused` |
+| FC-305 | M5 | A discrete controller raises an error during a simulation | caught at the sample; identifier and message kept | `vital:sim:controllerError` | `tests/M5/tSimR1.m#controllerErrorIsAStop` |
+| FC-306 | M5 | A discrete controller returns a non-finite command | checked at the sample (stop) | `vital:sim:nanState` | `tests/M5/tSimR1.m#nonFiniteControllerOutputIsNanState` |
+| FC-307 | M5 | A command leaves its control limit (no silent clipping) | recorded in `out.controlLimit`; optional stop | `vital:sim:controlLimit` | `tests/M5/tSimR1.m#aileronBeyondLimitIsRecordedNotClipped` |
+| FC-308 | M5 | A piecewise input struct varies inside a step (silently 2nd order) | checked before the run | `vital:sim:inputNotPiecewiseConstant` | `tests/M5/tSimR1.m#piecewiseStructMustBeConstant` |
+| FC-309 | M5 | A discrete controller returns the wrong number of commands | validation | `vital:badInput` | `tests/M5/tSimR1.m#wrongSizeControllerOutputIsBadInput` |
+| FC-515 | M5 | Linearization about a state that is not an equilibrium of the given aircraft/environment (stale trim: other CG, g) | infinity-norm of the weighted residual W f0(1:8) exceeds TrimTol 1e-8 | `vital:linear:notEquilibrium` | `tests/M5/tLinearizeR1.m#cgMismatchIsNotAnEquilibrium` |
+| FC-516 | M5 | Step-study plateau limited by round-off of the function values (quantized, wrong derivative) | round-off bound eps times max abs(W f) times ZScale / h exceeds 0.01 of (RelTol scale + AbsTol) | `NOT_CONVERGED` (column status ROUNDOFF, "round-off limited") | `tests/M5/tJacobianR1.m#roundoffLimitedPlateauIsRefused` |
+| FC-517 | M5 | Closed-loop algebraic loop u = step(x, y(x, u)) has no unique static solution | Newton on the loop does not converge, or its Jacobian is singular | `vital:linear:algebraicLoop` | `tests/M5/tClosedLoopR1.m#unsolvableLoopIsRefused` |
+| FC-518 | M5 | Closed-loop or controller step study fails (e.g. a controller kink at the trim) | per-study status propagated to lin.status and lin.columnStatus | `NOT_CONVERGED` (reason names the controller) | `tests/M5/tClosedLoopR1.m#controllerKinkIsReported` |
+| FC-610 | M5 | Rotating plant called with a wrong-size state, a zero quaternion, an incomplete environment or an unknown Earth model | argument/environment validation (no silent defaults) | `vital:badInput` | `tests/M5/tRotatingEom.m#badStateAndEnvRejected` |
+| FC-611 | M5 | Gravity (gravitation + centrifugal) used in the rotating-frame EOM, double-counting the centrifugal term | inertial acceleration of a particle at inertial rest checked against the Aerospace Toolbox `gravityzonal`; localGravity against NESC | verification failure (sabotage S5C-2) | `tests/M5/tRotatingEom.m#j2GravitationMatchesAerospaceToolbox` |
+| FC-612 | M5 | Coriolis term with the wrong sign or frame | analytic -2 w x v and an independent ode45 ECI integration | verification failure (sabotage S5C-1) | `tests/M5/tRotatingEom.m#coriolisAccelerationAndDeflection` |
+| FC-613 | M5 | NESC case requested that the case matrix does not define | lookup in NESC_CASE_MATRIX.json | `vital:nesc:unknownCase` | `tests/M5/tNescCases01to10.m#unknownCaseRejected` |
+| FC-614 | M5 | A band signal that no included reference simulation records is skipped or passed silently | comparison status per signal | `NOT_ASSESSABLE` (test fails on it) | `tests/M5/tNescCases01to10.m#signalWithoutReferenceIsNotAssessable` |
+| FC-615 | M5 | A VITAL run stopped early (guard) is compared only over the part it flew | duration check before the envelope comparison | `FAIL` on every signal, with reason | `tests/M5/tNescCases01to10.m#shortRunFailsEverySignal` |
+| FC-616 | M5 | A DAVE-ML control-law limit (minValue/maxValue) treated as documentation, on either side of any of the 22 limits (pilot inputs, deltaThetaCmd, deltaChiCmd, phiCmd, the four mixer totals; control and GNC laws) | independent hand evaluator driven to every limit on both sides, with an observability assertion per limit | verification failure (sabotages S5C-4, S5C-8 ... S5C-12, S5C-14) | `tests/M5/tF16ControlLaw.m#everyLimitIsObservableAndApplied` |
+| FC-617 | M5 | Course-error wrap (+/-180 deg) missing from the autopilot | hand-evaluated wrap cases | verification failure (sabotage S5C-5) | `tests/M5/tF16ControlLaw.m#courseErrorWraps` |
+| FC-618 | M5 | Quaternion norm drift in the rotating plant not guarded | the plant provides y.quatNorm; vital.sim.run stops | `vital:sim:quatNorm` | `tests/M5/tRotatingEom.m#quaternionGuardStopsRotatingRun` |
+| FC-619 | M5 | An F-16 NESC case flown from a trim that is not OK (INFEASIBLE, NOT_CONVERGED, or clamped tables outside case 12) | trim status checked before the simulation | `vital:nesc:notTrimmed` | `tests/M5/tNescF16Cases.m#nonOkTrimIsRefusedAndOverrideIsScoped` |
+| FC-620 | M5 | An initial-condition override requested for a case whose state does not come from the F-16 trim (would be silently ignored) | argument check | `vital:badInput` | `tests/M5/tNescF16Cases.m#nonOkTrimIsRefusedAndOverrideIsScoped` |
+| FC-703 | M6 | A metric read from a mode that is not OK (e.g. a stable split short period) | metric extractor copies the mode status, value NaN | `NOT_OSCILLATORY` / `MODE_MISSING` (metric status) | `tests/M6/tFqMetrics.m#nonOscillatoryModeGivesStatusNotNumber` |
+| FC-704 | M6 | Rule record bound not traceable to the transcribed specification | every bound re-derived from candidates_from_extract.json and found in a verbatim extract quote; second reader: a bound table typed from the PDF page images | test failure | `tests/M6/tFqRulesR2.m#boundsMatchPdfTable` |
+| FC-705 | M6 | A MIL-F-8785C criterion silently omitted | every candidate curated or in coverage.json with class and reason (disjoint) | test failure | `tests/M6/tFqRules.m#everyCandidateCuratedOrCovered` |
+| FC-706 | M6 | Terminal-phase (Category C) rule rated on a clean configuration | category policy of the condition space | `NOT_ASSESSABLE` | `tests/M6/tF16Fq.m#categoryCNotAssessable` |
+| FC-707 | M6 | Bad condition space (non-increasing, non-finite or empty axis; unknown grid; a validity quantity that exists nowhere) | validation | `vital:fq:badConditions` | `tests/M6/tFqEngine.m#badInputsRejected` |
+| FC-708 | M6 | Rule record names a metric with no extractor | loader | `vital:fq:unknownMetric` | `tests/M6/tFqRules.m#badRecordsRejected` |
+| FC-709 | M6 | Duplicate rule id, or no records at all | loader / engine | `vital:fq:badRule`, `vital:fq:noRules` | `tests/M6/tFqRules.m#badRecordsRejected` |
+| FC-710 | M6 | Strict ("exceed", "greater than") boundary treated as inclusive, or the reverse | per-record strict flag; equality on a grid point | Level from the correct comparison | `tests/M6/tFqEngine.m#levelBoundaryOnGridPoint` |
+| FC-711 | M6 | Invalid aerodynamic mutation multiplier (unknown or old name, negative, NaN, non-scalar) | config validation | `vital:badInput` | `tests/M6/tAeroScale.m#badAeroScaleRejected` |
+| FC-712 | M6 | Mutation multiplier changes the default model, scales the wrong term, or is read as a CG derivative | default path bit-identical; each multiplier changes exactly its own term; effective CG-derivative ratios registered | test failure | `tests/M6/tAeroScale.m#eachMultiplierScalesOnlyItsTerm` |
+| FC-713 | M6 | Non-level (climbing or descending) trim used for n/alpha / CAP | abs(gamma0) check | `NOT_LEVEL` (metric status) | `tests/M6/tFqMetricsR2.m#descendingTrimIsNotLevel` |
+| FC-714 | M6 | An aperiodic longitudinal divergence (any unstable real longitudinal root, also a split short period) passes every longitudinal rule (R2 B1) | lon_divergence_rate_1_s and the 3.2.2.2 records; split short period with an unstable root is DIVERGENT (used, fails every Level) | `DIVERGENT` (metric status), Level 4 | `tests/M6/tF16FqR2.m#pitchDivergencePointFails` |
+| FC-715 | M6 | An excluded (unrated) point hides a worse Level (R2 B2, MINOR 9) | group `complete` false, `levelHeadline` NaN unless Level 4 is certain, levelText "or worse (k unrated)" | `PARTIAL`, headline NaN | `tests/M6/tFqEngineR2.m#excludedPointNeverHidesWorseLevel` |
+| FC-716 | M6 | A mode the classifier cannot name (roll at high alpha) silently drops the point (R2 B2) | roll-mode fallback: fastest lateral real root; disagreement recorded | metric reason "fallback" | `tests/M6/tF16FqR2.m#lowSpeedRollModeRated` |
+| FC-717 | M6 | A missing or unclassified mode counted as passing | only NOT_APPLICABLE passes; every other non-OK status is excluded and counted | `metric:MODE_MISSING` (excluded) | `tests/M6/tFqEngineR2.m#missingModeNeverPasses` |
+| FC-718 | M6 | A Level reported from points outside the model's stated validity envelope without saying so (R2 M8) | every point tagged IN / EXTRAPOLATED; headline = in-envelope Level; extrapolated Level reported separately | `envelope` tag, `.inEnvelope` / `.extrapolated` | `tests/M6/tF16FqR2.m#defaultGridHeadlineAndExtrapolation` |
+| FC-719 | M6 | The delivered report overwritten by another run (R2 M9) | files named by grid and AeroScale; an existing file is kept unless 'Overwrite' is true | timestamped file name | `tests/M6/tF16FqR2.m#reportNamingNeverOverwritesDefault` |
+| FC-720 | M6 | A record filed in the group of another Category (R2-1) | group = paragraph-Cat<category>[-subset] | test failure | `tests/M6/tFqRulesR2.m#groupMatchesCategory` |
+| FC-721 | M6 | An interpreted (not transcribed) bound enters without registration | records with source.interpretation must match a registered interpretation table | test failure | `tests/M6/tFqRulesR2.m#interpretedRecordsRegistered` |
+| FC-801 | M7 | A control law built about a trim that is not OK (its references would not be an equilibrium) | trim status check in vital.ctrl.refAtTrim (pitchSas, yawDamper, nescLqr, closedLoop) | `vital:ctrl:notTrimmed` | `tests/M7/tCtrlLaws.m#failureModes` |
+| FC-802 | M7 | A non-finite gain or a non-positive controller rate | argument validation | `vital:badInput` | `tests/M7/tCtrlLaws.m#failureModes` |
+| FC-803 | M7 | Controller with an output of the wrong size (wiring error) | combine checks each member output; closedLoop calls the law once at the trim before linearizing; also covered by tests/M7/tCtrlClosedLoop.m#closedLoopFailureModes | `vital:ctrl:badOutputSize` (vital.sim.run: STOP `vital:sim:controllerError` with that identifier) | `tests/M7/tCtrlLaws.m#failureModes` |
+| FC-804 | M7 | Controllers of different sample rates summed into one law | rate comparison in combine | `vital:ctrl:rateMismatch` | `tests/M7/tCtrlLaws.m#failureModes` |
+| FC-805 | M7 | A non-static (dynamic or undeclared) law linearized or graded as static | combine propagates static only if every member is static; linearize refuses; evaluatePoint records an ERROR point; assess gives no Level; also covered by tests/M7/tCtrlFq.m#nonStaticLawIsNotAssessable, tests/M7/tCtrlLaws.m#failureModes | `vital:linear:dynamicController`, point `ERROR`, group `NOT_ASSESSABLE` | `tests/M7/tCtrlClosedLoop.m#closedLoopFailureModes` |
+| FC-806 | M7 | A gain that destabilizes the loop (wrong sign) presented as an improvement | closed-loop eigenvalues: status UNSTABLE, destabilized flag, improvement false for every mode; fq grades the augmented aircraft Level 4; also covered by tests/M7/tCtrlFq.m#wrongSignGivesLevel4 | `UNSTABLE`, Level 4 | `tests/M7/tCtrlClosedLoop.m#wrongSignIsReportedUnstable` |
+| FC-807 | M7 | A control command beyond AC.limits silently clipped by a law | M7 laws never clip; vital.sim.run control-limit monitor records it (ADR-027); the NESC law limiter is reported by lawState; also covered by tests/M7/tCtrlLaws.m#nescLqrIsNasaPublishedLaw | `out.controlLimit.ever`, `lawState.saturated` | `tests/M7/tCtrlLaws.m#limitsFlaggedNeverClipped` |
+| FC-808 | M7 | The NESC law re-typed (gain transcription error) or fed in the wrong units | nescLqr calls the generated vital.models.f16.control; hand law from the published gain table at a non-saturating perturbation; source scan for gain literals; also covered by tests/M7/tCtrlClosedLoop.m#handClosedLoopNescLqr | test failure | `tests/M7/tCtrlLaws.m#nescLqrIsNasaPublishedLaw` |
+| FC-809 | M7 | Closed-loop A wrong (e.g. built from the open-loop B only, or a wrong measurement Jacobian) | A_cl from linearize against A_open + B_open K_hand from the gains and analytic measurement Jacobians; sampled simulation against expm(A_cl t) as dt goes to 0; also covered by tests/M7/tCtrlSimAgreement.m#pitchSasSimMatchesLinear | test failure | `tests/M7/tCtrlClosedLoop.m#handClosedLoopCombined` |
+| FC-810 | M7 | The default (no controller) fq path changed by the closed-loop option | factory and evaluatePoint compared with isequaln for no controller and an empty one; stored baseline report values reproduced to 1e-12; full M6 gate | test failure | `tests/M7/tCtrlFq.m#defaultPathBitIdentical` |
+| FC-811 | M7 | Closed-loop modes that are not the classical set graded as an equivalent system without notice (MIL-F-8785C 3.1.12) | evaluatePoint info.equivalentSystem FLAGGED with a 3.1.12 note; closedLoop extraModes; suggestGains lists flagged points | `FLAGGED` | `tests/M7/tCtrlFq.m#equivalentSystemFlag` |
+| FC-812 | M7 | A gain suggestion that does not reach its target claimed as a success | status from the confirmation assessment only; reached false, reason names the group | `TARGET_NOT_REACHED` | `tests/M7/tCtrlSuggest.m#notReachedIsAStatus` |
+| FC-813 | M7 | Suggestion reported without a confirmation run, or confirmed with other gains than proposed | a fresh vital.fq.assess with the rounded proposal; the test repeats it independently and compares exactly | test failure | `tests/M7/tCtrlSuggest.m#confirmationIsIndependentAssessment` |
+| FC-814 | M7 | Gain suggestion with no in-envelope Level to improve | bare in-envelope headline NaN for a target | `NOT_ASSESSABLE` | `tests/M7/tCtrlSuggest.m#noInEnvelopePointIsNotAssessable` |
+| FC-815 | M7 | Unknown target group, or a gain box with the start outside it | argument validation | `vital:badInput` | `tests/M7/tCtrlSuggest.m#badInputs` |
+| FC-816 | M7 | A suggestion that improves the targets but degrades another in-envelope group | protected-group constraints in the search; regression check in the confirmation | `TARGET_NOT_REACHED` (reason "worse than bare") | `tests/M7/tCtrlSuggest.m#regressionIsNotASuccess` |

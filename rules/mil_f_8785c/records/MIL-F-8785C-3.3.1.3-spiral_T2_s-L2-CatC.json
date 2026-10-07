@@ -1,0 +1,66 @@
+{
+  "id": "MIL-F-8785C-3.3.1.3-spiral_T2_s-L2-CatC",
+  "title": "Spiral stability - minimum time to double bank angle (Table VIII): Level 2, Category C",
+  "ruleset": {
+    "name": "MIL-F-8785C",
+    "revision": "5 November 1980 (supersedes MIL-F-8785B)",
+    "basis": "Class IV; bare airframe; the classical modes of the linear model are the equivalent system (3.1.12)"
+  },
+  "class": "Q-SPEC",
+  "source": {
+    "document": "MIL-F-8785C (5 Nov 1980)",
+    "paragraph": "3.3.1.3",
+    "page": "23 (PDF 22)",
+    "table_or_figure": "Table VIII",
+    "candidate_id": "MIL-F-8785C-3.3.1.3-spiral_T2_s-L2-CatA&C",
+    "extract_quote": "| A & C | 12 sec | 8 sec | 4 sec |",
+    "transcribed_by": "agent fq (M6) from rules/mil_f_8785c/candidates_from_extract.json and docs/MIL8785C_EXTRACT.md",
+    "verified": false
+  },
+  "applicability": {
+    "aircraft_class": [
+      "IV"
+    ],
+    "flight_phase_category": [
+      "C"
+    ]
+  },
+  "group": "3.3.1.3-CatC",
+  "metric": "spiral_T2_s",
+  "criterion": {
+    "type": "levels",
+    "levels": [
+      {
+        "level": 2,
+        "category": "C",
+        "min": 8,
+        "strict": true
+      }
+    ]
+  },
+  "scale": 8,
+  "scale_basis": "the magnitude of the lower bound",
+  "conditions": {
+    "file": "rules/mil_f_8785c/conditions_f16.json",
+    "axes": [
+      "h_ft",
+      "mach",
+      "cg_pct_mac"
+    ],
+    "search": "grid, optional one-step local refinement around the critical point"
+  },
+  "status_policy": {
+    "OK": "use",
+    "DIVERGENT": "fail",
+    "INFEASIBLE": "exclude_and_count",
+    "NOT_CONVERGED": "exclude_and_count",
+    "OUT_OF_DATA_ENVELOPE": "exclude_and_count",
+    "ERROR": "exclude_and_count",
+    "NOT_OSCILLATORY": "exclude_and_count",
+    "UNCLASSIFIED": "exclude_and_count",
+    "MODE_MISSING": "exclude_and_count",
+    "NOT_APPLICABLE": "not_applicable",
+    "rule": "No status other than OK can improve a verdict (FC-702); a DIVERGENT point fails every Level; no usable point gives NOT_ASSESSABLE (FC-701)"
+  },
+  "notes": "Time to double 'shall be greater than' (strict). Following bank disturbance up to 20 deg; trimmed wings-level, zero yaw rate, cockpit controls free. Only applies if spiral mode divergent."
+}

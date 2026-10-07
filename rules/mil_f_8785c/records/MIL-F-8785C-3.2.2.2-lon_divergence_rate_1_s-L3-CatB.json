@@ -1,0 +1,67 @@
+{
+  "id": "MIL-F-8785C-3.2.2.2-lon_divergence_rate_1_s-L3-CatB",
+  "title": "Maneuvering stability, controls fixed: no aperiodic pitch/AoA divergence: Level 3, Category B",
+  "ruleset": {
+    "name": "MIL-F-8785C",
+    "revision": "5 November 1980 (supersedes MIL-F-8785B)",
+    "basis": "Class IV; bare airframe; the classical modes of the linear model are the equivalent system (3.1.12)"
+  },
+  "class": "Q-PROXY",
+  "source": {
+    "document": "MIL-F-8785C (5 Nov 1980)",
+    "paragraph": "3.2.2.2",
+    "page": "13 (PDF 12)",
+    "table_or_figure": "",
+    "candidate_id": "",
+    "extract_quote": "pitch attitude and α must show no aperiodic divergence, controls fixed or free",
+    "transcribed_by": "agent fq (M6, review R2 fixes 2026-10-05) from the MIL-F-8785C page images and docs/MIL8785C_EXTRACT.md",
+    "verified": false,
+    "interpretation": "3.2.2.2 (p.13): \"In steady turning flight and in pullups at constant speed, there shall be no tendency for the airplane pitch attitude or angle of attack to diverge aperiodically with controls fixed or with controls free.\" Encoded for controls FIXED at the level 1-g trim (the n = 1 member of the steady pull-ups) as: the largest real eigenvalue of all real longitudinal roots (8-state and with height) is <= 0. No Level is named, so it applies at every Level (3.1.10.3.2): a divergence is worse than Level 3. Review R2 B1."
+  },
+  "applicability": {
+    "aircraft_class": [
+      "IV"
+    ],
+    "flight_phase_category": [
+      "B"
+    ]
+  },
+  "group": "3.2.2.2-CatB",
+  "metric": "lon_divergence_rate_1_s",
+  "criterion": {
+    "type": "levels",
+    "levels": [
+      {
+        "level": 3,
+        "category": "B",
+        "max": 0,
+        "strict": false
+      }
+    ]
+  },
+  "scale": 0.11552453009332421,
+  "scale_basis": "ln2/6 s: the rate of a 6-s time to double (the 3.2.1.1 Level 3 floor), a stated normalization",
+  "conditions": {
+    "file": "rules/mil_f_8785c/conditions_f16.json",
+    "axes": [
+      "h_ft",
+      "mach",
+      "cg_pct_mac"
+    ],
+    "search": "grid, optional one-step local refinement around the critical point"
+  },
+  "status_policy": {
+    "OK": "use",
+    "DIVERGENT": "fail",
+    "INFEASIBLE": "exclude_and_count",
+    "NOT_CONVERGED": "exclude_and_count",
+    "OUT_OF_DATA_ENVELOPE": "exclude_and_count",
+    "ERROR": "exclude_and_count",
+    "NOT_OSCILLATORY": "exclude_and_count",
+    "UNCLASSIFIED": "exclude_and_count",
+    "MODE_MISSING": "exclude_and_count",
+    "NOT_APPLICABLE": "not_applicable",
+    "rule": "No status other than OK can improve a verdict (FC-702); a DIVERGENT point fails every Level; no usable point gives NOT_ASSESSABLE (FC-701)"
+  },
+  "notes": "Interpreted record (see source.interpretation); registered in tests/M6/tFqRulesR2.m."
+}

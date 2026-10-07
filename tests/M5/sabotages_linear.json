@@ -1,0 +1,87 @@
+[
+ {
+  "id": "S5L-1",
+  "file": "+vital/+linear/jacobian.m",
+  "pattern": "D(:, k) = (fp - fm) / (2 * h);",
+  "replacement": "D(:, k) = (fp - f0) / h;",
+  "targets": [
+   "tLinearJacobian/centralDifferenceIsSecondOrder",
+   "tLinearJacobian/smoothFunctionKnownJacobian"
+  ],
+  "rationale": "A forward instead of a central difference is first order: the step study still finds a plateau, but later and less accurate; the observed truncation order (100x per decade) exposes it."
+ },
+ {
+  "id": "S5L-2",
+  "file": "+vital/+linear/eulerRates.m",
+  "pattern": "p + (q * sin(ph) + r * cos(ph)) * tan(th);",
+  "replacement": "p + (q * sin(ph) - r * cos(ph)) * tan(th);",
+  "targets": [
+   "tF16Linearize/kinematicAndGravityEntriesAreExact",
+   "tF16Linearize/firstOrderTaylorConsistency"
+  ],
+  "rationale": "A sign slip in the 3-2-1 Euler-rate kinematics (phidot = p + (q sin phi + r cos phi) tan theta) couples yaw rate into roll attitude the wrong way. (The Euler-rate formulas moved to vital.linear.eulerRates in the R1 fixes.)"
+ },
+ {
+  "id": "S5L-3",
+  "file": "+vital/+linear/modes.m",
+  "pattern": "P = P ./ sum(P, 1);",
+  "replacement": "P = P .* 1;",
+  "targets": [
+   "tModes/classicModesNamedWithExactValues"
+  ],
+  "rationale": "Participation factors |v_k w_k| of a complex mode do not sum to 1 without normalization; lon/lat fractions and dominance thresholds then mean nothing."
+ },
+ {
+  "id": "S5L-4",
+  "file": "+vital/+linear/modes.m",
+  "pattern": "for k = Lr, m = name(m, k, rn, 'NOT_OSCILLATORY'); end",
+  "replacement": "for k = Lr, m = name(m, k, rn, 'OK'); end",
+  "targets": [
+   "tModes/shortPeriodSplitIsNotOscillatory"
+  ],
+  "rationale": "A short period split into two real roots must be flagged NOT_OSCILLATORY (FC-507); reporting it as an OK short period lets a flying-qualities rule read a frequency/damping that does not exist."
+ },
+ {
+  "id": "S5L-5",
+  "file": "+vital/+linear/linearize.m",
+  "pattern": "lon = [1 3 5 8]; lat = [2 4 6 7];",
+  "replacement": "lon = [1 3 5 7]; lat = [2 4 6 8];",
+  "targets": [
+   "tF16Linearize/lonLatDecoupledAtSymmetricTrim",
+   "tF16Linearize/airAxisForms"
+  ],
+  "rationale": "A partition index error (theta and phi swapped) silently mixes the longitudinal and lateral subsystems handed to flying-qualities and control design."
+ },
+ {
+  "id": "S5L-6",
+  "file": "+vital/+linear/linearize.m",
+  "pattern": "fcl = @(z) linDeriv([z(1:12); ctrl(z)], AC, env);",
+  "replacement": "fcl = @(z) linDeriv(z, AC, env);",
+  "targets": [
+   "tClosedLoopLinearize/stateFeedbackGivesAPlusBK",
+   "tClosedLoopLinearize/pitchDamperAddsShortPeriodDamping"
+  ],
+  "rationale": "A closed-loop linearization that feeds u_ref straight to the plant ignores the controller and returns the open-loop A labelled as closed loop."
+ },
+ {
+  "id": "S5L-7",
+  "file": "+vital/+linear/toPlantState.m",
+  "pattern": "x = [z(1:6); vital.frames.eul2quat(z(7), z(8), z(9)); z(10); z(11); -z(12)];",
+  "replacement": "x = [z(1:6); vital.frames.eul2quat(z(7), z(8), z(9)); z(10); z(11); z(12)];",
+  "targets": [
+   "tLinearVsNonlinear/mappingAndLinearResponse",
+   "tLinearVsNonlinear/phugoidCase"
+  ],
+  "rationale": "The dx -> plant-state map must put altitude into the NED down position with a minus sign; with + the perturbed-trim simulation starts below the ground datum."
+ },
+ {
+  "id": "S5L-8",
+  "file": "+vital/+linear/linearize.m",
+  "pattern": "if ~isequal(s, state0)",
+  "replacement": "if false",
+  "targets": [
+   "tClosedLoopLinearize/dynamicControllerRefused"
+  ],
+  "rationale": "Without the per-call state check, a controller declared static but carrying an integrator (unchanged only at the trim) would be linearized as memoryless."
+ }
+]

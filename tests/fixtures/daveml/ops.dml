@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DAVEfunc xmlns="http://daveml.org/2010/DAVEML">
+  <fileHeader name="VITAL fixture"><author name="VITAL test fixture"/><creationDate date="2026-09-29"/></fileHeader>
+  <!-- Operator semantics fixture: every expected value is computed by hand in tDavemlOperators. -->
+  <variableDef name="a" varID="a" units="nd"><isInput/></variableDef>
+  <variableDef name="b" varID="b" units="nd"><isInput/></variableDef>
+  <variableDef name="sub" varID="sub" units="nd"><calculation><math xmlns="http://www.w3.org/1998/Math/MathML"><apply><minus/><ci>a</ci><ci>b</ci></apply></math></calculation><isOutput/></variableDef>
+  <variableDef name="neg" varID="neg" units="nd"><calculation><math xmlns="http://www.w3.org/1998/Math/MathML"><apply><minus/><ci>a</ci></apply></math></calculation><isOutput/></variableDef>
+  <variableDef name="div" varID="div" units="nd"><calculation><math xmlns="http://www.w3.org/1998/Math/MathML"><apply><divide/><ci>a</ci><ci>b</ci></apply></math></calculation><isOutput/></variableDef>
+  <variableDef name="pw" varID="pw" units="nd"><calculation><math xmlns="http://www.w3.org/1998/Math/MathML"><apply><power/><ci>a</ci><ci>b</ci></apply></math></calculation><isOutput/></variableDef>
+  <variableDef name="nary" varID="nary" units="nd"><calculation><math xmlns="http://www.w3.org/1998/Math/MathML"><apply><plus/><ci>a</ci><ci>b</ci><cn> 1.5 </cn></apply></math></calculation><isOutput/></variableDef>
+  <variableDef name="tms" varID="tms" units="nd"><calculation><math xmlns="http://www.w3.org/1998/Math/MathML"><apply><times/><ci>a</ci><ci>b</ci><cn>2.</cn></apply></math></calculation><isOutput/></variableDef>
+  <variableDef name="ab" varID="ab" units="nd"><calculation><math xmlns="http://www.w3.org/1998/Math/MathML"><apply><abs/><apply><minus/><ci>a</ci><ci>b</ci></apply></apply></math></calculation><isOutput/></variableDef>
+  <variableDef name="trig" varID="trig" units="nd"><calculation><math xmlns="http://www.w3.org/1998/Math/MathML"><apply><plus/><apply><cos/><ci>a</ci></apply><apply><sin/><ci>b</ci></apply></apply></math></calculation><isOutput/></variableDef>
+  <variableDef name="at2" varID="at2" units="nd"><calculation><math xmlns="http://www.w3.org/1998/Math/MathML"><apply><csymbol definitionURL="http://daveml.org/function_spaces.html#atan2" encoding="text">atan2</csymbol><ci>a</ci><ci>b</ci></apply></math></calculation><isOutput/></variableDef>
+  <variableDef name="pwv" varID="pwv" units="nd"><calculation><math xmlns="http://www.w3.org/1998/Math/MathML"><piecewise><piece><cn>1</cn><apply><lt/><ci>a</ci><ci>b</ci></apply></piece><piece><cn>2</cn><apply><gt/><ci>a</ci><ci>b</ci></apply></piece><otherwise><cn>3</cn></otherwise></piecewise></math></calculation><isOutput/></variableDef>
+  <variableDef name="nest" varID="nest" units="nd"><calculation><math xmlns="http://www.w3.org/1998/Math/MathML"><apply><times/><cn>10</cn><piecewise><piece><ci>a</ci><apply><geq/><ci>a</ci><cn>0</cn></apply></piece><otherwise><apply><minus/><ci>a</ci></apply></otherwise></piecewise></apply></math></calculation><isOutput/></variableDef>
+  <variableDef name="sat" varID="sat" units="nd" minValue="0" maxValue="1"><calculation><math xmlns="http://www.w3.org/1998/Math/MathML"><ci>a</ci></math></calculation><isOutput/></variableDef>
+  <variableDef name="k" varID="k" units="nd" initialValue="7.25"/>
+  <variableDef name="useK" varID="useK" units="nd"><calculation><math xmlns="http://www.w3.org/1998/Math/MathML"><apply><times/><ci>k</ci><ci>a</ci></apply></math></calculation><isOutput/></variableDef>
+  <!-- NASA F16_aero.dml:611-628 style: <apply> whose only child is a <piecewise> (no operator). -->
+  <variableDef name="wrapped" varID="wrapped" units="nd"><calculation><math xmlns="http://www.w3.org/1998/Math/MathML"><apply><piecewise><piece><apply><minus/><ci>a</ci></apply><apply><lt/><ci>b</ci><cn>0</cn></apply></piece><otherwise><ci>a</ci></otherwise></piecewise></apply></math></calculation><isOutput/></variableDef>
+</DAVEfunc>

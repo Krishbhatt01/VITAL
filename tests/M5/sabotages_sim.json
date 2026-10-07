@@ -1,0 +1,56 @@
+[
+ {
+  "id": "S5S-1",
+  "file": "+vital/+sim/rk4Step.m",
+  "pattern": "xNew = x + dt/6 * (k1 + 2*k2 + 2*k3 + k4);",
+  "replacement": "xNew = x + dt/6 * (k1 + 2*k2 + 2*k2 + k4);",
+  "targets": [
+   "tSimCore/rk4OrderHarmonicOscillator",
+   "tSimCore/torqueFreeRigidBodyConserves"
+  ],
+  "rationale": "A wrong RK4 stage weight (k2 used twice, k3 dropped) still sums to one and still holds a trim, but it drops the method to second order; the order test must see a ratio of 4 instead of 16."
+ },
+ {
+  "id": "S5S-2",
+  "file": "+vital/+sim/run.m",
+  "pattern": "uStage = u0 + [inputAt(tk, tk), inputAt(tk + dt/2, tk), inputAt(tk + dt, tk)];",
+  "replacement": "uStage = u0 + repmat(inputAt(tk, tk), 1, 3);",
+  "targets": [
+   "tSimCore/rk4OrderSmoothInputThroughRun"
+  ],
+  "rationale": "Sampling a smooth input once at the step start instead of at the RK4 stage times silently turns the simulation into a first-order method whenever an input is applied."
+ },
+ {
+  "id": "S5S-3",
+  "file": "+vital/+sim/run.m",
+  "pattern": "uStage = repmat(uHeld, 1, 3);",
+  "replacement": "uStage = [ctrl.step(tk, x, struct(), u0 + inputAt(tk, tk), cstate), ctrl.step(tk + dt/2, x, struct(), u0 + inputAt(tk + dt/2, tk), cstate), ctrl.step(tk + dt, x, struct(), u0 + inputAt(tk + dt, tk), cstate)];",
+  "targets": [
+   "tSimCore/zohControllerForcingIsFirstOrder",
+   "tSimCore/controllerHeldAndSampledAtRate"
+  ],
+  "rationale": "A discrete controller re-evaluated at every RK4 stage instead of zero-order held misrepresents the sampled system (CONVENTIONS 10); its closed-loop behaviour and order would be wrong."
+ },
+ {
+  "id": "S5S-4",
+  "file": "+vital/+sim/run.m",
+  "pattern": "if g.useGround && ~(y.h >= g.hMin)",
+  "replacement": "if false",
+  "targets": [
+   "tSimGuards/groundStops"
+  ],
+  "rationale": "A disabled ground guard lets a run continue below the terrain and report it as completed."
+ },
+ {
+  "id": "S5S-5",
+  "file": "+vital/+sim/run.m",
+  "pattern": "out.stopTime = out.t(end);",
+  "replacement": "out.stopTime = out.t(end) + out.t(min(2, end));",
+  "targets": [
+   "tSimGuards/groundStops",
+   "tSimGuards/quatNormStops",
+   "tSimCore/logHoldsStartAndFinalState"
+  ],
+  "rationale": "A stop time recorded one step late misplaces the event (e.g. ground contact, loss of attitude integrity) against the logged state."
+ }
+]

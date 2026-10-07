@@ -1,0 +1,84 @@
+[
+ {
+  "id": "S1-1",
+  "file": "+vital/+loads/transferLoad.m",
+  "pattern": "M_B = C_BA * (M_A - cross(rB_inA, F_A));",
+  "replacement": "M_B = C_BA * (M_A + cross(rB_inA, F_A));",
+  "targets": [
+   "tLoads/transferKnownCase"
+  ],
+  "rationale": "A reversed lever-arm sign is the most common load-transfer bug."
+ },
+ {
+  "id": "S1-2",
+  "file": "+vital/+frames/dcm321.m",
+  "pattern": "C = R1 * R2 * R3;",
+  "replacement": "C = R3 * R2 * R1;",
+  "targets": [
+   "tFrames/matchesAngle2dcm"
+  ],
+  "rationale": "Swapping the Euler rotation order must be caught against the independent Toolbox DCM."
+ },
+ {
+  "id": "S1-3",
+  "file": "+vital/+env/atmosphereUS76.m",
+  "pattern": "H = vital.env.geometricToGeopotential(h);",
+  "replacement": "H = h;",
+  "targets": [
+   "tAtmosphere/matchesNescConsensus"
+  ],
+  "rationale": "Using geometric height as geopotential (a 13 m shift at 30000 ft) must be caught by the published NESC atmosphere."
+ },
+ {
+  "id": "S1-4",
+  "file": "+vital/+mass/massProps.m",
+  "pattern": "J = J + items(k).J + items(k).m * ((d.'*d)*eye(3) - d*d.');",
+  "replacement": "J = J + items(k).m * ((d.'*d)*eye(3) - d*d.');",
+  "targets": [
+   "tMass/boxWithSelfInertiaIsExact"
+  ],
+  "rationale": "Dropping each item's own inertia (point-mass approximation) must be caught: it is the 1 % error behind correction E7."
+ },
+ {
+  "id": "S1-5",
+  "file": "+vital/+verify/envelopeCheck.m",
+  "pattern": "delta = max(max(spec.floor, spec.rel_floor * refScale), spec.k * (mx - mn));",
+  "replacement": "delta = max(spec.floor, spec.rel_floor * refScale);",
+  "targets": [
+   "tEnvelopeCheck/spreadTermWidensTheBand"
+  ],
+  "rationale": "Dropping the k*spread term would make the NESC criterion stricter than NASA's own inter-tool disagreement, contrary to ADR-009."
+ },
+ {
+  "id": "S1-6",
+  "file": "run_vital_tests.m",
+  "pattern": "summary.gateOK = summary.gateOK && isempty(excluded);",
+  "replacement": "",
+  "targets": [
+   "tRunnerIntegrity/excludedTestFileFailsGate"
+  ],
+  "rationale": "A runner that ignores excluded test files could pass a gate with tests silently missing (FC-111)."
+ },
+ {
+  "id": "S1-7",
+  "file": "run_vital_tests.m",
+  "pattern": "suite = suite(~cur | ismember(cls, listed));",
+  "replacement": "suite = suite(true(size(suite)));",
+  "targets": [
+   "tRunnerIncrements/redIncrementClassifiesOnlyListedFilesAsNew",
+   "tRunnerIncrements/greenIncrementSkipsUnlistedCurrentMilestoneFiles"
+  ],
+  "rationale": "An increment gate that does not skip other increments' work in progress breaks parallel development (or hides it)."
+ },
+ {
+  "id": "S1-8",
+  "file": "+vital/+test/classifyResults.m",
+  "pattern": "isNew = (tnum == mk) && ~ismember(char(extractBefore(string(r.Name) + \"/\", \"/\")), opts.NotNew);",
+  "replacement": "isNew = (tnum == mk);",
+  "targets": [
+   "tRunnerIncrements/redIncrementClassifiesOnlyListedFilesAsNew",
+   "tRunnerIncrements/baselineFailureIsRegression"
+  ],
+  "rationale": "A broken finished increment must be a REGRESSION, not a RED test that looks expected."
+ }
+]

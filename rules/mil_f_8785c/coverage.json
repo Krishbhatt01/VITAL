@@ -1,0 +1,685 @@
+[
+  {
+    "paragraph": "3.2.1.1",
+    "metric": "speed_stability_local_gradient_stable",
+    "class": "OUT-OF-SIM",
+    "reason": "The pitch-force and pitch-position gradients with airspeed (a sufficient demonstration of the Levels 1-2 requirement) and the controls-FREE half: the NESC F-16 model has no cockpit controller, feel system or force gradients, so no stick or pedal force exists in the simulation. The operative controls-FIXED requirement \"no tendency for airspeed to diverge aperiodically\" IS curated (speed_divergence_rate_1_s <= 0, Levels 1-2; review R2 M1), as is the Level 3 T2 >= 6 s (T2_speed_divergence_s). The position-gradient half is computable from trims but not implemented.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.2.1.1-speed_stability_local_gradient_stable-L1-CatAll",
+      "MIL-F-8785C-3.2.1.1-speed_stability_local_gradient_stable-L2-CatAll"
+    ]
+  },
+  {
+    "paragraph": "3.2.1.1.1",
+    "metric": "transonic_unstable_force_gradient_centerstick_lb_per_0.01M",
+    "class": "OUT-OF-SIM",
+    "reason": "transonic stick-force gradient and force change: the NESC F-16 model has no cockpit controller, feel system or force gradients, so no stick or pedal force exists in the simulation; the NESC aero tables also have no Mach dependence.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.2.1.1.1-transonic_unstable_force_gradient_centerstick_lb_per_0.01M-L1-CatAll",
+      "MIL-F-8785C-3.2.1.1.1-transonic_unstable_force_gradient_centerstick_lb_per_0.01M-L2-CatAll",
+      "MIL-F-8785C-3.2.1.1.1-transonic_unstable_force_gradient_centerstick_lb_per_0.01M-L3-CatAll"
+    ]
+  },
+  {
+    "paragraph": "3.2.1.1.1",
+    "metric": "transonic_unstable_force_change_centerstick_lb",
+    "class": "OUT-OF-SIM",
+    "reason": "transonic stick-force gradient and force change: the NESC F-16 model has no cockpit controller, feel system or force gradients, so no stick or pedal force exists in the simulation; the NESC aero tables also have no Mach dependence.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.2.1.1.1-transonic_unstable_force_change_centerstick_lb-L1-CatAll",
+      "MIL-F-8785C-3.2.1.1.1-transonic_unstable_force_change_centerstick_lb-L2-CatAll",
+      "MIL-F-8785C-3.2.1.1.1-transonic_unstable_force_change_centerstick_lb-L3-CatAll"
+    ]
+  },
+  {
+    "paragraph": "3.2.1.3",
+    "metric": "dgamma_dV_at_Vomin_deg_per_kt",
+    "class": "OUT-OF-SIM",
+    "reason": "landing approach (Category C, PA) flight-path stability needs the approach configuration (gear, flaps, approach speed); the NESC F-16 has no landing configuration (proposed ADR, Category C policy).",
+    "candidate_ids": [
+      "MIL-F-8785C-3.2.1.3-dgamma_dV_at_Vomin_deg_per_kt-L1-CatC",
+      "MIL-F-8785C-3.2.1.3-dgamma_dV_at_Vomin_deg_per_kt-L2-CatC",
+      "MIL-F-8785C-3.2.1.3-dgamma_dV_at_Vomin_deg_per_kt-L3-CatC"
+    ]
+  },
+  {
+    "paragraph": "3.2.1.3",
+    "metric": "dgamma_dV_slope_increase_5kt_below_Vomin_deg_per_kt",
+    "class": "OUT-OF-SIM",
+    "reason": "landing approach (Category C, PA) flight-path stability needs the approach configuration (gear, flaps, approach speed); the NESC F-16 has no landing configuration (proposed ADR, Category C policy).",
+    "candidate_ids": [
+      "MIL-F-8785C-3.2.1.3-dgamma_dV_slope_increase_5kt_below_Vomin_deg_per_kt-L1-CatC",
+      "MIL-F-8785C-3.2.1.3-dgamma_dV_slope_increase_5kt_below_Vomin_deg_per_kt-L2-CatC",
+      "MIL-F-8785C-3.2.1.3-dgamma_dV_slope_increase_5kt_below_Vomin_deg_per_kt-L3-CatC"
+    ]
+  },
+  {
+    "paragraph": "3.2.2.1.1",
+    "metric": "omega_nsp_rad_s",
+    "class": "NO-REQUIREMENT",
+    "reason": "Figure 1 has no Level 3 omega_nsp floor (only the CAP 0.16 line); no bound to encode.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.2.2.1.1-omega_nsp_rad_s-L3-CatA"
+    ]
+  },
+  {
+    "paragraph": "3.2.2.1.1",
+    "metric": "n_alpha_g_per_rad",
+    "class": "NO-REQUIREMENT",
+    "reason": "Figure 3 has no Level 3 n/alpha edge (the CAP 0.096 line extends below n/alpha = 1); no bound to encode.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.2.2.1.1-n_alpha_g_per_rad-L3-CatC"
+    ]
+  },
+  {
+    "paragraph": "3.2.2.1.3",
+    "metric": "residual_nz_osc_pilot_station_g",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "residual oscillations in calm air (nz at the pilot station, pitch attitude in mils) need a time simulation with a pilot-station output and a limit-cycle criterion; the bare-airframe linear model has no sustained oscillation where its modes are damped. Not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.2.2.1.3-residual_nz_osc_pilot_station_g-L1-CatAll",
+      "MIL-F-8785C-3.2.2.1.3-residual_nz_osc_pilot_station_g-L2-CatAll"
+    ]
+  },
+  {
+    "paragraph": "3.2.2.1.3",
+    "metric": "residual_pitch_attitude_osc_mils",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "residual oscillations in calm air (nz at the pilot station, pitch attitude in mils) need a time simulation with a pilot-station output and a limit-cycle criterion; the bare-airframe linear model has no sustained oscillation where its modes are damped. Not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.2.2.1.3-residual_pitch_attitude_osc_mils-L1-CatA",
+      "MIL-F-8785C-3.2.2.1.3-residual_pitch_attitude_osc_mils-L2-CatA"
+    ]
+  },
+  {
+    "paragraph": "3.2.2.2.1",
+    "metric": "Fs_per_n_centerstick_lb_per_g",
+    "class": "OUT-OF-SIM",
+    "reason": "stick force per g (Table V, center stick and wheel; the F-16 side stick has no numbers in the spec): the NESC F-16 model has no cockpit controller, feel system or force gradients, so no stick or pedal force exists in the simulation.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.2.2.2.1-Fs_per_n_centerstick_lb_per_g-L1-CatAll",
+      "MIL-F-8785C-3.2.2.2.1-Fs_per_n_centerstick_lb_per_g-L2-CatAll",
+      "MIL-F-8785C-3.2.2.2.1-Fs_per_n_centerstick_lb_per_g-L3-CatAll"
+    ]
+  },
+  {
+    "paragraph": "3.2.2.2.1",
+    "metric": "Fs_per_n_wheel_lb_per_g",
+    "class": "OUT-OF-SIM",
+    "reason": "stick force per g (Table V, center stick and wheel; the F-16 side stick has no numbers in the spec): the NESC F-16 model has no cockpit controller, feel system or force gradients, so no stick or pedal force exists in the simulation.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.2.2.2.1-Fs_per_n_wheel_lb_per_g-L1-CatAll",
+      "MIL-F-8785C-3.2.2.2.1-Fs_per_n_wheel_lb_per_g-L2-CatAll",
+      "MIL-F-8785C-3.2.2.2.1-Fs_per_n_wheel_lb_per_g-L3-CatAll"
+    ]
+  },
+  {
+    "paragraph": "3.2.2.2.1",
+    "metric": "Fs_vs_n_linearity_range_n_g",
+    "class": "OUT-OF-SIM",
+    "reason": "stick force per g (Table V, center stick and wheel; the F-16 side stick has no numbers in the spec): the NESC F-16 model has no cockpit controller, feel system or force gradients, so no stick or pedal force exists in the simulation.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.2.2.2.1-Fs_vs_n_linearity_range_n_g-L1-CatAll",
+      "MIL-F-8785C-3.2.2.2.1-Fs_vs_n_linearity_range_n_g-L2-CatAll",
+      "MIL-F-8785C-3.2.2.2.1-Fs_vs_n_linearity_range_n_g-L3-CatAll"
+    ]
+  },
+  {
+    "paragraph": "3.2.2.2.2",
+    "metric": "Fs_per_delta_s_centerstick_lb_per_in",
+    "class": "OUT-OF-SIM",
+    "reason": "pitch force per stick deflection: the NESC F-16 model has no cockpit controller, feel system or force gradients, so no stick or pedal force exists in the simulation.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.2.2.2.2-Fs_per_delta_s_centerstick_lb_per_in-L1-CatA",
+      "MIL-F-8785C-3.2.2.2.2-Fs_per_delta_s_centerstick_lb_per_in-L2-CatA"
+    ]
+  },
+  {
+    "paragraph": "3.2.2.2.2",
+    "metric": "Fs_per_delta_s_sidestick_lb_per_deg",
+    "class": "OUT-OF-SIM",
+    "reason": "pitch force per stick deflection: the NESC F-16 model has no cockpit controller, feel system or force gradients, so no stick or pedal force exists in the simulation.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.2.2.2.2-Fs_per_delta_s_sidestick_lb_per_deg-L1-CatA",
+      "MIL-F-8785C-3.2.2.2.2-Fs_per_delta_s_sidestick_lb_per_deg-L2-CatA"
+    ]
+  },
+  {
+    "paragraph": "3.2.2.3.1",
+    "metric": "Fs_over_nz_inverse_amplitude_onehanded_lb_per_g",
+    "class": "OUT-OF-SIM",
+    "reason": "inverse amplitude of nz per pitch force (dynamic control forces): the NESC F-16 model has no cockpit controller, feel system or force gradients, so no stick or pedal force exists in the simulation.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.2.2.3.1-Fs_over_nz_inverse_amplitude_onehanded_lb_per_g-L1-CatAll",
+      "MIL-F-8785C-3.2.2.3.1-Fs_over_nz_inverse_amplitude_onehanded_lb_per_g-L2-CatAll",
+      "MIL-F-8785C-3.2.2.3.1-Fs_over_nz_inverse_amplitude_onehanded_lb_per_g-L3-CatAll"
+    ]
+  },
+  {
+    "paragraph": "3.3.2.2",
+    "metric": "p_min1_over_p_peak1_percent",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll-rate oscillation ratio after a step roll command: needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.2.2-p_min1_over_p_peak1_percent-L1-CatA&C",
+      "MIL-F-8785C-3.3.2.2-p_min1_over_p_peak1_percent-L1-CatB",
+      "MIL-F-8785C-3.3.2.2-p_min1_over_p_peak1_percent-L2-CatA&C",
+      "MIL-F-8785C-3.3.2.2-p_min1_over_p_peak1_percent-L2-CatB"
+    ]
+  },
+  {
+    "paragraph": "3.3.2.2.1",
+    "metric": "p_osc_over_p_av",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "p_osc/p_av against psi_beta (Figure 4): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.2.2.1-p_osc_over_p_av-L1-CatA&C",
+      "MIL-F-8785C-3.3.2.2.1-p_osc_over_p_av-L2-CatA&C",
+      "MIL-F-8785C-3.3.2.2.1-p_osc_over_p_av-L1-CatB",
+      "MIL-F-8785C-3.3.2.2.1-p_osc_over_p_av-L2-CatB"
+    ]
+  },
+  {
+    "paragraph": "3.3.2.3",
+    "metric": "phi_osc_over_phi_av",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "phi_osc/phi_av against psi_beta (Figure 5): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.2.3-phi_osc_over_phi_av-L1-CatA&C",
+      "MIL-F-8785C-3.3.2.3-phi_osc_over_phi_av-L2-CatA&C",
+      "MIL-F-8785C-3.3.2.3-phi_osc_over_phi_av-L1-CatB",
+      "MIL-F-8785C-3.3.2.3-phi_osc_over_phi_av-L2-CatB"
+    ]
+  },
+  {
+    "paragraph": "3.3.2.4",
+    "metric": "dbeta_over_k_adverse_deg",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "sideslip excursion per k (k needs the Table IX roll requirement): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.2.4-dbeta_over_k_adverse_deg-L1-CatA",
+      "MIL-F-8785C-3.3.2.4-dbeta_over_k_adverse_deg-L1-CatB&C",
+      "MIL-F-8785C-3.3.2.4-dbeta_over_k_adverse_deg-L2-CatAll"
+    ]
+  },
+  {
+    "paragraph": "3.3.2.4",
+    "metric": "dbeta_over_k_proverse_deg",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "sideslip excursion per k (k needs the Table IX roll requirement): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.2.4-dbeta_over_k_proverse_deg-L1-CatA",
+      "MIL-F-8785C-3.3.2.4-dbeta_over_k_proverse_deg-L1-CatB&C",
+      "MIL-F-8785C-3.3.2.4-dbeta_over_k_proverse_deg-L2-CatAll"
+    ]
+  },
+  {
+    "paragraph": "3.3.2.4.1",
+    "metric": "dbeta_over_k_deg_vs_psi_beta",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "sideslip excursion against psi_beta (Figure 6): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.2.4.1-dbeta_over_k_deg_vs_psi_beta-L1-CatA",
+      "MIL-F-8785C-3.3.2.4.1-dbeta_over_k_deg_vs_psi_beta-L1-CatB&C",
+      "MIL-F-8785C-3.3.2.4.1-dbeta_over_k_deg_vs_psi_beta-L2-CatAll"
+    ]
+  },
+  {
+    "paragraph": "3.3.2.5",
+    "metric": "pedal_force_zero_sideslip_lb",
+    "class": "OUT-OF-SIM",
+    "reason": "pedal force to hold zero sideslip in rolls: the NESC F-16 model has no cockpit controller, feel system or force gradients, so no stick or pedal force exists in the simulation.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.2.5-pedal_force_zero_sideslip_lb-L1-CatA",
+      "MIL-F-8785C-3.3.2.5-pedal_force_zero_sideslip_lb-L2-CatA",
+      "MIL-F-8785C-3.3.2.5-pedal_force_zero_sideslip_lb-L3-CatA",
+      "MIL-F-8785C-3.3.2.5-pedal_force_zero_sideslip_lb-L1-CatB",
+      "MIL-F-8785C-3.3.2.5-pedal_force_zero_sideslip_lb-L2-CatB",
+      "MIL-F-8785C-3.3.2.5-pedal_force_zero_sideslip_lb-L3-CatB",
+      "MIL-F-8785C-3.3.2.5-pedal_force_zero_sideslip_lb-L1-CatC",
+      "MIL-F-8785C-3.3.2.5-pedal_force_zero_sideslip_lb-L2-CatC",
+      "MIL-F-8785C-3.3.2.5-pedal_force_zero_sideslip_lb-L3-CatC"
+    ]
+  },
+  {
+    "paragraph": "3.3.2.6",
+    "metric": "turn_coord_pedal_force_lb",
+    "class": "OUT-OF-SIM",
+    "reason": "turn-coordination pedal and roll-stick forces: the NESC F-16 model has no cockpit controller, feel system or force gradients, so no stick or pedal force exists in the simulation.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.2.6-turn_coord_pedal_force_lb-L1-CatAll",
+      "MIL-F-8785C-3.3.2.6-turn_coord_pedal_force_lb-L2-CatAll"
+    ]
+  },
+  {
+    "paragraph": "3.3.2.6",
+    "metric": "turn_coord_roll_stick_force_lb",
+    "class": "OUT-OF-SIM",
+    "reason": "turn-coordination pedal and roll-stick forces: the NESC F-16 model has no cockpit controller, feel system or force gradients, so no stick or pedal force exists in the simulation.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.2.6-turn_coord_roll_stick_force_lb-L1-CatAll",
+      "MIL-F-8785C-3.3.2.6-turn_coord_roll_stick_force_lb-L2-CatAll"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1",
+    "metric": "t_bank30_VL_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance (bank angle in a given time, Table IXb): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6; the speed ranges need V_min, V_max, V_o_min and V_o_max, which the NESC model does not define.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1-t_bank30_VL_s-L1-CatA",
+      "MIL-F-8785C-3.3.4.1-t_bank30_VL_s-L1-CatC",
+      "MIL-F-8785C-3.3.4.1-t_bank30_VL_s-L2-CatA",
+      "MIL-F-8785C-3.3.4.1-t_bank30_VL_s-L2-CatC",
+      "MIL-F-8785C-3.3.4.1-t_bank30_VL_s-L3-CatA",
+      "MIL-F-8785C-3.3.4.1-t_bank30_VL_s-L3-CatC"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1",
+    "metric": "t_bank30_L_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance (bank angle in a given time, Table IXb): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6; the speed ranges need V_min, V_max, V_o_min and V_o_max, which the NESC model does not define.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1-t_bank30_L_s-L1-CatA",
+      "MIL-F-8785C-3.3.4.1-t_bank30_L_s-L1-CatC",
+      "MIL-F-8785C-3.3.4.1-t_bank30_L_s-L2-CatA",
+      "MIL-F-8785C-3.3.4.1-t_bank30_L_s-L2-CatC",
+      "MIL-F-8785C-3.3.4.1-t_bank30_L_s-L3-CatA",
+      "MIL-F-8785C-3.3.4.1-t_bank30_L_s-L3-CatC"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1",
+    "metric": "t_bank90_M_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance (bank angle in a given time, Table IXb): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6; the speed ranges need V_min, V_max, V_o_min and V_o_max, which the NESC model does not define.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1-t_bank90_M_s-L1-CatA",
+      "MIL-F-8785C-3.3.4.1-t_bank90_M_s-L1-CatB",
+      "MIL-F-8785C-3.3.4.1-t_bank90_M_s-L2-CatA",
+      "MIL-F-8785C-3.3.4.1-t_bank90_M_s-L2-CatB",
+      "MIL-F-8785C-3.3.4.1-t_bank90_M_s-L3-CatA",
+      "MIL-F-8785C-3.3.4.1-t_bank90_M_s-L3-CatB"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1",
+    "metric": "t_bank50_H_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance (bank angle in a given time, Table IXb): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6; the speed ranges need V_min, V_max, V_o_min and V_o_max, which the NESC model does not define.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1-t_bank50_H_s-L1-CatA",
+      "MIL-F-8785C-3.3.4.1-t_bank50_H_s-L2-CatA",
+      "MIL-F-8785C-3.3.4.1-t_bank50_H_s-L3-CatA"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1",
+    "metric": "t_bank90_VL_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance (bank angle in a given time, Table IXb): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6; the speed ranges need V_min, V_max, V_o_min and V_o_max, which the NESC model does not define.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1-t_bank90_VL_s-L1-CatB",
+      "MIL-F-8785C-3.3.4.1-t_bank90_VL_s-L2-CatB",
+      "MIL-F-8785C-3.3.4.1-t_bank90_VL_s-L3-CatB"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1",
+    "metric": "t_bank90_L_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance (bank angle in a given time, Table IXb): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6; the speed ranges need V_min, V_max, V_o_min and V_o_max, which the NESC model does not define.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1-t_bank90_L_s-L1-CatB",
+      "MIL-F-8785C-3.3.4.1-t_bank90_L_s-L2-CatB",
+      "MIL-F-8785C-3.3.4.1-t_bank90_L_s-L3-CatB"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1",
+    "metric": "t_bank90_H_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance (bank angle in a given time, Table IXb): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6; the speed ranges need V_min, V_max, V_o_min and V_o_max, which the NESC model does not define.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1-t_bank90_H_s-L1-CatB",
+      "MIL-F-8785C-3.3.4.1-t_bank90_H_s-L2-CatB",
+      "MIL-F-8785C-3.3.4.1-t_bank90_H_s-L3-CatB"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1",
+    "metric": "t_bank30_M_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance (bank angle in a given time, Table IXb): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6; the speed ranges need V_min, V_max, V_o_min and V_o_max, which the NESC model does not define.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1-t_bank30_M_s-L1-CatC",
+      "MIL-F-8785C-3.3.4.1-t_bank30_M_s-L2-CatC",
+      "MIL-F-8785C-3.3.4.1-t_bank30_M_s-L3-CatC"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1",
+    "metric": "t_bank30_H_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance (bank angle in a given time, Table IXb): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6; the speed ranges need V_min, V_max, V_o_min and V_o_max, which the NESC model does not define.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1-t_bank30_H_s-L1-CatC",
+      "MIL-F-8785C-3.3.4.1-t_bank30_H_s-L2-CatC",
+      "MIL-F-8785C-3.3.4.1-t_bank30_H_s-L3-CatC"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.1",
+    "metric": "t_bank30_VL_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase CO (Tables IXc, IXd; row assignment partly ambiguous, extract 6.2 items 6-7): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.1-t_bank30_VL_s-L1-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank30_VL_s-L2-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank30_VL_s-L3-CatA-CO"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.1",
+    "metric": "t_bank90_L_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase CO (Tables IXc, IXd; row assignment partly ambiguous, extract 6.2 items 6-7): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.1-t_bank90_L_s-L1-CatA-CO"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.1",
+    "metric": "t_bank180_L_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase CO (Tables IXc, IXd; row assignment partly ambiguous, extract 6.2 items 6-7): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.1-t_bank180_L_s-L1-CatA-CO"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.1",
+    "metric": "t_bank360_L_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase CO (Tables IXc, IXd; row assignment partly ambiguous, extract 6.2 items 6-7): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.1-t_bank360_L_s-L1-CatA-CO"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.1",
+    "metric": "t_bank90_M_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase CO (Tables IXc, IXd; row assignment partly ambiguous, extract 6.2 items 6-7): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.1-t_bank90_M_s-L1-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank90_M_s-L2-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank90_M_s-L3-CatA-CO"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.1",
+    "metric": "t_bank180_M_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase CO (Tables IXc, IXd; row assignment partly ambiguous, extract 6.2 items 6-7): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.1-t_bank180_M_s-L1-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank180_M_s-L2-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank180_M_s-L3-CatA-CO"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.1",
+    "metric": "t_bank360_M_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase CO (Tables IXc, IXd; row assignment partly ambiguous, extract 6.2 items 6-7): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.1-t_bank360_M_s-L1-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank360_M_s-L2-CatA-CO"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.1",
+    "metric": "t_bank90_H_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase CO (Tables IXc, IXd; row assignment partly ambiguous, extract 6.2 items 6-7): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.1-t_bank90_H_s-L1-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank90_H_s-L2-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank90_H_s-L3-CatA-CO"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.1",
+    "metric": "t_bank180_H_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase CO (Tables IXc, IXd; row assignment partly ambiguous, extract 6.2 items 6-7): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.1-t_bank180_H_s-L1-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank180_H_s-L2-CatA-CO"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.1",
+    "metric": "t_bank360_H_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase CO (Tables IXc, IXd; row assignment partly ambiguous, extract 6.2 items 6-7): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.1-t_bank360_H_s-L1-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank360_H_s-L2-CatA-CO"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.1",
+    "metric": "t_bank30_L_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase CO (Tables IXc, IXd; row assignment partly ambiguous, extract 6.2 items 6-7): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.1-t_bank30_L_s-L2-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank30_L_s-L3-CatA-CO"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.1",
+    "metric": "t_bank_loaded30_VL_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase CO (Tables IXc, IXd; row assignment partly ambiguous, extract 6.2 items 6-7): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.1-t_bank_loaded30_VL_s-L1-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank_loaded30_VL_s-L2-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank_loaded30_VL_s-L3-CatA-CO"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.1",
+    "metric": "t_bank_loaded50_L_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase CO (Tables IXc, IXd; row assignment partly ambiguous, extract 6.2 items 6-7): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.1-t_bank_loaded50_L_s-L1-CatA-CO"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.1",
+    "metric": "t_bank_loaded90_M_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase CO (Tables IXc, IXd; row assignment partly ambiguous, extract 6.2 items 6-7): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.1-t_bank_loaded90_M_s-L1-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank_loaded90_M_s-L2-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank_loaded90_M_s-L3-CatA-CO"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.1",
+    "metric": "t_bank_loaded180_M_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase CO (Tables IXc, IXd; row assignment partly ambiguous, extract 6.2 items 6-7): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.1-t_bank_loaded180_M_s-L1-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank_loaded180_M_s-L2-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank_loaded180_M_s-L3-CatA-CO"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.1",
+    "metric": "t_bank_loaded50_H_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase CO (Tables IXc, IXd; row assignment partly ambiguous, extract 6.2 items 6-7): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.1-t_bank_loaded50_H_s-L1-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank_loaded50_H_s-L2-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank_loaded50_H_s-L3-CatA-CO"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.1",
+    "metric": "t_bank_loaded30_L_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase CO (Tables IXc, IXd; row assignment partly ambiguous, extract 6.2 items 6-7): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.1-t_bank_loaded30_L_s-L2-CatA-CO",
+      "MIL-F-8785C-3.3.4.1.1-t_bank_loaded30_L_s-L3-CatA-CO"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.2",
+    "metric": "t_bank_loaded30_VL_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase GA with stores (Table IXe): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.2-t_bank_loaded30_VL_s-L1-CatA-GA",
+      "MIL-F-8785C-3.3.4.1.2-t_bank_loaded30_VL_s-L2-CatA-GA",
+      "MIL-F-8785C-3.3.4.1.2-t_bank_loaded30_VL_s-L3-CatA-GA"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.2",
+    "metric": "t_bank_loaded50_L_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase GA with stores (Table IXe): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.2-t_bank_loaded50_L_s-L1-CatA-GA"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.2",
+    "metric": "t_bank_loaded90_M_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase GA with stores (Table IXe): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.2-t_bank_loaded90_M_s-L1-CatA-GA",
+      "MIL-F-8785C-3.3.4.1.2-t_bank_loaded90_M_s-L2-CatA-GA",
+      "MIL-F-8785C-3.3.4.1.2-t_bank_loaded90_M_s-L3-CatA-GA"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.2",
+    "metric": "t_bank_loaded180_M_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase GA with stores (Table IXe): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.2-t_bank_loaded180_M_s-L1-CatA-GA",
+      "MIL-F-8785C-3.3.4.1.2-t_bank_loaded180_M_s-L2-CatA-GA",
+      "MIL-F-8785C-3.3.4.1.2-t_bank_loaded180_M_s-L3-CatA-GA"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.2",
+    "metric": "t_bank_loaded50_H_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase GA with stores (Table IXe): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.2-t_bank_loaded50_H_s-L1-CatA-GA",
+      "MIL-F-8785C-3.3.4.1.2-t_bank_loaded50_H_s-L2-CatA-GA",
+      "MIL-F-8785C-3.3.4.1.2-t_bank_loaded50_H_s-L3-CatA-GA"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.2",
+    "metric": "t_bank_loaded30_L_s",
+    "class": "NOT-IMPLEMENTED",
+    "reason": "roll performance in Flight Phase GA with stores (Table IXe): needs time histories of the response to roll commands (M5-B vital.sim.run exists), plus the command definitions, peak/phase extraction and speed ranges; not implemented in M6.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.2-t_bank_loaded30_L_s-L2-CatA-GA",
+      "MIL-F-8785C-3.3.4.1.2-t_bank_loaded30_L_s-L3-CatA-GA"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.1.3",
+    "metric": "roll_sensitivity_deg_per_s_per_lb",
+    "class": "OUT-OF-SIM",
+    "reason": "roll sensitivity in deg per second per pound of stick force: the NESC F-16 model has no cockpit controller, feel system or force gradients, so no stick or pedal force exists in the simulation.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.1.3-roll_sensitivity_deg_per_s_per_lb-L1-CatA",
+      "MIL-F-8785C-3.3.4.1.3-roll_sensitivity_deg_per_s_per_lb-L2-CatA",
+      "MIL-F-8785C-3.3.4.1.3-roll_sensitivity_deg_per_s_per_lb-L1-CatC",
+      "MIL-F-8785C-3.3.4.1.3-roll_sensitivity_deg_per_s_per_lb-L2-CatC"
+    ]
+  },
+  {
+    "paragraph": "3.3.4.3",
+    "metric": "roll_stick_force_max_lb",
+    "class": "OUT-OF-SIM",
+    "reason": "roll stick forces (Table X): the NESC F-16 model has no cockpit controller, feel system or force gradients, so no stick or pedal force exists in the simulation.",
+    "candidate_ids": [
+      "MIL-F-8785C-3.3.4.3-roll_stick_force_max_lb-L1-CatA",
+      "MIL-F-8785C-3.3.4.3-roll_stick_force_max_lb-L1-CatB",
+      "MIL-F-8785C-3.3.4.3-roll_stick_force_max_lb-L1-CatC",
+      "MIL-F-8785C-3.3.4.3-roll_stick_force_max_lb-L2-CatA",
+      "MIL-F-8785C-3.3.4.3-roll_stick_force_max_lb-L2-CatB",
+      "MIL-F-8785C-3.3.4.3-roll_stick_force_max_lb-L2-CatC",
+      "MIL-F-8785C-3.3.4.3-roll_stick_force_max_lb-L3-CatAll"
+    ]
+  },
+  {
+    "paragraph": "3.2.1.1.2",
+    "metric": "(qualitative)",
+    "class": "PILOT",
+    "reason": "trim changes during rapid speed changes must not make the load factor hard to hold (qualitative); no candidate record exists (extract 6.3 H); needs pilot evaluation or an interpretation policy.",
+    "candidate_ids": []
+  },
+  {
+    "paragraph": "3.2.2.3",
+    "metric": "(qualitative)",
+    "class": "PILOT",
+    "reason": "longitudinal pilot-induced oscillation tendency (qualitative, pilot-in-the-loop); no candidate record exists (extract 6.3 H); needs pilot evaluation or an interpretation policy.",
+    "candidate_ids": []
+  },
+  {
+    "paragraph": "3.3.2.1",
+    "metric": "(qualitative)",
+    "class": "PILOT",
+    "reason": "lateral-directional response in atmospheric disturbances must be considered (qualitative); no candidate record exists (extract 6.3 H); needs pilot evaluation or an interpretation policy.",
+    "candidate_ids": []
+  },
+  {
+    "paragraph": "3.3.3",
+    "metric": "(qualitative)",
+    "class": "PILOT",
+    "reason": "lateral-directional pilot-induced oscillation tendency (qualitative, pilot-in-the-loop); no candidate record exists (extract 6.3 H); needs pilot evaluation or an interpretation policy.",
+    "candidate_ids": []
+  },
+  {
+    "paragraph": "3.3.4.4",
+    "metric": "(qualitative)",
+    "class": "PILOT",
+    "reason": "linearity of roll response to roll control (qualitative); no candidate record exists (extract 6.3 H); needs pilot evaluation or an interpretation policy.",
+    "candidate_ids": []
+  },
+  {
+    "paragraph": "3.2.2.2",
+    "metric": "(controls free; force and deflection sense)",
+    "class": "OUT-OF-SIM",
+    "reason": "3.2.2.2 (p.13): the controls-FIXED \"no tendency ... to diverge aperiodically\" is curated (lon_divergence_rate_1_s <= 0 at every Level; review R2 B1). Not assessed: the controls-FREE case and \"the incremental control force and control deflection ... in the same sense\": the NESC F-16 model has no cockpit controller, feel system or force gradients, so no stick or pedal force exists in the simulation.",
+    "candidate_ids": []
+  },
+  {
+    "paragraph": "Category C (all curated paragraphs)",
+    "metric": "(all)",
+    "class": "OUT-OF-SIM",
+    "reason": "the curated Category C records (terminal phases TO, CT, PA, WO, L) are loaded but reported NOT_ASSESSABLE: the NESC F-16 has no gear, flap or speed-brake configuration, and a clean configuration is not an approach configuration (proposed ADR).",
+    "candidate_ids": []
+  }
+]

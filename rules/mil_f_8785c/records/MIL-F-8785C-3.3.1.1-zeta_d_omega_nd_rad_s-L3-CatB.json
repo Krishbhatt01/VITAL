@@ -1,0 +1,73 @@
+{
+  "id": "MIL-F-8785C-3.3.1.1-zeta_d_omega_nd_rad_s-L3-CatB",
+  "title": "Dutch roll total damping minimum (Table VI): Level 3, Category B",
+  "ruleset": {
+    "name": "MIL-F-8785C",
+    "revision": "5 November 1980 (supersedes MIL-F-8785B)",
+    "basis": "Class IV; bare airframe; the classical modes of the linear model are the equivalent system (3.1.12)"
+  },
+  "class": "Q-SPEC",
+  "source": {
+    "document": "MIL-F-8785C (5 Nov 1980)",
+    "paragraph": "3.3.1.1",
+    "page": "22 (PDF 21)",
+    "table_or_figure": "",
+    "candidate_id": "MIL-F-8785C-3.3.1.1-zeta_d_omega_nd_rad_s-L3-CatAll",
+    "extract_quote": "| 3 | All | All | 0 | – | 0.4** |",
+    "transcribed_by": "agent fq (M6, review R2 fixes 2026-10-05) from the MIL-F-8785C page images and docs/MIL8785C_EXTRACT.md",
+    "verified": false,
+    "interpretation": "Table VI (p.22): Level 3 minimum zeta_d omega_nd is printed \"-\" but the text says the minimum \"shall be increased above the zeta_d omega_nd minimums listed above by\" .005(omega_nd^2|phi/beta|_d - 20) at Level 3. With zeta_d > 0 required, the base is 0: zeta_d omega_nd > 0 + .005 max(0, x - 20), the only reading that gives the printed line an effect. Review R2 M4."
+  },
+  "applicability": {
+    "aircraft_class": [
+      "IV"
+    ],
+    "flight_phase_category": [
+      "B"
+    ]
+  },
+  "group": "3.3.1.1-CatB",
+  "metric": "zeta_d_omega_nd_rad_s",
+  "criterion": {
+    "type": "levels",
+    "levels": [
+      {
+        "level": 3,
+        "category": "B",
+        "min": 0,
+        "strict": true
+      }
+    ]
+  },
+  "increment": {
+    "metric": "omega_nd2_phi_beta_d",
+    "threshold": 20,
+    "slope": 0.005,
+    "quote": "Level 3: .005(ω_nd²|φ/β|_d − 20)."
+  },
+  "scale": 0.05,
+  "scale_basis": "the bound is 0: scale = 0.05, the Level 2 bound of the same column",
+  "conditions": {
+    "file": "rules/mil_f_8785c/conditions_f16.json",
+    "axes": [
+      "h_ft",
+      "mach",
+      "cg_pct_mac"
+    ],
+    "search": "grid, optional one-step local refinement around the critical point"
+  },
+  "status_policy": {
+    "OK": "use",
+    "DIVERGENT": "fail",
+    "INFEASIBLE": "exclude_and_count",
+    "NOT_CONVERGED": "exclude_and_count",
+    "OUT_OF_DATA_ENVELOPE": "exclude_and_count",
+    "ERROR": "exclude_and_count",
+    "NOT_OSCILLATORY": "exclude_and_count",
+    "UNCLASSIFIED": "exclude_and_count",
+    "MODE_MISSING": "exclude_and_count",
+    "NOT_APPLICABLE": "not_applicable",
+    "rule": "No status other than OK can improve a verdict (FC-702); a DIVERGENT point fails every Level; no usable point gives NOT_ASSESSABLE (FC-701)"
+  },
+  "notes": "Interpreted record (see source.interpretation); registered in tests/M6/tFqRulesR2.m."
+}

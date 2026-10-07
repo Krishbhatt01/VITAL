@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DAVEfunc xmlns="http://daveml.org/2010/DAVEML">
+  <fileHeader name="VITAL fixture"><author name="VITAL test fixture"/><creationDate date="2026-09-29"/></fileHeader>
+  <variableDef name="x" varID="x" units="nd"><isInput/></variableDef>
+  <variableDef name="f" varID="f" units="nd"><isOutput/></variableDef>
+  <breakpointDef name="X" bpID="BPX" units="nd"><bpVals> 1, 2, 3 </bpVals></breakpointDef>
+  <function name="f"><independentVarRef varID="x" extrapolate="neither"/><dependentVarRef varID="f"/>
+    <functionDefn name="fd"><griddedTableDef name="T" gtID="T"><breakpointRefs><bpRef bpID="BPX"/></breakpointRefs><dataTable> 1, 2 </dataTable></griddedTableDef></functionDefn></function>
+</DAVEfunc>

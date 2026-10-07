@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DAVEfunc xmlns="http://daveml.org/2010/DAVEML">
+  <fileHeader name="VITAL table fixture"><author name="VITAL test fixture"/><creationDate date="2026-09-29"/></fileHeader>
+  <!-- 3 x 2 table over X = [1 2 3], Y = [10 20]; data listed with the LAST breakpoint (Y) varying fastest:
+       f(1,10)=1 f(1,20)=2 f(2,10)=3 f(2,20)=4 f(3,10)=5 f(3,20)=6 -->
+  <variableDef name="x" varID="x" units="nd"><isInput/></variableDef>
+  <variableDef name="y" varID="y" units="nd"><isInput/></variableDef>
+  <variableDef name="fClamp" varID="fClamp" units="nd"><isOutput/></variableDef>
+  <variableDef name="fExtrap" varID="fExtrap" units="nd"><isOutput/></variableDef>
+  <breakpointDef name="X" bpID="BPX" units="nd"><bpVals> 1, 2, 3 </bpVals></breakpointDef>
+  <breakpointDef name="Y" bpID="BPY" units="nd"><bpVals> 10, 20 </bpVals></breakpointDef>
+  <griddedTableDef name="T" gtID="T_def">
+    <breakpointRefs><bpRef bpID="BPX"/><bpRef bpID="BPY"/></breakpointRefs>
+    <dataTable> 1, 2, 3, 4, 5, 6 </dataTable>
+  </griddedTableDef>
+  <function name="clamped">
+    <independentVarRef varID="x" min="1" max="3" extrapolate="neither"/>
+    <independentVarRef varID="y" min="10" max="20" extrapolate="neither"/>
+    <dependentVarRef varID="fClamp"/>
+    <functionDefn name="clamped_defn"><griddedTableRef gtID="T_def"/></functionDefn>
+  </function>
+  <function name="extrapolated">
+    <independentVarRef varID="x" extrapolate="both"/>
+    <independentVarRef varID="y" extrapolate="both"/>
+    <dependentVarRef varID="fExtrap"/>
+    <functionDefn name="extrapolated_defn"><griddedTableRef gtID="T_def"/></functionDefn>
+  </function>
+</DAVEfunc>

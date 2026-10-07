@@ -1,0 +1,103 @@
+[
+ {
+  "id": "S6FR-1",
+  "file": "rules/mil_f_8785c/records/MIL-F-8785C-3.2.2.1.2-zeta_sp-L2-CatB.json",
+  "pattern": "\"group\": \"3.2.2.1.2-CatB\"",
+  "replacement": "\"group\": \"3.2.2.1.2-CatA\"",
+  "targets": [
+   "tFqRulesR2/groupMatchesCategory"
+  ],
+  "rationale": "R2-1. Category mapping: a Category B Table IV record filed in the Category A group."
+ },
+ {
+  "id": "S6FR-2",
+  "file": "+vital/+fq/assess.m",
+  "pattern": "'nExcluded', sum(strcmp(gc, 'EXCLUDED'))",
+  "replacement": "'nExcluded', 0",
+  "targets": [
+   "tFqEngineR2/excludedPointNeverHidesWorseLevel",
+   "tFqEngineR2/missingModeNeverPasses"
+  ],
+  "rationale": "R2-3. Group exclusions not counted: a PARTIAL group is reported ASSESSED and complete."
+ },
+ {
+  "id": "S6FR-3",
+  "file": "+vital/+fq/assess.m",
+  "pattern": "if j > 1, o = [(v(j-1) + v(j)) / 2, o]; end %#ok<AGROW>",
+  "replacement": "%#ok<AGROW>",
+  "targets": [
+   "tFqEngineR2/refinementBelowCriticalValue"
+  ],
+  "rationale": "R2-4. Refinement evaluates only the upper-side midpoint of the critical cell."
+ },
+ {
+  "id": "S6FR-4",
+  "file": "+vital/+fq/metrics.m",
+  "pattern": "if rate > 0   % speed divergence only when the root is unstable",
+  "replacement": "if true",
+  "targets": [
+   "tFqMetricsR2/stableSplitPhugoidNoSpeedDivergence"
+  ],
+  "rationale": "R2-7 (adapted to the new code). Speed divergence: the lambda > 0 guard lost; a stable real root gives a negative T2."
+ },
+ {
+  "id": "S6FR-5",
+  "file": "+vital/+fq/assess.m",
+  "pattern": "if strcmp(st, 'NOT_APPLICABLE')",
+  "replacement": "if any(strcmp(st, {'NOT_APPLICABLE', 'MODE_MISSING'}))",
+  "targets": [
+   "tFqEngineR2/missingModeNeverPasses"
+  ],
+  "rationale": "R2-8. Excluded point counted as passing: a missing mode treated as not applicable."
+ },
+ {
+  "id": "S6FR-6",
+  "file": "+vital/+fq/f16Factory.m",
+  "pattern": "V = c.mach * atm.a;",
+  "replacement": "V = c.mach * 340.294;",
+  "targets": [
+   "tF16FqR2/factoryMachUsesLocalSpeedOfSound"
+  ],
+  "rationale": "R2-10. Mach converted with the sea-level speed of sound at every altitude."
+ },
+ {
+  "id": "S6FR-7",
+  "file": "+vital/+fq/assess.m",
+  "pattern": "Lm = min(lvlAt(ii), max(levels));",
+  "replacement": "Lm = max(levels);",
+  "targets": [
+   "tFqEngineR2/groupMarginToAchievedLevel"
+  ],
+  "rationale": "R2-11 (index renamed in the new code). Group margin always to the Level-3 boundary."
+ },
+ {
+  "id": "S6FR-8",
+  "file": "+vital/+fq/metrics.m",
+  "pattern": "if abs(lin.gamma0) > opts.GammaTol",
+  "replacement": "if lin.gamma0 > opts.GammaTol",
+  "targets": [
+   "tFqMetricsR2/descendingTrimIsNotLevel"
+  ],
+  "rationale": "R2-13. NOT_LEVEL gate misses descending trims."
+ },
+ {
+  "id": "S6FR-9",
+  "file": "run_f16_fq.m",
+  "pattern": "condStr(x.critical, ax), x.status, exStr(x.excludedBy));",
+  "replacement": "condStr(x.critical, ax), x.status, '0');",
+  "targets": [
+   "tF16FqR2/printoutShowsExclusionsAndEnvelope"
+  ],
+  "rationale": "R2-14 (adapted to the new two-table printout). User printout hides the excluded-point counts."
+ },
+ {
+  "id": "S6FR-10",
+  "file": "+vital/+fq/metrics.m",
+  "pattern": "M = put(M, 'zeta_RS_omega_nRS_rad_s', min(sig), 'OK', '');",
+  "replacement": "M = put(M, 'zeta_RS_omega_nRS_rad_s', max(sig), 'OK', '');",
+  "targets": [
+   "tFqMetricsR2/coupledModeLeastDampedAndNotApplicable"
+  ],
+  "rationale": "R2-16. 3.3.1.4: best-damped coupled pair rated instead of the least-damped."
+ }
+]

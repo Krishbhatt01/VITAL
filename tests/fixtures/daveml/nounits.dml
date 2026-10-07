@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DAVEfunc xmlns="http://daveml.org/2010/DAVEML">
+  <fileHeader name="VITAL fixture"><author name="VITAL test fixture"/><creationDate date="2026-09-29"/></fileHeader>
+  <variableDef name="a" varID="a"><isInput/></variableDef>
+</DAVEfunc>

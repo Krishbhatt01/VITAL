@@ -1,0 +1,42 @@
+[
+ {
+  "id": "S5AX-1",
+  "file": "+vital/+frames/dcm321.m",
+  "pattern": "R2 = [cth 0 -sth; 0 1 0; sth 0 cth];",
+  "replacement": "R2 = [cth 0 sth; 0 1 0; -sth 0 cth];",
+  "targets": [
+   "tAxisChecks/allCasesPassWithIndependentReferences"
+  ],
+  "rationale": "A pitch rotation with the wrong sign would show the nose pitching DOWN for positive theta; the visual checks must turn RED."
+ },
+ {
+  "id": "S5AX-2",
+  "file": "+vital/+frames/stationToBody.m",
+  "pattern": "r = diag([-1 1 -1]) * (rS(:) - rDatum(:));",
+  "replacement": "r = rS(:) - rDatum(:);",
+  "targets": [
+   "tAxisChecks/allCasesPassWithIndependentReferences"
+  ],
+  "rationale": "Forgetting the station flip (x aft, z up) puts the nose behind the datum and the fin below it."
+ },
+ {
+  "id": "S5AX-3",
+  "file": "+vital/+loads/sumLoadsAtCG.m",
+  "pattern": "M_cg = MR - cross(r_cg(:), Fc);",
+  "replacement": "M_cg = MR + cross(r_cg(:), Fc);",
+  "targets": [
+   "tAxisChecks/allCasesPassWithIndependentReferences"
+  ],
+  "rationale": "A reversed CG transfer would make lift behind a forward CG pitch the nose UP."
+ },
+ {
+  "id": "S5AX-4",
+  "file": "+vital/+geo/dcmEcefToNed.m",
+  "pattern": "     -cp*cl, -cp*sl, -sp];",
+  "replacement": "     cp*cl, cp*sl, sp];",
+  "targets": [
+   "tAxisChecks/allCasesPassWithIndependentReferences"
+  ],
+  "rationale": "A Down axis pointing away from the Earth (up) must be caught by the Earth case."
+ }
+]

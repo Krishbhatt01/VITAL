@@ -1,0 +1,230 @@
+[
+ {
+  "id": "S5LR-L1",
+  "file": "+vital/+linear/eulerRates.m",
+  "pattern": "p + (q * sin(ph) + r * cos(ph)) * tan(th);",
+  "replacement": "p + (-q * sin(ph) + r * cos(ph)) * tan(th);",
+  "targets": [
+   "tLinearizeR1/eulerRatesMatchQuaternionKinematics",
+   "tLinearizeR1/eulerRatesJacobianIsAnalytic"
+  ],
+  "rationale": "R1-L1: sign of q sin(phi) tan(theta) in phidot; invisible at wings-level trims (R1 M4)."
+ },
+ {
+  "id": "S5LR-L2",
+  "file": "+vital/+linear/eulerRates.m",
+  "pattern": "q * cos(ph) - r * sin(ph);",
+  "replacement": "q * cos(ph) + r * sin(ph);",
+  "targets": [
+   "tLinearizeR1/eulerRatesMatchQuaternionKinematics",
+   "tLinearizeR1/eulerRatesJacobianIsAnalytic"
+  ],
+  "rationale": "R1-L2: sign of r sin(phi) in thetadot (R1 M4)."
+ },
+ {
+  "id": "S5LR-L3",
+  "file": "+vital/+linear/eulerRates.m",
+  "pattern": "(q * sin(ph) + r * cos(ph)) / cos(th)];",
+  "replacement": "(-q * sin(ph) + r * cos(ph)) / cos(th)];",
+  "targets": [
+   "tLinearizeR1/eulerRatesMatchQuaternionKinematics",
+   "tLinearizeR1/eulerRatesJacobianIsAnalytic"
+  ],
+  "rationale": "R1-L3: sign of q sin(phi) in psidot (R1 M4); pattern adapted to the new eulerRates.m."
+ },
+ {
+  "id": "S5LR-L4",
+  "file": "+vital/+linear/linearize.m",
+  "pattern": "lin.status = info.status;",
+  "replacement": "lin.status = 'OK';",
+  "targets": [
+   "tLinearizeR1/breakpointTrimIsNotConverged"
+  ],
+  "rationale": "R1-L4: a kinked column reported as a converged model (R1 M2, FC-506/FC-510 through linearize)."
+ },
+ {
+  "id": "S5LR-L5",
+  "file": "+vital/+linear/modes.m",
+  "pattern": "if spScore(m(Lp)) > phScore(m(Lp)), pn = 'short_period'; rn = 'phugoid';",
+  "replacement": "if false, pn = 'short_period'; rn = 'phugoid';",
+  "targets": [
+   "tModesR1/splitPhugoidIsNotOscillatory"
+  ],
+  "rationale": "R1-L5: the longitudinal pair always called phugoid; a split phugoid would then be named short period (R1 M3a)."
+ },
+ {
+  "id": "S5LR-L6",
+  "file": "+vital/+linear/modes.m",
+  "pattern": "for k = Tr(o(2:3)), m = name(m, k, 'dutch_roll', 'NOT_OSCILLATORY'); end",
+  "replacement": "for k = Tr(o(2:3)), m = name(m, k, 'dutch_roll', 'OK'); end",
+  "targets": [
+   "tModesR1/splitDutchRollIsNotOscillatory"
+  ],
+  "rationale": "R1-L6: a split Dutch roll reported OK (R1 M3b)."
+ },
+ {
+  "id": "S5LR-L7",
+  "file": "+vital/+linear/modes.m",
+  "pattern": "for k = Lr(o(3:4)), m = name(m, k, 'phugoid', 'NOT_OSCILLATORY'); end",
+  "replacement": "for k = Lr(o(3:4)), m = name(m, k, 'phugoid', 'OK'); end",
+  "targets": [
+   "tModesR1/fourRealLongitudinalRoots"
+  ],
+  "rationale": "R1-L7: four real longitudinal roots with the phugoid reported OK (R1 M3c)."
+ },
+ {
+  "id": "S5LR-L8",
+  "file": "+vital/+linear/modes.m",
+  "pattern": "if condV > 1e10",
+  "replacement": "if false",
+  "targets": [
+   "tModesR1/defectiveEigenvectorsAreUnclassified"
+  ],
+  "rationale": "R1-L8: the ill-conditioned eigenvector guard removed (R1 M3d)."
+ },
+ {
+  "id": "S5LR-L9",
+  "file": "+vital/+linear/modes.m",
+  "pattern": "P = abs(V .* Wl.');",
+  "replacement": "P = abs(V .* Wl);",
+  "targets": [
+   "tModes/classicModesNamedWithExactValues"
+  ],
+  "rationale": "R1-L9: participation without the transpose of inv(V)."
+ },
+ {
+  "id": "S5LR-L10",
+  "file": "+vital/+linear/linearize.m",
+  "pattern": "dva = -[dR1 * R2 * R3 * wind, R1 * dR2 * R3 * wind, R1 * R2 * dR3 * wind];",
+  "replacement": "dva = [dR1 * R2 * R3 * wind, R1 * dR2 * R3 * wind, R1 * R2 * dR3 * wind];",
+  "targets": [
+   "tLinearizeR1/windAirAxisConverters"
+  ],
+  "rationale": "R1-L10: sign of the wind-attitude term in the air-axis converters (R1 MINOR 7)."
+ },
+ {
+  "id": "S5LR-L11",
+  "file": "+vital/+linear/linearize.m",
+  "pattern": "lin.gamma0 = asin(max(-1, min(1, lin.f0(12) / norm(lin.f0(10:12)))));",
+  "replacement": "lin.gamma0 = asin(max(-1, min(1, -lin.f0(12) / norm(lin.f0(10:12)))));",
+  "targets": [
+   "tLinearizeR1/gammaFromDerivativeWithoutCondition"
+  ],
+  "rationale": "R1-L11: sign of the gamma0 fallback (R1 MINOR 6)."
+ },
+ {
+  "id": "S5LR-L12",
+  "file": "run_f16_modes.m",
+  "pattern": "AC = vital.aircraft.f16.config('CG_PCT_MAC', opts.CG);",
+  "replacement": "AC = vital.aircraft.f16.config('CG_PCT_MAC', 25);",
+  "targets": [
+   "tLinearizeR1/runF16ModesPassesItsOwnCgAndGravity",
+   "tF16Modes/aftCgLowersShortPeriodFrequency"
+  ],
+  "rationale": "R1-L12: run_f16_modes linearizes any CG trim with the CG-25 aircraft (now caught by the B1 equilibrium check)."
+ },
+ {
+  "id": "S5LR-L13",
+  "file": "run_f16_modes.m",
+  "pattern": "env = struct('g', opts.g_ftps2 * ft, 'wind_n', [0; 0; 0], 'deltaT', 0);",
+  "replacement": "env = struct('g', 9.80665, 'wind_n', [0; 0; 0], 'deltaT', 0);",
+  "targets": [
+   "tLinearizeR1/runF16ModesPassesItsOwnCgAndGravity",
+   "tF16Modes/readmeTrimHasFiveClassicModes"
+  ],
+  "rationale": "R1-L13: run_f16_modes ignores g_ftps2 (B1)."
+ },
+ {
+  "id": "S5LR-L14",
+  "file": "+vital/+linear/jacobian.m",
+  "pattern": "if k >= 3 && agree(k-1) <= tolAt(k-1) && agree(k) <= tolAt(k)",
+  "replacement": "if k >= 3 && agree(k) <= tolAt(k)",
+  "targets": [
+   "tLinearJacobian/smoothFunctionKnownJacobian"
+  ],
+  "rationale": "R1-L14: plateau accepted on one agreeing pair. (Only the smooth-Jacobian accuracy check detects it: one agreeing pair accepts an earlier, less accurate estimate.)"
+ },
+ {
+  "id": "S5LR-C1",
+  "file": "+vital/+linear/linearize.m",
+  "pattern": "lin.B = Jcl(:, 13:16);",
+  "replacement": "lin.B = lin.open.B;",
+  "targets": [
+   "tClosedLoopR1/prefilterReferencePath"
+  ],
+  "rationale": "R1-C1: the closed-loop reference path (Kref) ignored (R1 M9)."
+ },
+ {
+  "id": "S5LR-C2",
+  "file": "+vital/+linear/linearize.m",
+  "pattern": "[~, y] = vital.plant.derivatives(x, ua, AC, env);",
+  "replacement": "[~, y] = vital.plant.derivatives(x, uref, AC, env);",
+  "targets": [
+   "tClosedLoopR1/nzFeedbackSolvesTheAlgebraicLoop",
+   "tClosedLoopSimAgreement/nzControllerSimMatchesLinearization"
+  ],
+  "rationale": "R1-C2 (adapted to ADR-026): the controller measures y at the reference instead of the applied command."
+ },
+ {
+  "id": "S5LR-C3",
+  "file": "+vital/+linear/linearize.m",
+  "pattern": "sts = {info.status, infoCl.status, infoU.status};",
+  "replacement": "sts = {info.status, 'OK', 'OK'};",
+  "targets": [
+   "tClosedLoopR1/controllerKinkIsReported"
+  ],
+  "rationale": "R1-C3: closed-loop and controller step-study failures dropped from lin.status (R1 M9)."
+ },
+ {
+  "id": "S5LR-B1",
+  "file": "+vital/+linear/linearize.m",
+  "pattern": "if ~(eqRes <= opts.TrimTol)",
+  "replacement": "if false",
+  "targets": [
+   "tLinearizeR1/cgMismatchIsNotAnEquilibrium",
+   "tLinearizeR1/gravityMismatchIsNotAnEquilibrium"
+  ],
+  "rationale": "B1: equilibrium check disabled; a stale trim would be linearized silently."
+ },
+ {
+  "id": "S5LR-B2",
+  "file": "+vital/+linear/nAlphaSteady.m",
+  "pattern": "K = [Asp(:, 2), bde];",
+  "replacement": "K = [Asp(:, 2), [0; bde(2)]];",
+  "targets": [
+   "tLinearizeR1/nAlphaSteadyClosedForm",
+   "tLinearizeR1/nAlphaSteadyEqualsFqMetric"
+  ],
+  "rationale": "B2: MIL n/alpha without the elevator lift Z_de."
+ },
+ {
+  "id": "S5LR-B3",
+  "file": "+vital/+linear/jacobian.m",
+  "pattern": "if s.roundoff > 0.01 * opts.RelTol * scale + opts.AbsTol",
+  "replacement": "if false",
+  "targets": [
+   "tJacobianR1/roundoffLimitedPlateauIsRefused"
+  ],
+  "rationale": "B3: round-off check disabled; a quantized plateau is accepted."
+ },
+ {
+  "id": "S5LR-M1",
+  "file": "+vital/+linear/modes.m",
+  "pattern": "all(strcmp(lin.columnStatus(used), 'OK'));",
+  "replacement": "all(strcmp(lin.columnStatus(1:8), 'OK'));",
+  "targets": [
+   "tLinearizeR1/breakpointTrimIsNotConverged"
+  ],
+  "rationale": "M1: modes with IncludeHeight would accept a model whose h column failed."
+ },
+ {
+  "id": "S5LR-N5",
+  "file": "+vital/+linear/modes.m",
+  "pattern": "if strcmp(pn, 'phugoid') && spScore(m(Lp)) > 0.2",
+  "replacement": "if strcmp(pn, 'phugoid') && spScore(m(Lp)) > 2",
+  "targets": [
+   "tModesR1/thirdOscillatoryModeIsNoted"
+  ],
+  "rationale": "MINOR 5: the coupled third-oscillatory note never given."
+ }
+]

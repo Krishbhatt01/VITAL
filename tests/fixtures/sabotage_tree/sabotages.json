@@ -1,0 +1,4 @@
+[
+  {"id": "S-FIX-1", "file": "+fxs/addOne.m", "pattern": "y = x + 1;", "replacement": "y = x - 1;",
+   "targets": ["tAddOne/addsOne"], "rationale": "Fixture: flipping the sign must turn tAddOne RED."}
+]

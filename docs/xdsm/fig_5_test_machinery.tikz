@@ -1,0 +1,156 @@
+
+%%% Preamble Requirements %%%
+% \usepackage{geometry}
+% \usepackage{amsfonts}
+% \usepackage{amsmath}
+% \usepackage{amssymb}
+% \usepackage{tikz}
+
+% Optional packages such as sfmath set through python interface
+% \usepackage{}
+
+% \usetikzlibrary{arrows,chains,positioning,scopes,shapes.geometric,shapes.misc,shadows}
+
+%%% End Preamble Requirements %%%
+
+\input{"C:/Users/krish/AppData/Local/Programs/Python/Python310/lib/site-packages/pyxdsm/diagram_styles"}
+\begin{tikzpicture}
+
+\matrix[MatrixSetup]{
+%Row 0
+&
+&
+&
+\node [DataIO] (output_sab) {$\begin{array}{c}\text{sabotages.json:} \\ \text{file, pattern, targets}\end{array}$};&
+&
+&
+\node [DataIO] (output_docs) {$\begin{array}{c}\text{FAILURE\_CATALOGUE.md,} \\ \text{MANIFEST.json}\end{array}$};&
+&
+\\
+%Row 1
+\node [Function] (tests) {$\begin{array}{c}\text{1: Test files} \\ \texttt{tests/M0 ... M6}\end{array}$};&
+\node [DataInter] (tests-run) {$\text{test classes}$};&
+&
+\node [DataInter] (tests-sab) {$\text{target test names}$};&
+&
+&
+&
+&
+\\
+%Row 2
+&
+\node [Function] (run) {$\begin{array}{c}\text{2: Run the gate} \\ \texttt{run\_vital\_tests}\end{array}$};&
+\node [DataInter] (run-cls) {$\begin{array}{c}\text{results +} \\ \text{diagnostics}\end{array}$};&
+&
+&
+&
+&
+&
+\\
+%Row 3
+&
+&
+\node [Function] (cls) {$\begin{array}{c}\text{3: Classify} \\ \texttt{+test/classifyResults}\end{array}$};&
+&
+&
+&
+&
+&
+\node [DataIO] (right_output_cls) {$\begin{array}{c}\text{PASS, RED, VACUOUS,} \\ \text{REGRESSION, gateOK}\end{array}$};\\
+%Row 4
+&
+&
+&
+\node [MDA] (sab) {$\begin{array}{c}\text{4: Plant bugs, one by one} \\ \texttt{run\_sabotage}\end{array}$};&
+\node [DataInter] (sab-child) {$\begin{array}{c}\text{mutated copy,} \\ \text{target tests}\end{array}$};&
+\node [DataInter] (sab-hash) {$\text{real tree}$};&
+&
+&
+\node [DataIO] (right_output_sab) {$\begin{array}{c}\text{DETECTED /} \\ \text{NOT DETECTED}\end{array}$};\\
+%Row 5
+&
+&
+&
+\node [DataInter] (child-sab) {$\text{did a test fail?}$};&
+\node [Function] (child) {$\begin{array}{c}\text{5: Fresh MATLAB on a copy} \\ \texttt{+test/runSabotageCase}\end{array}$};&
+&
+&
+&
+\\
+%Row 6
+&
+&
+&
+\node [DataInter] (hash-sab) {$\text{hash before = after}$};&
+&
+\node [Function] (hash) {$\begin{array}{c}\text{6: Tree unchanged?} \\ \texttt{+test/treeHash}\end{array}$};&
+&
+&
+\\
+%Row 7
+\node [DataInter] (docs-tests) {$\text{checks the docs}$};&
+&
+&
+&
+&
+&
+\node [Function] (docs) {$\begin{array}{c}\text{7: Document checks} \\ \texttt{tSpecDocs, checkCatalogue}\end{array}$};&
+&
+\\
+%Row 8
+&
+&
+&
+&
+&
+&
+&
+&
+\\
+};
+
+% XDSM process chains
+{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (tests);
+\chainin (run) [join=by ProcessHVA];
+\chainin (cls) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (tests);
+\chainin (sab) [join=by ProcessHVA];
+\chainin (child) [join=by ProcessHVA];
+\chainin (sab) [join=by ProcessHVA];
+\chainin (hash) [join=by ProcessHVA];
+\chainin (sab) [join=by ProcessHVA];
+\end{pgfonlayer}
+}
+
+\begin{pgfonlayer}{data}
+\path
+% Horizontal edges
+(tests) edge [DataLine] (tests-run)
+(run) edge [DataLine] (run-cls)
+(tests) edge [DataLine] (tests-sab)
+(sab) edge [DataLine] (sab-child)
+(child) edge [DataLine] (child-sab)
+(sab) edge [DataLine] (sab-hash)
+(hash) edge [DataLine] (hash-sab)
+(docs) edge [DataLine] (docs-tests)
+(cls) edge [DataLine] (right_output_cls)
+(sab) edge [DataLine] (right_output_sab)
+% Vertical edges
+(tests-run) edge [DataLine] (run)
+(run-cls) edge [DataLine] (cls)
+(tests-sab) edge [DataLine] (sab)
+(sab-child) edge [DataLine] (child)
+(child-sab) edge [DataLine] (sab)
+(sab-hash) edge [DataLine] (hash)
+(hash-sab) edge [DataLine] (sab)
+(docs-tests) edge [DataLine] (tests)
+(sab) edge [DataLine] (output_sab)
+(docs) edge [DataLine] (output_docs);
+\end{pgfonlayer}
+
+\end{tikzpicture}

@@ -1,0 +1,72 @@
+{
+  "id": "MIL-F-8785C-3.3.1.4-coupled_roll_spiral_present-L3-CatA-other",
+  "title": "Coupled roll-spiral mode prohibited (conservative: Category A phases other than CO, GA): Level 3, Category A (Category A phases other than CO, GA)",
+  "ruleset": {
+    "name": "MIL-F-8785C",
+    "revision": "5 November 1980 (supersedes MIL-F-8785B)",
+    "basis": "Class IV; bare airframe; the classical modes of the linear model are the equivalent system (3.1.12)"
+  },
+  "class": "Q-PROXY",
+  "source": {
+    "document": "MIL-F-8785C (5 Nov 1980)",
+    "paragraph": "3.3.1.4",
+    "page": "23 (PDF 22)",
+    "table_or_figure": "",
+    "candidate_id": "MIL-F-8785C-3.3.1.4-coupled_roll_spiral_present-L3-CatA-CO/GA",
+    "extract_quote": "\"such as CO and GA\", a coupled roll-spiral mode in response to pilot roll commands is not allowed",
+    "transcribed_by": "agent fq (M6, review R2 fixes 2026-10-05) from the MIL-F-8785C page images and docs/MIL8785C_EXTRACT.md",
+    "verified": false,
+    "interpretation": "3.3.1.4 (p.23): \"For Flight Phases which involve more than gentle maneuvering, such as CO and GA, the airplane characteristics shall not exhibit a coupled roll-spiral mode\"; the permission with zeta_RS omega_nRS minima is given to Categories B and C only. Conservative reading: the prohibition also applies to the other Category A phases (precision tracking or rapid maneuvering). Review R2 M2."
+  },
+  "applicability": {
+    "aircraft_class": [
+      "IV"
+    ],
+    "flight_phase_category": [
+      "A"
+    ],
+    "flight_phases_excluded": [
+      "CO",
+      "GA"
+    ]
+  },
+  "group": "3.3.1.4-CatA-other",
+  "phase_subset": "other",
+  "metric": "coupled_roll_spiral_present",
+  "criterion": {
+    "type": "levels",
+    "levels": [
+      {
+        "level": 3,
+        "category": "A",
+        "max": 0,
+        "strict": false
+      }
+    ]
+  },
+  "scale": 1,
+  "scale_basis": "presence is 0/1: unit scale",
+  "conditions": {
+    "file": "rules/mil_f_8785c/conditions_f16.json",
+    "axes": [
+      "h_ft",
+      "mach",
+      "cg_pct_mac"
+    ],
+    "search": "grid, optional one-step local refinement around the critical point"
+  },
+  "status_policy": {
+    "OK": "use",
+    "DIVERGENT": "fail",
+    "INFEASIBLE": "exclude_and_count",
+    "NOT_CONVERGED": "exclude_and_count",
+    "OUT_OF_DATA_ENVELOPE": "exclude_and_count",
+    "ERROR": "exclude_and_count",
+    "NOT_OSCILLATORY": "exclude_and_count",
+    "UNCLASSIFIED": "exclude_and_count",
+    "MODE_MISSING": "exclude_and_count",
+    "NOT_APPLICABLE": "not_applicable",
+    "rule": "No status other than OK can improve a verdict (FC-702); a DIVERGENT point fails every Level; no usable point gives NOT_ASSESSABLE (FC-701)"
+  },
+  "notes": "Interpreted record (see source.interpretation); registered in tests/M6/tFqRulesR2.m."
+}

@@ -1,0 +1,53 @@
+[
+ {
+  "id": "S2-1",
+  "file": "+vital/+daveml/read.m",
+  "pattern": "else, need(2); s = ['(' a{1} ' - ' a{2} ')']; end",
+  "replacement": "else, need(2); s = ['(' a{2} ' - ' a{1} ')']; end",
+  "targets": [
+   "tDavemlOperators/arithmeticAndOperandOrder"
+  ],
+  "rationale": "MathML operand order: reversed binary minus is the classic XML-reader bug (readstruct loses order)."
+ },
+ {
+  "id": "S2-2",
+  "file": "+vital/+daveml/read.m",
+  "pattern": "f.data = permute(reshape(tbl.data, fliplr(sz)), numel(sz):-1:1);",
+  "replacement": "f.data = reshape(tbl.data, sz);",
+  "targets": [
+   "tDavemlParser/tableStorageOrderLastBreakpointFastest"
+  ],
+  "rationale": "DAVE-ML stores the last breakpoint fastest; a MATLAB column-major reshape transposes every table."
+ },
+ {
+  "id": "S2-3",
+  "file": "+vital/+daveml/lookup.m",
+  "pattern": "if xk < floorK, xk = floorK; clamped = true; end",
+  "replacement": "",
+  "targets": [
+   "tDavemlTables/neitherClampsAndFlags"
+  ],
+  "rationale": "Dropping the clamp would extrapolate beyond the published data (extrapolate=\"neither\") and never flag OUT_OF_DATA_ENVELOPE."
+ },
+ {
+  "id": "S2-4",
+  "file": "+vital/+daveml/compile.m",
+  "pattern": "L(end+1) = sprintf('%s = max(%s, %.17g);', mv, mv, v(j).minValue); %#ok<AGROW>",
+  "replacement": "",
+  "targets": [
+   "tDavemlOperators/minMaxValueSaturate"
+  ],
+  "rationale": "minValue/maxValue are saturations (ADR-014); ignoring them breaks the NESC control laws."
+ },
+ {
+  "id": "S2-5",
+  "file": "+vital/+models/+f16/aero.m",
+  "pattern": "v_cm = (v_cmt + (v_cq2v * v_cmq));",
+  "replacement": "v_cm = (v_cmt - (v_cq2v * v_cmq));",
+  "targets": [
+   "tF16CheckData/aeroCheckData",
+   "tF16CheckData/generatedFilesAreCurrent"
+  ],
+  "rationale": "A hand edit to the generated F-16 model (pitch damping sign) must be caught by NASA's checkData and by the regeneration check."
+ }
+]

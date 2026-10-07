@@ -1,0 +1,67 @@
+{
+  "id": "MIL-F-8785C-3.2.1.1-speed_divergence_rate_1_s-L2-CatB",
+  "title": "Longitudinal static stability, controls fixed: no aperiodic airspeed divergence: Level 2, Category B",
+  "ruleset": {
+    "name": "MIL-F-8785C",
+    "revision": "5 November 1980 (supersedes MIL-F-8785B)",
+    "basis": "Class IV; bare airframe; the classical modes of the linear model are the equivalent system (3.1.12)"
+  },
+  "class": "Q-PROXY",
+  "source": {
+    "document": "MIL-F-8785C (5 Nov 1980)",
+    "paragraph": "3.2.1.1",
+    "page": "11 (PDF 10)",
+    "table_or_figure": "",
+    "candidate_id": "",
+    "extract_quote": "there shall be \"no tendency for airspeed to diverge aperiodically\"",
+    "transcribed_by": "agent fq (M6, review R2 fixes 2026-10-05) from the MIL-F-8785C page images and docs/MIL8785C_EXTRACT.md",
+    "verified": false,
+    "interpretation": "3.2.1.1 (p.11): \"For Levels 1 and 2 there shall be no tendency for airspeed to diverge aperiodically when the airplane is disturbed from trim with the cockpit controls fixed and with them free.\" Encoded for controls FIXED as: the largest real eigenvalue of the speed/attitude-dominated (p_u + p_theta > p_w + p_q) longitudinal roots, height root included, is <= 0. The controls-free half and the force/position gradients (a sufficient demonstration) stay in coverage (OUT-OF-SIM). Review R2 M1."
+  },
+  "applicability": {
+    "aircraft_class": [
+      "IV"
+    ],
+    "flight_phase_category": [
+      "B"
+    ]
+  },
+  "group": "3.2.1.1-CatB",
+  "metric": "speed_divergence_rate_1_s",
+  "criterion": {
+    "type": "levels",
+    "levels": [
+      {
+        "level": 2,
+        "category": "B",
+        "max": 0,
+        "strict": false
+      }
+    ]
+  },
+  "scale": 0.11552453009332421,
+  "scale_basis": "ln2/6 s: the rate of a 6-s time to double (the 3.2.1.1 Level 3 floor)",
+  "conditions": {
+    "file": "rules/mil_f_8785c/conditions_f16.json",
+    "axes": [
+      "h_ft",
+      "mach",
+      "cg_pct_mac"
+    ],
+    "search": "grid, optional one-step local refinement around the critical point"
+  },
+  "status_policy": {
+    "OK": "use",
+    "DIVERGENT": "fail",
+    "INFEASIBLE": "exclude_and_count",
+    "NOT_CONVERGED": "exclude_and_count",
+    "OUT_OF_DATA_ENVELOPE": "exclude_and_count",
+    "ERROR": "exclude_and_count",
+    "NOT_OSCILLATORY": "exclude_and_count",
+    "UNCLASSIFIED": "exclude_and_count",
+    "MODE_MISSING": "exclude_and_count",
+    "NOT_APPLICABLE": "not_applicable",
+    "rule": "No status other than OK can improve a verdict (FC-702); a DIVERGENT point fails every Level; no usable point gives NOT_ASSESSABLE (FC-701)"
+  },
+  "notes": "Interpreted record (see source.interpretation); registered in tests/M6/tFqRulesR2.m."
+}

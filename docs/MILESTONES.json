@@ -1,0 +1,14 @@
+{
+ "closed": [
+  "M0",
+  "M1",
+  "M2",
+  "M3",
+  "M4",
+  "M5",
+  "M6"
+ ],
+ "notes": "A milestone is closed when its full GREEN gate and sabotage check pass and the coordinator records it here. Only the coordinator edits this file.",
+ "M5_acceptance": "Closed 2026-10-05 by the user's decision: full M5 gate 388/388 and 66/66 sabotages on a quiet tree (2026-10-01). Accepted with 53 of 200 NESC F-16 band signals outside their pre-registered bands, recorded as known discrepancies (tests/M5/tNescF16Cases.m, tNescF16Circles.m; reports/fragments/nesc/NOTES.md section 3). No band was changed.",
+ "M6_acceptance": "Closed 2026-10-06 by the user's decision after review R2 fixes: full M0-M6 gate 461/461 and 111/111 sabotages on a quiet tree. Accepted judgments: NESC validity region |h-10,000 ft|<=5,000 ft and |KEAS-287.8|<=20% (headline Levels in-envelope only; extrapolated Levels labelled indicative); MIL-F-8785C 3.2.2.2 applied to level 1-g flight as the n=1 member of steady turns and pull-ups."
+}

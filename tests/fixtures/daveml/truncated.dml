@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DAVEfunc xmlns="http://daveml.org/2010/DAVEML">
+  <fileHeader name="VITAL fixture"><author name="VITAL test fixture"/><creationDate date="2026-09-29"/></fileHeader>
+  <!-- Operator semantics fixture: every expected value is computed by hand in tDavemlOperators. -->
+  <variableDef name="a" varID="a" units="nd"><isInput/></variableDef>
+  <variableDef name="b" varID="b" units="nd"><isInput/></variableDef>
+  <variableDef name="sub" varID="sub" units="nd"><calculation><math xmlns="http://www.w3.org/1998/Math/MathML"><apply><minus/><ci>a</ci><ci>b</ci></apply></math></calculation><isOutput/></variableDef>
+  <variableDef name="neg" varID="neg" units="nd"><calculation><math xmlns="http://www.w3.org/1998/Math/MathML"><apply><minus/><ci>a</ci></apply></math></calculation><isOutput/></variableDef>
+  <variableDef name="div" varID="div" units="nd"><calculation>

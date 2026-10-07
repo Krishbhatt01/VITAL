@@ -1,0 +1,69 @@
+[
+ {
+  "id": "S7C-1",
+  "file": "+vital/+ctrl/pitchSas.m",
+  "pattern": "u(1) = u(1) + Kq * (y.q - q0) + Ka * (y.alpha - a0);",
+  "replacement": "u(1) = u(1) - Kq * (y.q - q0) - Ka * (y.alpha - a0);",
+  "targets": [
+   "tCtrlLaws/lawIdentities",
+   "tCtrlLaws/signsFollowConventions7",
+   "tCtrlClosedLoop/handClosedLoopPitchSas",
+   "tCtrlClosedLoop/modesMoveInRegisteredDirection"
+  ],
+  "rationale": "SAS sign flipped (the classic TED/TEU confusion): positive gains then remove short-period damping and stiffness instead of adding them (CONVENTIONS 7)."
+ },
+ {
+  "id": "S7C-2",
+  "file": "+vital/+ctrl/yawDamper.m",
+  "pattern": "u(3) = u(3) + Kr * (y.r - r0) + Kari * (u(2) - da0);",
+  "replacement": "u(3) = u(3) + Kr * (y.p - r0) + Kari * (u(2) - da0);",
+  "targets": [
+   "tCtrlLaws/lawIdentities",
+   "tCtrlClosedLoop/handClosedLoopYawDamper",
+   "tCtrlClosedLoop/handClosedLoopCombined"
+  ],
+  "rationale": "Wrong measurement: the yaw damper feeds back the roll rate instead of the yaw rate (a wrong field or index into the rate vector)."
+ },
+ {
+  "id": "S7C-3",
+  "file": "+vital/+ctrl/nescLqr.m",
+  "pattern": "in.pb = y.p; in.qb = y.q; in.rb = y.r;",
+  "replacement": "in.pb = rad2deg(y.p); in.qb = rad2deg(y.q); in.rb = rad2deg(y.r);",
+  "targets": [
+   "tCtrlLaws/nescLqrIsNasaPublishedLaw",
+   "tCtrlClosedLoop/handClosedLoopNescLqr"
+  ],
+  "rationale": "Unit error at the law boundary: the DML declares pb, qb, rb in rad/s, but they are passed in deg/s (as the angles are), multiplying every rate gain by 57.3."
+ },
+ {
+  "id": "S7C-4",
+  "file": "+vital/+ctrl/suggestGains.m",
+  "pattern": "d = (mj - m) / h(j);",
+  "replacement": "d = (m - mj) / h(j);",
+  "targets": [
+   "tCtrlSuggest/sensitivitySignsAtStart",
+   "tCtrlSuggest/targetReachedAndConfirmed"
+  ],
+  "rationale": "Sensitivity sign reversed (difference taken the wrong way round): the search then steps the gains away from the target, and the reported sensitivities have the wrong sign."
+ },
+ {
+  "id": "S7C-5",
+  "file": "+vital/+ctrl/suggestGains.m",
+  "pattern": "resC = vital.fq.assess(R, fac, C);",
+  "replacement": "resC = resK;",
+  "targets": [
+   "tCtrlSuggest/confirmationIsIndependentAssessment"
+  ],
+  "rationale": "Confirmation step skipped: the search's last assessment (made with the unrounded gains) is reported as the confirmation of the proposed (rounded) gains."
+ },
+ {
+  "id": "S7C-6",
+  "file": "+vital/+fq/f16Factory.m",
+  "pattern": "    opts.Controller = []",
+  "replacement": "    opts.Controller = @(AC, env, tr) vital.ctrl.pitchSas(AC, env, tr)",
+  "targets": [
+   "tCtrlFq/defaultPathBitIdentical"
+  ],
+  "rationale": "The default no-controller path changed: the factory augments every aircraft by default (a zero-gain SAS), so the M6 bare-airframe results no longer come from the bare airframe."
+ }
+]
