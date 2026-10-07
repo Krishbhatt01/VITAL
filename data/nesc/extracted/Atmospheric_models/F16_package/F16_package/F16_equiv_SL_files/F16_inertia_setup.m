@@ -1,0 +1,27 @@
+%% M file script to provide data for F16_inertia.mdl model
+clear F16_inertia_data; % remove any existing data structure
+%% Block "const_1" has no data to save.
+%% Block "times_1" has no data to save.
+%% Block "bodyPositionOfCmWrtMrc_X" has no data to save.
+%% Block "const_3" has no data to save.
+%% Block "minus_3" has no data to save.
+%% Block "vrsPositionOfCM" has no data to save.
+%% Block "const_5" has no data to save.
+%% Block "const_6" has no data to save.
+%% Block "bodyMomentOfInertia_Roll" has no data to save.
+%% Block "const_8" has no data to save.
+%% Block "bodyMomentOfInertia_Pitch" has no data to save.
+%% Block "const_10" has no data to save.
+%% Block "bodyMomentOfInertia_Yaw" has no data to save.
+%% Block "const_12" has no data to save.
+%% Block "bodyProductOfInertia_ZX" has no data to save.
+%% Block "const_14" has no data to save.
+%% Block "bodyProductOfInertia_XY" has no data to save.
+%% Block "const_16" has no data to save.
+%% Block "bodyProductOfInertia_YZ" has no data to save.
+%% Block "const_18" has no data to save.
+%% Block "totalMass" has no data to save.
+%% Block "const_20" has no data to save.
+%% Block "bodyPositionOfCmWrtMrc_Y" has no data to save.
+%% Block "const_22" has no data to save.
+%% Block "bodyPositionOfCmWrtMrc_Z" has no data to save.

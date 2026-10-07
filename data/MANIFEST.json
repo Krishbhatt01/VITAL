@@ -1,0 +1,140 @@
+{
+ "description": "VITAL reference-data manifest. Paths are relative to the data root (vital.paths(\"data\")). Original downloads are never edited; tSpecDocs/manifestHashesMatch re-verifies every present file.",
+ "files": [
+  {
+   "path": "nesc/original/NASA-TM-2015-218675-EOM_checkcase_summary.pdf",
+   "sha256": "541db40684ee5663064ccf4b5e4ede7ffd536d38adb5493ce3af84da4f961d5f",
+   "bytes": 1029561,
+   "source_url": "https://nescacademy.nasa.gov/src/flightsim/Reports/NASA-TM-2015-218675-EOM_checkcase_summary.pdf",
+   "retrieved": "2026-09-29",
+   "status": "present",
+   "role": "original download"
+  },
+  {
+   "path": "nesc/original/NASA-TM-2015-218675-EOM_checkcase_appendices.pdf",
+   "sha256": "f5d702972352331d8f9a7e3867f0cfdec2f91305da26a13c47d4c9a80fb0eb77",
+   "bytes": 16603034,
+   "source_url": "https://nescacademy.nasa.gov/src/flightsim/Reports/NASA-TM-2015-218675-EOM_checkcase_appendices.pdf",
+   "retrieved": "2026-09-29",
+   "status": "present",
+   "role": "original download"
+  },
+  {
+   "path": "nesc/original/Atmospheric_models.zip",
+   "sha256": "10e2dc267856ef37eaedbcdd16eb49a8c44b39301054de0fa78292c1c4aba3bc",
+   "bytes": 1498326,
+   "source_url": "https://nescacademy.nasa.gov/src/flightsim/Models/Atmospheric_models.zip",
+   "retrieved": "2026-09-29",
+   "status": "present",
+   "role": "original download"
+  },
+  {
+   "path": "nesc/original/Initial_Conditions.xlsx",
+   "sha256": "57b986c1ea50feec1881f1a45cf42c6c426ae78c8c364611857de2c4061fdb77",
+   "bytes": 77576,
+   "source_url": "https://nescacademy.nasa.gov/src/flightsim/Scenarios/Initial_Conditions.xlsx",
+   "retrieved": "2026-09-29",
+   "status": "present",
+   "role": "original download"
+  },
+  {
+   "path": "nesc/original/Atmospheric_checkcases.zip",
+   "sha256": "1a83df6d00fa186973e8fb7bb8aefa5f7ed580d2ce8aa1327f50ac0c7bd5c869",
+   "bytes": 24932914,
+   "source_url": "https://nescacademy.nasa.gov/src/flightsim/Datasets/Atmospheric_checkcases.zip",
+   "retrieved": "2026-09-29",
+   "status": "present",
+   "role": "original download"
+  },
+  {
+   "path": "nesc/extracted/Atmospheric_models/F16_package/F16_package/F16_S119_source/F16_aero.dml",
+   "sha256": "82796577b989b5f3becb7d13430ff6c619b3ecd2e642a6427b743658fb177e51",
+   "bytes": 175444,
+   "source_url": "extracted from nesc/original/Atmospheric_models.zip",
+   "retrieved": "2026-09-29",
+   "status": "present",
+   "role": "DAVE-ML model"
+  },
+  {
+   "path": "nesc/extracted/Atmospheric_models/F16_package/F16_package/F16_S119_source/F16_control.dml",
+   "sha256": "bca7789dde61b741de69f697ce8799ee666214d0e1fa203973523774fc3a969b",
+   "bytes": 39614,
+   "source_url": "extracted from nesc/original/Atmospheric_models.zip",
+   "retrieved": "2026-09-29",
+   "status": "present",
+   "role": "DAVE-ML model"
+  },
+  {
+   "path": "nesc/extracted/Atmospheric_models/F16_package/F16_package/F16_S119_source/F16_gnc.dml",
+   "sha256": "fc1dbff00cc14b0228973c43cfc17797fd48d2e36950ec039ff4e77d8577827c",
+   "bytes": 46829,
+   "source_url": "extracted from nesc/original/Atmospheric_models.zip",
+   "retrieved": "2026-09-29",
+   "status": "present",
+   "role": "DAVE-ML model"
+  },
+  {
+   "path": "nesc/extracted/Atmospheric_models/F16_package/F16_package/F16_S119_source/F16_inertia.dml",
+   "sha256": "e11d4eba5b158d24db7034bd85682ad0b896dd2f3172f007ca3d6d6d4e693c4a",
+   "bytes": 5223,
+   "source_url": "extracted from nesc/original/Atmospheric_models.zip",
+   "retrieved": "2026-09-29",
+   "status": "present",
+   "role": "DAVE-ML model"
+  },
+  {
+   "path": "nesc/extracted/Atmospheric_models/F16_package/F16_package/F16_S119_source/F16_prop.dml",
+   "sha256": "e5fd7772e5c05cdac666c94febbe4cb50139418b26045affd92dbd198f2215c6",
+   "bytes": 29371,
+   "source_url": "extracted from nesc/original/Atmospheric_models.zip",
+   "retrieved": "2026-09-29",
+   "status": "present",
+   "role": "DAVE-ML model"
+  },
+  {
+   "path": "nesc/extracted/Atmospheric_models/brick_aero.dml",
+   "sha256": "a5883cfbde33969296a9578ac467e06e5920c5c1dc036d9ff654e111185af31d",
+   "bytes": 8765,
+   "source_url": "extracted from nesc/original/Atmospheric_models.zip",
+   "retrieved": "2026-09-29",
+   "status": "present",
+   "role": "DAVE-ML model"
+  },
+  {
+   "path": "nesc/extracted/Atmospheric_models/brick_inertia.dml",
+   "sha256": "eae595902d2f2a6cd96632536ecbd4e55681b66dc3f6bdc22dbe2882247fbfa1",
+   "bytes": 4051,
+   "source_url": "extracted from nesc/original/Atmospheric_models.zip",
+   "retrieved": "2026-09-29",
+   "status": "present",
+   "role": "DAVE-ML model"
+  },
+  {
+   "path": "nesc/extracted/Atmospheric_models/cannonball_aero.dml",
+   "sha256": "baabd6eec679445cd3d5aa5d51b39ade99064c515876dfe018fae78b3eb028e5",
+   "bytes": 3893,
+   "source_url": "extracted from nesc/original/Atmospheric_models.zip",
+   "retrieved": "2026-09-29",
+   "status": "present",
+   "role": "DAVE-ML model"
+  },
+  {
+   "path": "nesc/extracted/Atmospheric_models/cannonball_inertia.dml",
+   "sha256": "c00b9047ce9fd4a8ec4185c02be3fb755bb966680c501fe5d815bed1e2c61a9c",
+   "bytes": 3938,
+   "source_url": "extracted from nesc/original/Atmospheric_models.zip",
+   "retrieved": "2026-09-29",
+   "status": "present",
+   "role": "DAVE-ML model"
+  },
+  {
+   "path": "mil/original/MIL-F-8785C.pdf",
+   "sha256": "77e21ab2a201d93d0b819f5c29e318fc1841ef0d015ede0dcaf63ea4b94b8c5b",
+   "bytes": 3465219,
+   "source_url": "https://everyspec.com/MIL-SPECS/MIL-SPECS-MIL-F/MIL-F-8785C_5295/",
+   "retrieved": "2026-09-29",
+   "status": "present",
+   "role": "MIL-F-8785C (5 Nov 1980), supplied by the user (copied from Downloads); source page everyspec.com"
+  }
+ ]
+}
