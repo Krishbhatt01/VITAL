@@ -1,0 +1,496 @@
+{
+ "nlbgs": {
+  "solver": "NonlinearBlockGS (no Aitken)",
+  "atol": 1e-10,
+  "rtol": 1e-12,
+  "maxiter": 100,
+  "iterations": 14,
+  "alpha_deg": 3.778253092231501,
+  "de_deg": -2.518835394820996,
+  "T_lbf": 1943.383956652145,
+  "CL": 0.24179084025468736,
+  "Cm": 3.469446951953614e-18,
+  "calls": {
+   "aero": {
+    "compute": 14,
+    "compute_partials": 0
+   },
+   "alphacl": {
+    "compute": 14,
+    "compute_partials": 0
+   },
+   "liftreq": {
+    "compute": 14,
+    "compute_partials": 0
+   },
+   "pitch": {
+    "compute": 14,
+    "compute_partials": 0
+   },
+   "prop": {
+    "compute": 14,
+    "compute_partials": 0
+   }
+  },
+  "residual_history_abs": [
+   506.37333063553496,
+   82.07014919578138,
+   6.359978821704787,
+   0.47247992077574213,
+   0.03499177775630526,
+   0.0025908909653002497,
+   0.00019183369749082007,
+   1.4203655457529201e-05,
+   1.051659205238261e-06,
+   7.786684529736457e-08,
+   5.7652870372707545e-09,
+   4.265530242233473e-10,
+   3.1604941560983444e-11
+  ],
+  "residual_history_rel": [
+   1.4548019365513012,
+   0.2357861379335018,
+   0.018272110607856898,
+   0.0013574267484890304,
+   0.00010053078028290868,
+   7.443585524106126e-06,
+   5.51134938830953e-07,
+   4.0806859713142384e-08,
+   3.0213989477929647e-09,
+   2.2371011757189296e-10,
+   1.656357126088943e-11,
+   1.2254795585365933e-12,
+   9.080045769749081e-14
+  ],
+  "calls_total_compute": 70,
+  "calls_total_partials": 0,
+  "n2_checks": [
+   [
+    "all 9 expected connections present, nothing else",
+    true
+   ],
+   [
+    "feedback: alpha from component 5 (alphacl) back to components 1-4",
+    true
+   ],
+   [
+    "N2 marks the connections that close a cycle",
+    true
+   ],
+   [
+    "trim group holds the 5 components in run order",
+    true
+   ],
+   [
+    "solver shown on the trim group",
+    true
+   ],
+   [
+    "each component's inputs and outputs as designed",
+    true
+   ],
+   [
+    "exactly one coupling cycle, containing all 5 components",
+    true
+   ]
+  ],
+  "agreement": {
+   "alpha": 8.881784197001252e-16,
+   "de": 5.773159728050814e-15,
+   "T": 2.9558577807620168e-12
+  }
+ },
+ "nlbgs_aitken": {
+  "solver": "NonlinearBlockGS with Aitken acceleration",
+  "atol": 1e-10,
+  "rtol": 1e-12,
+  "maxiter": 100,
+  "iterations": 11,
+  "alpha_deg": 3.778253092231502,
+  "de_deg": -2.5188353948210036,
+  "T_lbf": 1943.383956652161,
+  "CL": 0.24179084025468806,
+  "Cm": 3.774972703829727e-18,
+  "calls": {
+   "aero": {
+    "compute": 11,
+    "compute_partials": 0
+   },
+   "alphacl": {
+    "compute": 11,
+    "compute_partials": 0
+   },
+   "liftreq": {
+    "compute": 11,
+    "compute_partials": 0
+   },
+   "pitch": {
+    "compute": 11,
+    "compute_partials": 0
+   },
+   "prop": {
+    "compute": 11,
+    "compute_partials": 0
+   }
+  },
+  "residual_history_abs": [
+   506.37333063553496,
+   97.94443291958143,
+   8.976129090306122,
+   0.03334866573364122,
+   0.005045130925642482,
+   0.00039907571412694826,
+   1.3528814399763271e-06,
+   2.628805820428375e-07,
+   2.262049803863245e-08,
+   8.367351390024908e-11
+  ],
+  "residual_history_rel": [
+   1.4548019365513012,
+   0.2813926841427276,
+   0.025788265679241976,
+   9.581014748508291e-05,
+   1.4494575043215116e-05,
+   1.1465377155898257e-06,
+   3.886805287181441e-09,
+   7.552514255789587e-10,
+   6.498830479688781e-11,
+   2.4039257736452407e-13
+  ],
+  "calls_total_compute": 55,
+  "calls_total_partials": 0,
+  "n2_checks": [
+   [
+    "all 9 expected connections present, nothing else",
+    true
+   ],
+   [
+    "feedback: alpha from component 5 (alphacl) back to components 1-4",
+    true
+   ],
+   [
+    "N2 marks the connections that close a cycle",
+    true
+   ],
+   [
+    "trim group holds the 5 components in run order",
+    true
+   ],
+   [
+    "solver shown on the trim group",
+    true
+   ],
+   [
+    "each component's inputs and outputs as designed",
+    true
+   ],
+   [
+    "exactly one coupling cycle, containing all 5 components",
+    true
+   ]
+  ],
+  "agreement": {
+   "alpha": 0.0,
+   "de": 1.7763568394002505e-15,
+   "T": 1.318767317570746e-11
+  }
+ },
+ "newton": {
+  "solver": "NewtonSolver + DirectSolver",
+  "atol": 1e-10,
+  "rtol": 1e-12,
+  "maxiter": 20,
+  "iterations": 4,
+  "alpha_deg": 3.7782530922315027,
+  "de_deg": -2.518835394821002,
+  "T_lbf": 1943.3839566521478,
+  "CL": 0.24179084025468792,
+  "Cm": 6.938893903908806e-19,
+  "calls": {
+   "aero": {
+    "compute": 5,
+    "compute_partials": 4
+   },
+   "alphacl": {
+    "compute": 5,
+    "compute_partials": 0
+   },
+   "liftreq": {
+    "compute": 5,
+    "compute_partials": 4
+   },
+   "pitch": {
+    "compute": 5,
+    "compute_partials": 0
+   },
+   "prop": {
+    "compute": 5,
+    "compute_partials": 4
+   }
+  },
+  "residual_history_abs": [
+   348.070287374057,
+   2.954260990033055,
+   0.00783972292228539,
+   4.563390282729216e-10,
+   3.2069402711974314e-17
+  ],
+  "residual_history_rel": [
+   1.0,
+   0.008487541445496126,
+   2.252339026531259e-05,
+   1.3110542463008703e-12,
+   9.213484711353897e-20
+  ],
+  "calls_total_compute": 25,
+  "calls_total_partials": 12,
+  "n2_checks": [
+   [
+    "all 9 expected connections present, nothing else",
+    true
+   ],
+   [
+    "feedback: alpha from component 5 (alphacl) back to components 1-4",
+    true
+   ],
+   [
+    "N2 marks the connections that close a cycle",
+    true
+   ],
+   [
+    "trim group holds the 5 components in run order",
+    true
+   ],
+   [
+    "solver shown on the trim group",
+    true
+   ],
+   [
+    "each component's inputs and outputs as designed",
+    true
+   ],
+   [
+    "exactly one coupling cycle, containing all 5 components",
+    true
+   ]
+  ],
+  "agreement": {
+   "alpha": 8.881784197001252e-16,
+   "de": 0.0,
+   "T": 0.0
+  }
+ },
+ "broyden": {
+  "solver": "BroydenSolver + DirectSolver (implicit lift balance, state alpha)",
+  "atol": 1e-10,
+  "rtol": 1e-12,
+  "maxiter": 50,
+  "iterations": 3,
+  "alpha_deg": 3.778253091927579,
+  "de_deg": -2.5188353946183866,
+  "T_lbf": 1943.383956556165,
+  "CL": 0.24179084023523822,
+  "Cm": 0.0,
+  "calls": {
+   "aero": {
+    "compute": 11,
+    "compute_partials": 1
+   },
+   "liftbal": {
+    "compute": 7,
+    "compute_partials": 1
+   },
+   "liftreq": {
+    "compute": 11,
+    "compute_partials": 1
+   },
+   "pitch": {
+    "compute": 11,
+    "compute_partials": 0
+   },
+   "prop": {
+    "compute": 11,
+    "compute_partials": 1
+   }
+  },
+  "residual_history_abs": [
+   0.2433107565691774,
+   0.0004675059014622174,
+   1.7905631620185325e-06,
+   1.9646811955098542e-11
+  ],
+  "residual_history_rel": [
+   1.0,
+   0.0019214354024224881,
+   7.359161540026057e-06,
+   8.074781498413786e-11
+  ],
+  "calls_total_compute": 51,
+  "calls_total_partials": 4,
+  "n2_checks": [
+   [
+    "all 9 expected connections present, nothing else",
+    true
+   ],
+   [
+    "feedback: alpha from component 5 (liftbal) back to components 1-4",
+    true
+   ],
+   [
+    "N2 marks the connections that close a cycle",
+    true
+   ],
+   [
+    "trim group holds the 5 components in run order",
+    true
+   ],
+   [
+    "solver shown on the trim group",
+    true
+   ],
+   [
+    "component 5 is implicit (alpha is a state)",
+    true
+   ],
+   [
+    "each component's inputs and outputs as designed",
+    true
+   ],
+   [
+    "exactly one coupling cycle, containing all 5 components",
+    true
+   ]
+  ],
+  "agreement": {
+   "alpha": 3.039226648127169e-10,
+   "de": 2.0261525790488122e-10,
+   "T": 9.598284123057965e-08
+  }
+ },
+ "newton_implicit": {
+  "solver": "NewtonSolver + DirectSolver (implicit lift balance)",
+  "atol": 1e-10,
+  "rtol": 1e-12,
+  "maxiter": 20,
+  "iterations": 4,
+  "alpha_deg": 3.778253092231502,
+  "de_deg": -2.518835394821002,
+  "T_lbf": 1943.3839566521476,
+  "CL": 0.2417908402546879,
+  "Cm": 6.938893903908806e-19,
+  "calls": {
+   "aero": {
+    "compute": 5,
+    "compute_partials": 4
+   },
+   "liftbal": {
+    "compute": 5,
+    "compute_partials": 4
+   },
+   "liftreq": {
+    "compute": 5,
+    "compute_partials": 4
+   },
+   "pitch": {
+    "compute": 5,
+    "compute_partials": 0
+   },
+   "prop": {
+    "compute": 5,
+    "compute_partials": 4
+   }
+  },
+  "residual_history_abs": [
+   348.0703412424831,
+   2.954260990033055,
+   0.007839722922740138,
+   4.5633902827292243e-10,
+   8.239479992065591e-18
+  ],
+  "residual_history_rel": [
+   1.0,
+   0.008487540131938361,
+   2.2523386780830594e-05,
+   1.3110540433981246e-12,
+   2.367188184622016e-20
+  ],
+  "calls_total_compute": 25,
+  "calls_total_partials": 16,
+  "n2_checks": [],
+  "agreement": {
+   "alpha": 0.0,
+   "de": 0.0,
+   "T": 2.2737367544323206e-13
+  }
+ },
+ "broyden_full": {
+  "solver": "BroydenSolver + DirectSolver (full-model mode, explicit loop)",
+  "atol": 1e-10,
+  "rtol": 1e-12,
+  "maxiter": 50,
+  "iterations": 11,
+  "alpha_deg": 3.778253092231502,
+  "de_deg": -2.518835394821001,
+  "T_lbf": 1943.3839566521472,
+  "CL": 0.24179084025468783,
+  "Cm": 0.0,
+  "calls": {
+   "aero": {
+    "compute": 59,
+    "compute_partials": 10
+   },
+   "alphacl": {
+    "compute": 44,
+    "compute_partials": 0
+   },
+   "liftreq": {
+    "compute": 59,
+    "compute_partials": 10
+   },
+   "pitch": {
+    "compute": 57,
+    "compute_partials": 0
+   },
+   "prop": {
+    "compute": 59,
+    "compute_partials": 10
+   }
+  },
+  "residual_history_abs": [
+   2.510064193803638,
+   2.5306494562662007,
+   1607008.350060996,
+   515163.05159260385,
+   5389729.46968719,
+   9689112.947029186,
+   2431.293559520452,
+   0.07446962806425433,
+   0.0053188872805925505,
+   4.361647942466303e-06,
+   2.511475008111883e-10,
+   5.647850449853784e-17
+  ],
+  "residual_history_rel": [
+   1.0,
+   1.0082010900411948,
+   640225.9966211494,
+   205238.99462983417,
+   2147247.661232057,
+   3860105.6383130755,
+   968.6180797775454,
+   0.02966841575131448,
+   0.0021190244033291233,
+   1.7376639024744857e-06,
+   1.0005620630387573e-10,
+   2.2500820751103128e-17
+  ],
+  "calls_total_compute": 175,
+  "calls_total_partials": 9,
+  "n2_checks": [],
+  "agreement": {
+   "alpha": 0.0,
+   "de": 8.881784197001252e-16,
+   "T": 6.821210263296962e-13
+  }
+ }
+}
