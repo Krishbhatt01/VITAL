@@ -28,12 +28,13 @@
 &
 &
 \node [DataIO] (output_sim) {$\begin{array}{c}\text{input du(t), dt,} \\ \text{T\_final, guards}\end{array}$};&
-\node [DataIO] (output_ctl) {$\text{controller (M7)}$};&
+&
 &
 \node [DataIO] (output_nesc) {$\begin{array}{c}\text{case id 1 to 16,} \\ \texttt{NESC\_CASE\_MATRIX.json}\end{array}$};&
 &
 \node [DataIO] (output_fq) {$\begin{array}{c}\text{condition grid,} \\ \text{95 rule records}\end{array}$};&
-\node [DataIO] (output_test) {$\begin{array}{c}\text{tests/M0 to M6,} \\ \texttt{sabotages.json}\end{array}$};&
+\node [DataIO] (output_ctrl) {$\begin{array}{c}\text{gains Kq, Ka, Kr,} \\ \text{target Levels}\end{array}$};&
+\node [DataIO] (output_test) {$\begin{array}{c}\text{tests/M0 to M7,} \\ \texttt{sabotages.json}\end{array}$};&
 &
 \\
 %Row 1
@@ -52,6 +53,7 @@
 &
 \node [DataInter] (data-cmp) {$\text{NASA reference CSVs}$};&
 &
+&
 \node [DataInter] (data-test) {$\text{file hashes}$};&
 &
 \\
@@ -59,6 +61,7 @@
 &
 \node [Function] (read) {$\begin{array}{c}\text{2: DAVE-ML reader (M2)} \\ \texttt{+daveml}\end{array}$};&
 \node [DataInter] (read-mod) {$\text{generated MATLAB code}$};&
+&
 &
 &
 &
@@ -92,6 +95,7 @@
 &
 &
 &
+&
 \\
 %Row 4
 &
@@ -106,6 +110,7 @@
 &
 &
 \node [DataInter] (found-rot) {$\begin{array}{c}\text{gravitation,} \\ \text{atmosphere}\end{array}$};&
+&
 &
 &
 &
@@ -130,6 +135,7 @@
 \node [DataInter] (cfg-fq) {$\text{mutated aircraft}$};&
 &
 &
+&
 \\
 %Row 6
 &
@@ -142,6 +148,7 @@
 \node [DataInter] (plant-lin) {$\text{xdot}$};&
 &
 \node [DataInter] (plant-sim) {$\text{xdot, y}$};&
+&
 &
 &
 &
@@ -166,6 +173,7 @@
 &
 &
 \node [DataInter] (trim-fq) {$\text{trim per point}$};&
+&
 \node [DataInter] (trim-test) {$\text{NASA trim table}$};&
 &
 \node [DataIO] (right_output_trim) {$\begin{array}{c}\text{x*, u*, status} \\ \text{(steady flight)}\end{array}$};\\
@@ -179,6 +187,7 @@
 &
 \node [ImplicitFunction] (lin) {$\begin{array}{c}\text{8: Linearize (M5-A)} \\ \texttt{+linear/linearize, jacobian}\end{array}$};&
 \node [DataInter] (lin-modes) {$\text{A (8 states)}$};&
+&
 &
 &
 &
@@ -206,6 +215,7 @@
 \node [DataInter] (modes-fq) {$\begin{array}{c}\text{wn, zeta, tau,} \\ \text{n/alpha}\end{array}$};&
 &
 &
+&
 \node [DataIO] (right_output_modes) {$\begin{array}{c}\text{short period, phugoid,} \\ \text{Dutch roll, roll, spiral}\end{array}$};\\
 %Row 10
 &
@@ -223,6 +233,7 @@
 \node [DataInter] (sim-nesc) {$\text{time histories}$};&
 &
 &
+&
 \node [DataInter] (sim-test) {$\text{order, guards}$};&
 &
 \node [DataIO] (right_output_sim) {$\begin{array}{c}\text{x(t), logs,} \\ \text{stop reason}\end{array}$};\\
@@ -238,6 +249,7 @@
 &
 \node [DataInter] (ctl-sim) {$\text{u (held)}$};&
 \node [Function] (ctl) {$\begin{array}{c}\text{11: Controller slot (M5-B)} \\ \texttt{+sim/sampleController}\end{array}$};&
+&
 &
 &
 &
@@ -263,6 +275,7 @@
 &
 &
 &
+&
 \\
 %Row 13
 &
@@ -279,6 +292,7 @@
 \node [DataInter] (nesc-rot) {$\begin{array}{c}\text{vehicle,} \\ \text{environment}\end{array}$};&
 \node [Function] (nesc) {$\begin{array}{c}\text{13: NESC case runner (M5-C)} \\ \texttt{+nesc: caseDef f16Trim runCase}\end{array}$};&
 \node [DataInter] (nesc-cmp) {$\text{NESC-named signals}$};&
+&
 &
 &
 &
@@ -299,6 +313,7 @@
 &
 \node [Function] (cmp) {$\begin{array}{c}\text{14: Compare with NASA (M5-C)} \\ \texttt{+nesc/compare, envelopeCheck}\end{array}$};&
 &
+&
 \node [DataInter] (cmp-test) {$\text{NASA bands}$};&
 &
 \node [DataIO] (right_output_cmp) {$\begin{array}{c}\text{PASS / FAIL} \\ \text{per signal}\end{array}$};\\
@@ -318,6 +333,7 @@
 &
 &
 \node [Function] (fq) {$\begin{array}{c}\text{15: MIL-F-8785C grading (M6)} \\ \texttt{+fq/assess}\end{array}$};&
+\node [DataInter] (fq-ctrl) {$\begin{array}{c}\text{Levels, margins,} \\ \text{critical points}\end{array}$};&
 \node [DataInter] (fq-test) {$\text{rule bounds}$};&
 &
 \node [DataIO] (right_output_fq) {$\begin{array}{c}\text{Level and margin} \\ \text{per rule}\end{array}$};\\
@@ -329,6 +345,19 @@
 &
 &
 &
+\node [DataInter] (ctrl-lin) {$\begin{array}{c}\text{controller in} \\ \text{the loop}\end{array}$};&
+&
+&
+\node [DataInter] (ctrl-ctl) {$\text{SAS control law}$};&
+&
+&
+&
+\node [DataInter] (ctrl-fq) {$\text{augmented aircraft}$};&
+\node [MDA] (ctrl) {$\begin{array}{c}\text{16: SAS + design feedback (M7)} \\ \texttt{+ctrl: pitchSas yawDamper suggestGains}\end{array}$};&
+\node [DataInter] (ctrl-test) {$\begin{array}{c}\text{A + B K, Levels} \\ \text{confirmed by re-run}\end{array}$};&
+&
+\node [DataIO] (right_output_ctrl) {$\begin{array}{c}\text{suggested gains,} \\ \text{confirmed Levels}\end{array}$};\\
+%Row 17
 &
 &
 &
@@ -337,10 +366,19 @@
 &
 &
 &
-\node [MDA] (test) {$\begin{array}{c}\text{16: Tests and sabotage (M0)} \\ \texttt{run\_vital\_tests, run\_sabotage}\end{array}$};&
+&
+&
+&
+&
+&
+&
+&
+&
+\node [MDA] (test) {$\begin{array}{c}\text{17: Tests and sabotage (M0)} \\ \texttt{run\_vital\_tests, run\_sabotage}\end{array}$};&
 &
 \node [DataIO] (right_output_test) {$\begin{array}{c}\text{gateOK, DETECTED} \\ \text{or NOT DETECTED}\end{array}$};\\
-%Row 17
+%Row 18
+&
 &
 &
 &
@@ -409,6 +447,12 @@
 \chainin (fq) [join=by ProcessHVA];
 \chainin (test) [join=by ProcessHVA];
 \end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (fq);
+\chainin (ctrl) [join=by ProcessHVA];
+\chainin (fq) [join=by ProcessHVA];
+\end{pgfonlayer}
 }
 
 \begin{pgfonlayer}{data}
@@ -451,12 +495,18 @@
 (lin) edge [DataLine] (lin-test)
 (sim) edge [DataLine] (sim-test)
 (cmp) edge [DataLine] (cmp-test)
+(ctrl) edge [DataLine] (ctrl-ctl)
+(ctrl) edge [DataLine] (ctrl-lin)
+(ctrl) edge [DataLine] (ctrl-fq)
+(fq) edge [DataLine] (fq-ctrl)
 (fq) edge [DataLine] (fq-test)
+(ctrl) edge [DataLine] (ctrl-test)
 (trim) edge [DataLine] (right_output_trim)
 (modes) edge [DataLine] (right_output_modes)
 (sim) edge [DataLine] (right_output_sim)
 (cmp) edge [DataLine] (right_output_cmp)
 (fq) edge [DataLine] (right_output_fq)
+(ctrl) edge [DataLine] (right_output_ctrl)
 (test) edge [DataLine] (right_output_test)
 % Vertical edges
 (data-read) edge [DataLine] (read)
@@ -496,13 +546,18 @@
 (lin-test) edge [DataLine] (test)
 (sim-test) edge [DataLine] (test)
 (cmp-test) edge [DataLine] (test)
+(ctrl-ctl) edge [DataLine] (ctl)
+(ctrl-lin) edge [DataLine] (lin)
+(ctrl-fq) edge [DataLine] (fq)
+(fq-ctrl) edge [DataLine] (ctrl)
 (fq-test) edge [DataLine] (test)
+(ctrl-test) edge [DataLine] (test)
 (cfg) edge [DataLine] (output_cfg)
 (trim) edge [DataLine] (output_trim)
 (sim) edge [DataLine] (output_sim)
-(ctl) edge [DataLine] (output_ctl)
 (nesc) edge [DataLine] (output_nesc)
 (fq) edge [DataLine] (output_fq)
+(ctrl) edge [DataLine] (output_ctrl)
 (test) edge [DataLine] (output_test);
 \end{pgfonlayer}
 

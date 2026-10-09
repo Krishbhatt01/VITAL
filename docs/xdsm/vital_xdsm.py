@@ -209,7 +209,6 @@ def fig_analyses():
 
     x.add_input("trim", (tx("V, h, gamma,"), tx("CG, g")))
     x.add_input("sim", (tx("input du(t), dt,"), tx("T_final, guards")))
-    x.add_input("ctl", tx("controller (M7)"))
 
     x.connect("trim", "plant", (tx("guess"), tx("alpha, de, thr")))
     x.connect("plant", "trim", tx("residuals"))
@@ -314,7 +313,7 @@ def fig_test_machinery():
 
 
 # --------------------------------------------------------------------------
-# Figure 6 - the FULL system on one page: M0 to M5, plus M6 (built)
+# Figure 6 - the FULL system on one page: M0 to M7
 # --------------------------------------------------------------------------
 def fig_full_system():
     XDSM, SOLVER, FUNC, IFUNC, RIGHT = _api()
@@ -335,15 +334,16 @@ def fig_full_system():
     x.add_system("nesc", FUNC, (tx("13: NESC case runner (M5-C)"), tt("+nesc: caseDef f16Trim runCase")))
     x.add_system("cmp", FUNC, (tx("14: Compare with NASA (M5-C)"), tt("+nesc/compare, envelopeCheck")))
     x.add_system("fq", FUNC, (tx("15: MIL-F-8785C grading (M6)"), tt("+fq/assess")))
-    x.add_system("test", SOLVER, (tx("16: Tests and sabotage (M0)"), tt("run_vital_tests, run_sabotage")))
+    x.add_system("ctrl", SOLVER, (tx("16: SAS + design feedback (M7)"), tt("+ctrl: pitchSas yawDamper suggestGains")))
+    x.add_system("test", SOLVER, (tx("17: Tests and sabotage (M0)"), tt("run_vital_tests, run_sabotage")))
 
     x.add_input("cfg", (tx("CG % MAC, gravity g,"), tx("aero multipliers")))
     x.add_input("trim", (tx("speed V, altitude h,"), tx("climb angle")))
     x.add_input("sim", (tx("input du(t), dt,"), tx("T_final, guards")))
-    x.add_input("ctl", tx("controller (M7)"))
     x.add_input("nesc", (tx("case id 1 to 16,"), tt("NESC_CASE_MATRIX.json")))
     x.add_input("fq", (tx("condition grid,"), tx("95 rule records")))
-    x.add_input("test", (tx("tests/M0 to M6,"), tt("sabotages.json")))
+    x.add_input("ctrl", (tx("gains Kq, Ka, Kr,"), tx("target Levels")))
+    x.add_input("test", (tx("tests/M0 to M7,"), tt("sabotages.json")))
 
     x.connect("data", "read", tx(".dml files"))
     x.connect("read", "mod", tx("generated MATLAB code"))
@@ -382,13 +382,19 @@ def fig_full_system():
     x.connect("lin", "test", tx("vs nonlinear sim"))
     x.connect("sim", "test", tx("order, guards"))
     x.connect("cmp", "test", tx("NASA bands"))
+    x.connect("ctrl", "ctl", tx("SAS control law"))
+    x.connect("ctrl", "lin", (tx("controller in"), tx("the loop")))
+    x.connect("ctrl", "fq", tx("augmented aircraft"))
+    x.connect("fq", "ctrl", (tx("Levels, margins,"), tx("critical points")))
     x.connect("fq", "test", tx("rule bounds"))
+    x.connect("ctrl", "test", (tx("A + B K, Levels"), tx("confirmed by re-run")))
 
     x.add_output("trim", (tx("x*, u*, status"), tx("(steady flight)")), side=RIGHT)
     x.add_output("modes", (tx("short period, phugoid,"), tx("Dutch roll, roll, spiral")), side=RIGHT)
     x.add_output("sim", (tx("x(t), logs,"), tx("stop reason")), side=RIGHT)
     x.add_output("cmp", (tx("PASS / FAIL"), tx("per signal")), side=RIGHT)
     x.add_output("fq", (tx("Level and margin"), tx("per rule")), side=RIGHT)
+    x.add_output("ctrl", (tx("suggested gains,"), tx("confirmed Levels")), side=RIGHT)
     x.add_output("test", (tx("gateOK, DETECTED"), tx("or NOT DETECTED")), side=RIGHT)
 
     x.add_process(["data", "read", "mod", "cfg", "plant", "trim"], arrow=True)
@@ -397,6 +403,7 @@ def fig_full_system():
     x.add_process(["trim", "sim", "plant", "sim", "ctl", "sim"], arrow=True)
     x.add_process(["sim", "nesc", "rot", "sim", "nesc", "cmp"], arrow=True)
     x.add_process(["modes", "fq", "test"], arrow=True)
+    x.add_process(["fq", "ctrl", "fq"], arrow=True)
     return x
 
 

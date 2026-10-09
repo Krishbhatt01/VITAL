@@ -119,8 +119,62 @@ out = vital.sim.run(AC, env, x0, u0, 'dt', 0.01, 'tFinal', T, 'Inputs', f, 'Cont
 - `vital.ctrl.pitchSas`, `vital.ctrl.yawDamper`, `vital.ctrl.nescLqr`.
 - Design feedback: `vital.ctrl.suggestGains(...)` must be confirmed by re-running `vital.fq.assess`.
 
-### M8 uncertainty
-- `vital.uq.boundWorst`, `vital.uq.monteCarlo`, `vital.uq.clopperPearson`, `vital.uq.verdict`.
+### M8 uncertainty (contract fixed by the coordinator on 2026-10-07, before any M8 code)
+**Question.** Does the augmented F-16's in-envelope MIL-F-8785C Level (M7 gains Kq 0.02 s, Ka 0.14, Kr 0.82 s) still hold when the aerodynamic data are uncertain?
+
+**Uncertain parameters** are multipliers on NASA table terms (`AeroScale`, nominal 1). The 1-sigma widths are **engineering judgments, not published values**, and every report labels them `JUDGMENT`:
+
+| Group | Parameters (AeroScale field: term scaled) | sigma | d | k_g = sqrt(chi2inv(0.99, d)) |
+|---|---|---|---|---|
+| pitchDamping | `Cm_q` (cmq) | 0.10 | 1 | 2.5758 |
+| pitchStatic | `Cm_table` (cmt) | 0.05 | 1 | 2.5758 |
+| latDamping | `Cl_p` (clp), `Cn_r` (cnr) | 0.10 | 2 | 3.0349 |
+| latStatic | `Cl_table` (clt), `Cnt_table` (cnt) | 0.05 | 2 | 3.0349 |
+
+- Rationale: damping (rotary) derivatives are less certain than static tables, so their sigma is doubled.
+- `Cm_table`, `Cl_table`, `Cn_r` are new `AeroScale` fields. Every multiplier equal to 1 leaves the generated model untouched (bit-identical default path, as ADR ctrl-4).
+- Parameters are independent normal N(1, sigma) for the Monte Carlo.
+
+**Joint-coverage box.** Per group, half-width k_g * sigma, so the box contains the group's 99 % joint ellipsoid. The full box is the product of the group boxes.
+
+**Bound-worst margin** (`vital.uq.boundWorst`), per target group, margin to its nominal in-envelope headline Level:
+- Candidate conditions: the group's nominal critical condition plus the next 3 in-envelope conditions by margin.
+- Search, all points kept: centre, 2^6 corners, a seeded Latin-hypercube sample of 32 points, then `fmincon` (sqp) from the 2 best points with a budget of 60 evaluations each.
+- Bound-worst = minimum over every evaluated point. The arg-min parameters and condition form the active set.
+- **Confirmation:** a fresh in-envelope `vital.fq.assess` of the augmented aircraft at the arg-min parameters. If it finds a smaller margin at another condition (a moving limit), that value and condition replace the search value, and the report says so.
+- Status:
+  - `OK`: the search converged and every evaluated point was OK.
+  - `VIOLATED`: some evaluated point has margin < reserve. A found counterexample is definitive, even if the optimizer did not converge.
+  - `NOT_ASSESSABLE`: optimizer not converged without a counterexample (FC-901), or a non-OK point inside the box (trim infeasible, metric NaN, ...).
+
+**Monte Carlo** (`vital.uq.monteCarlo`): N = 200, seeded (`rng(2026, 'twister')`), at the group's nominal critical condition only, serial.
+- Success = the group's Level at that condition is at least as good as the nominal headline Level.
+- A non-OK sample counts as a failure and is listed.
+
+**Clopper–Pearson** (`vital.uq.clopperPearson(x, n, conf, 'Sided', 'lower'|'two')`): exact binomial bounds via `betainv`. The verdict uses the one-sided 95 % lower bound.
+
+**Verdict** (`vital.uq.verdict`), per group:
+- `ROBUST`: bound-worst status OK with margin >= reserve (0), and the Clopper–Pearson lower bound >= 0.95.
+- `NOT_ROBUST`: a violation was found, or the lower bound < 0.95.
+- `NOT_ASSESSABLE`: anything else.
+- The same verdict is also computed with all widths x0.5 and x1.5 and reported beside the headline (x1 only) as the sensitivity to the judgment.
+
+**Entry point.** `run_f16_uq` writes `reports/uq/f16_uq_<label>.json/.md`. Default: the in-envelope conditions of `vital.ctrl.inEnvelopeConditions`, every group with a finite in-envelope headline Level.
+
+**Pre-registered tests (tests/M8):**
+- Toy counterexamples (closed-form margin functions, no aircraft):
+  1. Cliff just outside the box: never seen; bound-worst = the in-box minimum.
+  2. Interior interaction valley, off both axes: a one-at-a-time sweep misses it, boundWorst finds it.
+  3. Moving limit: the critical condition changes with the parameter (gradient 0.100); the confirmation catches the move.
+  4. Active-set switch inside the box: the reported critical record switches.
+- Clopper–Pearson against closed forms: x = 0 and x = n, and the two-sided identity.
+- An optimizer that does not converge gives NOT_ASSESSABLE.
+- An F-16 run on 2 groups (3.2.2.1.1-CatA, 3.3.1.1-CatA-other). Structural invariants only, since no published answer exists:
+  - bound-worst <= nominal margin
+  - bound-worst is non-increasing with width (x0.5, x1, x1.5)
+  - every Monte Carlo sample inside the box has margin >= bound-worst
+  - d margin(3.3.1.1-CatA-other)/d Cn_r > 0 (more yaw damping, more Dutch-roll damping)
+- `AeroScale` default path bit-identical.
 
 ## Exit criteria for "done to M8"
 1. `run_vital_tests('M8')` is GREEN from a fresh MATLAB session (`restoredefaultpath`, no `startup_vital`), with 0 excluded.

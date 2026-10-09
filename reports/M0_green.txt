@@ -1,5 +1,11 @@
-VITAL 0.0.0-M0  gate M0 (GREEN)  2026-09-29 01:02:05
+VITAL 0.2.0-M4  gate M0 (GREEN)  2026-10-07 22:31:49
 test                                                                             class
+tCatalogueRules/closedMilestonePlannedRowIsAProblem                              PASS
+tCatalogueRules/closedMilestoneRealTestIsFine                                    PASS
+tCatalogueRules/openMilestoneMayBePlanned                                        PASS
+tCatalogueRules/openMilestoneNamedTestMustExist                                  PASS
+tCatalogueRules/notStartedMilestoneMustBePlanned                                 PASS
+tCatalogueRules/milestonesFileRecordsClosedGates                                 PASS
 tRunnerClassification/notImplementedIsRedExpected                                PASS
 tRunnerClassification/otherErrorIsRedUnexpected                                  PASS
 tRunnerClassification/verifyErrorCatchingNotImplementedIsExpected                PASS
@@ -45,6 +51,6 @@ tVitalTestCase/recordHasAllFields                                               
 tVitalTestCase/failingCheckIsLogged                                              PASS
 tVitalTestCase/provenanceWritesJson                                              PASS
 
-TOTAL 44 | PASS 44 FAIL 0 | RED_EXPECTED 0 RED_UNEXPECTED 0 RED_SUSPICIOUS 0 VACUOUS 0 REGRESSION 0 | checks logged 0 | 47.4 s
+TOTAL 50 | PASS 50 FAIL 0 | RED_EXPECTED 0 RED_UNEXPECTED 0 RED_SUSPICIOUS 0 VACUOUS 0 REGRESSION 0 | EXCLUDED 0 | checks logged 0 | 101.2 s
 checks by source: PUB 0  INDEP 0  ANALYTIC 0  REG 0
 GATE OK

@@ -209,3 +209,68 @@ Closed by the user, accepting the validity-region judgment and the 3.2.2.2 level
 - **Design feedback:** the suggested gains Kq 0.02 s, Ka 0.14, Kr 0.82 s take the three in-envelope Level 2 groups to Level 1, confirmed by re-assessment (`reports/ctrl/f16_sas_suggestion.md`).
 - **Merged:** FC-801..816 and ADR-031.
 - **Status:** M7 is NOT yet closed; that awaits the user's decision.
+
+## M7 closed (2026-10-07)
+Closed by the user ("go ahead with the next stage"), on the 2026-10-07 coordinator verification (498/498, 121/121 sabotages; only the separate SciComp folder changed since). `docs/MILESTONES.json` lists M0-M7 as closed. Accepted judgments are in `M7_acceptance`.
+## M8 uncertainty (agent uq, 2026-10-07/08)
+
+- New package `+vital/+uq/`: loadSpec, box, boundWorst, monteCarlo, clopperPearson, verdict, F16Evaluator, analyze, headline, writeReport, augmentedBuilder. New entry point `run_f16_uq.m`. New spec `uq/f16_uncertainty.json` (label JUDGMENT).
+- AeroScale extended (`vital.aircraft.f16.config`, `loads`): `Cm_table` (cmt), `Cl_table` (clt), `Cnr_table` (cnr; the plan's `Cn_r`, renamed, see NOTES). Default path bit-identical (tAeroScaleUq#defaultPathBitIdentical, full M0-M7 gate).
+- Tests `tests/M8/`: tUqSpec, tClopperPearson, tBoundWorstToys, tMonteCarloVerdict, tAeroScaleUq, tF16Uq, tRunF16Uq (41 test methods).
+
+### Gate evidence
+- RED: `reports/work/uq/M8_red_uq.txt` — TOTAL 539 | PASS 498 | RED_EXPECTED 41 | RED_UNEXPECTED 0 | RED_SUSPICIOUS 0 | VACUOUS 0 | REGRESSION 0 | EXCLUDED 0 (gateOK).
+- GREEN (full M0-M8): `reports/work/uq/M8_green_uq.txt` — TOTAL 539 | PASS 539 | FAIL 0 | EXCLUDED 0 (2,250 s).
+- Sabotage: `reports/work/uq/M8_sabotage_uq.txt` — S8U-1..S8U-5 all DETECTED, tree unchanged 1.
+- Failed hypotheses recorded in headers: tUqSpec 3a, 3b; tF16Uq 5b (NOTES.md).
+- Report: `reports/uq/f16_uq_default.json/.md` (run_f16_uq defaults, 5,379 s).
+
+## M8 verified by the coordinator (2026-10-08)
+- **Gate:** full M0-M8 on a quiet tree: 539/539 PASS, 0 excluded, 2078 s (`reports/work/coord_m8/M8_green.txt`).
+- **Sabotages:** every milestone re-run because the M8 agent changed the M4/M6 aircraft files (config.m, loads.m): 126/126 DETECTED, tree unchanged (`reports/work/coord_m8/M*_sabotage.txt`).
+- **Merged:** ADR-032 (uq-1 to uq-3) and FC-901..913.
+- **Open:** AeroScale field `Cnr_table` instead of the plan's `Cn_r` (ADR uq-1); NOT_ASSESSABLE groups 3.2.2.1.2-CatA/B (fmincon budget) and 3.3.1.3-CatA/B (+Inf margin, no surrogate); joint box covers ~97 % of the joint normal; fmincon convergence on a nonsmooth objective taken at face value.
+- **Status:** M8 is NOT yet closed; that awaits the user's decision.
+
+## R3 B1 fixed: sabotage copies now include reports/ (2026-10-09, coordinator)
+- **Defect (review R3 B1):** `vital.test.applySabotage` did not copy `reports/`. tCtrlSuggest and tF16Uq read committed reports, so in a sabotage copy they failed on any edit. A null sabotage was "DETECTED", which made the M7 detections of S7C-4 and S7C-5 vacuous.
+- **Fix:** the copy now includes `reports/` except the scratch folder `reports/work` (+vital/+test/applySabotage.m). Copying, rather than an environment variable pointing at the real reports, keeps anything a sabotaged test writes inside the copy.
+- **Red-green:** new `tests/M0/tSabotageReports.m`, with the fixture `tests/fixtures/sabotage_reports_tree`.
+  - RED (`reports/work/harness/M0_red_harness.txt`): copyHasReportsButNotScratch and nullSabotageNotDetected failed by assertion, i.e. the defect reproduced. realSabotageDetected was VACUOUS, justified in its header (it passed before for the wrong reason and guards the fix).
+  - GREEN: 3/3.
+- **New sabotage S0-6** (undoes the fix) and **failure-catalogue row FC-020**.
+- **Re-verification on a quiet tree** (`reports/work/harness/`):
+  - Full M0-M8 gate: 542/542 PASS, 0 excluded.
+  - Sabotages: every milestone all detected, tree unchanged, 127 in total (M0 6, M1 8, M2 5, M3 5, M4 7, M5 70, M6 15, M7 6, M8 5).
+  - R3 null controls on the real tree: N-1 (tCtrlSuggest) and N-2 (tF16Uq) ran and were NOT detected (`null_controls_after_fix.json`).
+  - S7C-4 and S7C-5 are therefore genuinely detected under the fixed harness.
+# CHANGELOG fragment (r3tests, 2026-10-09)
+
+## R3 test gaps closed (findings M1, M6): tests only, no implementation change
+
+- New `tests/M7/tCtrlR3.m` (TestTags M7, 4 tests, ~263 s):
+  - the 3.1.12 flag with all five classical names present (split short period)
+  - a NOT_ASSESSABLE protected group counts as a regression
+  - rounding to the nearest 0.01
+  - the M7 proposal pinned to Kq 0.02 s, Ka 0.14, Kr 0.82 s from a live default `suggestGains` (R3 M1)
+- New `tests/M8/tUqR3.m` (TestTags M8, 6 tests, ~34 s):
+  - Monte Carlo sigma scales with the width
+  - cache key distinguishes nearby theta
+  - +Inf / NaN bound-worst is never ROBUST
+  - a non-OK point with a partial multi-condition margin is counted
+  - an excluded in-envelope point gives a NaN level margin
+  - candidates are IN points only
+- New sabotage sets `tests/M7/sabotages_R3.json` (S7R-1..5) and `tests/M8/sabotages_R3.json` (S8R-1..8), the 13 sabotages proposed by R3. The patterns are unchanged and each occurs exactly once.
+
+## Gate evidence
+
+- Full M0-M8 GREEN gate (no Increment): `run_vital_tests('M8', 'Phase', 'green', 'Tag', 'r3tests', 'ReportDir', 'C:\VITAL\reports\work\r3tests', 'Quiet', true)`.
+  - TOTAL 552 | PASS 552 FAIL 0 | REGRESSION 0 | EXCLUDED 0 | 2827.5 s. GATE OK.
+  - That is the 542 existing tests plus the 10 new ones.
+  - Report: `reports/work/r3tests/M8_green_r3tests.txt`.
+- Sabotages:
+  - `run_sabotage('M8', 'Parts', {'R3'}, ...)`: 8/8 DETECTED (`reports/work/r3tests/M8_sabotage_R3.txt`).
+  - `run_sabotage('M7', 'Parts', {'R3'}, ...)`: 5/5 DETECTED (`reports/work/r3tests/M7_sabotage_R3.txt`).
+  - Tree unchanged: 1 in both.
+  - The 9 sabotages R3 found NOT DETECTED (S8R-1, -2, -5, -6, -7, -8, S7R-1, -2, -3) are now all DETECTED. For S7R-2, both targets fail.
+- No pre-registered expectation failed. No real bug found.

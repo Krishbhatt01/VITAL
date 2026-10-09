@@ -2,19 +2,23 @@
   "summary": {
     "milestone": "M0",
     "phase": "green",
-    "total": 44,
+    "total": 50,
     "counts": {
-      "PASS": 44,
+      "PASS": 50,
       "FAIL": 0,
       "RED_EXPECTED": 0,
       "RED_UNEXPECTED": 0,
       "RED_SUSPICIOUS": 0,
       "VACUOUS": 0,
-      "REGRESSION": 0
+      "REGRESSION": 0,
+      "EXCLUDED": 0
     },
     "gateOK": true,
     "needsReview": [],
-    "elapsed_s": 47.4477479,
+    "increment": [],
+    "baseline": [],
+    "excluded": [],
+    "elapsed_s": 101.1744624,
     "checksLogged": 0,
     "checksBySource": {
       "PUB": 0,
@@ -28,10 +32,52 @@
       "xml": "C:\\VITAL\\reports\\M0_green.xml",
       "provenance": "C:\\VITAL\\reports\\M0_green_provenance.json"
     },
-    "timestamp": "2026-09-29 01:02:05",
-    "vitalVersion": "0.0.0-M0"
+    "timestamp": "2026-10-07 22:31:49",
+    "vitalVersion": "0.2.0-M4"
   },
   "tests": [
+    {
+      "name": "tCatalogueRules/closedMilestonePlannedRowIsAProblem",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tCatalogueRules/closedMilestoneRealTestIsFine",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tCatalogueRules/openMilestoneMayBePlanned",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tCatalogueRules/openMilestoneNamedTestMustExist",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tCatalogueRules/notStartedMilestoneMustBePlanned",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tCatalogueRules/milestonesFileRecordsClosedGates",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
     {
       "name": "tRunnerClassification/notImplementedIsRedExpected",
       "milestone": "M0",

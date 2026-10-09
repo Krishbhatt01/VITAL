@@ -24,7 +24,7 @@
 &
 &
 \node [DataIO] (output_sim) {$\begin{array}{c}\text{input du(t), dt,} \\ \text{T\_final, guards}\end{array}$};&
-\node [DataIO] (output_ctl) {$\text{controller (M7)}$};&
+&
 &
 &
 \\
@@ -201,8 +201,7 @@
 (lin-xchk) edge [DataLine] (xchk)
 (sim-xchk) edge [DataLine] (xchk)
 (trim) edge [DataLine] (output_trim)
-(sim) edge [DataLine] (output_sim)
-(ctl) edge [DataLine] (output_ctl);
+(sim) edge [DataLine] (output_sim);
 \end{pgfonlayer}
 
 \end{tikzpicture}
