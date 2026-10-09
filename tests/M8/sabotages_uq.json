@@ -1,0 +1,56 @@
+[
+ {
+  "id": "S8U-1",
+  "file": "+vital/+uq/box.m",
+  "pattern": "B.halfWidth = w * B.kg .* B.sigma;",
+  "replacement": "B.halfWidth = w * B.sigma;",
+  "targets": [
+   "tUqSpec/boxHalfWidths",
+   "tUqSpec/boxContainsGroupEllipsoid"
+  ],
+  "rationale": "Box half-width without the coverage factor k_g: the box is the 1-sigma box (68 % per parameter), not the 99 % joint-coverage box, so the bound-worst search covers far too little."
+ },
+ {
+  "id": "S8U-2",
+  "file": "+vital/+uq/boundWorst.m",
+  "pattern": "for k = 0:2^d - 1",
+  "replacement": "for k = 0:2^d - 2",
+  "targets": [
+   "tBoundWorstToys/searchPointSet"
+  ],
+  "rationale": "Off-by-one in the corner enumeration: the all-upper-bound corner is never evaluated, so a worst case at that vertex can be missed."
+ },
+ {
+  "id": "S8U-3",
+  "file": "+vital/+uq/clopperPearson.m",
+  "pattern": "a = alpha;            % one-sided: the whole alpha in the lower tail",
+  "replacement": "a = alpha / 2;",
+  "targets": [
+   "tClopperPearson/allSuccesses",
+   "tClopperPearson/decisionThreshold",
+   "tClopperPearson/twoSidedIdentity"
+  ],
+  "rationale": "The one-sided lower bound computed with the two-sided alpha/2: the bound is too conservative (97.5 % instead of 95 %) and the ROBUST threshold moves."
+ },
+ {
+  "id": "S8U-4",
+  "file": "+vital/+uq/monteCarlo.m",
+  "pattern": "mc.success(k) = ok && q.level <= P.level0;",
+  "replacement": "mc.success(k) = ok && q.level >= P.level0;",
+  "targets": [
+   "tMonteCarloVerdict/successCount",
+   "tMonteCarloVerdict/betterLevelIsSuccess"
+  ],
+  "rationale": "Monte Carlo success sign flipped: a WORSE Level (a larger number) counts as holding the nominal Level."
+ },
+ {
+  "id": "S8U-5",
+  "file": "+vital/+uq/boundWorst.m",
+  "pattern": "if strcmp(c.status, 'OK') && c.margin < bw.value",
+  "replacement": "if false && strcmp(c.status, 'OK') && c.margin < bw.value",
+  "targets": [
+   "tBoundWorstToys/movingLimitCaught"
+  ],
+  "rationale": "Confirmation result ignored: the fresh assessment at the arg-min finds a smaller margin at another condition (a moving limit), but the search value over the candidates is reported."
+ }
+]

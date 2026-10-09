@@ -1,7 +1,9 @@
 function fac = f16Factory(opts)
 %F16FACTORY  Aircraft factory for vital.fq.assess: the NESC F-16 at a condition.
 %   fac = vital.fq.f16Factory()
-%   fac = vital.fq.f16Factory('AeroScale', struct('Cm_q', 0.3))   a mutation
+%   fac = vital.fq.f16Factory('AeroScale', struct('Cm_q', 0.3))   a mutation (M6) or
+%         an uncertainty sample (M8); fields Cm_q, Cl_p, Cnt_table, Cm_table,
+%         Cl_table, Cnr_table (vital.aircraft.f16.config)
 %   fac = vital.fq.f16Factory('Controller', b)     the AUGMENTED aircraft (M7):
 %         b is a builder ctrl = b(AC, env, tr) of a STATIC controller in the
 %         vital.sim.run form (e.g. @(AC, env, tr) vital.ctrl.pitchSas(AC, env, tr,

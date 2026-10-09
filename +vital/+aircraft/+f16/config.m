@@ -16,7 +16,16 @@ function AC = config(opts)
 %                   the airplane's N_beta about the CG also has the side-force transfer,
 %                   so Cnt_table x 0.2 gives body N_beta x 0.335 at the README trim;
 %                   Cm_q x 0.3 likewise gives M_q,cg x 0.556; review R2 M5)
-%        Unlisted multipliers are 1; AC.aeroScale holds all three. Unknown
+%        M8 uncertainty multipliers (vital.uq; tests/M8/tAeroScaleUq.m):
+%          Cm_table   cm = Cm_table*cmt + cq2v*(Cm_q*cmq)  (the pitching-moment
+%                     table cmt(el, alpha): M_alpha and M_de together)
+%          Cl_table   cl = (Cl_table*clt + dclda*dail + dcldr*drdr) + b2v*(Cl_p*clp*p + clr*r)
+%                     (the static sideslip rolling-moment table clt(beta, alpha))
+%          Cnr_table  cn = (Cnt_table*cnt + dcnda*dail + dcndr*drdr) + b2v*(cnp*p + (Cnr_table*cnr)*r)
+%                     (the yaw-damping table cnr(alpha); the M8 plan's "Cn_r",
+%                     renamed because tests/M6/tAeroScale.m uses 'Cn_r' as an
+%                     unknown name)
+%        Unlisted multipliers are 1; AC.aeroScale holds all six. Unknown
 %        names or values that are not finite reals >= 0: vital:badInput.
 %
 %   Sources (hashed in data/MANIFEST.json):
@@ -73,12 +82,13 @@ AC.limits.beta_deg = [-30 30];         % aero table range BETA2
 AC.limits.da_deg = [-21.5 21.5];      % NESC control law ail = -21.5 latStk, |latStk| <= 1 (F16_control.dml:1117-1185)
 AC.limits.dr_deg = [-30 30];          % NESC control law rdr = -30 pedal, |pedal| <= 1 (same lines; ARI excluded, see header)
 AC.controlNames = {'de', 'da', 'dr', 'throttle'};
-% Aerodynamic multipliers for pre-registered mutations (M6). Default 1 = the
+% Aerodynamic multipliers for pre-registered mutations (M6) and the M8
+% uncertainty analysis. Default 1 = the
 % NESC model unchanged (vital.aircraft.f16.loads then skips them entirely).
-AC.aeroScale = struct('Cm_q', 1, 'Cl_p', 1, 'Cnt_table', 1);
+AC.aeroScale = struct('Cm_q', 1, 'Cl_p', 1, 'Cnt_table', 1, 'Cm_table', 1, 'Cl_table', 1, 'Cnr_table', 1);
 for f = fieldnames(opts.AeroScale).'
     if ~isfield(AC.aeroScale, f{1})
-        error('vital:badInput', 'unknown AeroScale multiplier "%s" (allowed: Cm_q, Cl_p, Cnt_table; ''Cn_beta'' was renamed Cnt_table on 2026-10-05).', f{1});
+        error('vital:badInput', 'unknown AeroScale multiplier "%s" (allowed: Cm_q, Cl_p, Cnt_table, Cm_table, Cl_table, Cnr_table; ''Cn_beta'' was renamed Cnt_table on 2026-10-05).', f{1});
     end
     v = opts.AeroScale.(f{1});
     if ~(isnumeric(v) && isscalar(v) && isreal(v) && isfinite(v) && v >= 0)

@@ -16,18 +16,30 @@ in = struct('vt', ad.V / k.ft, 'alpha', rad2deg(ad.alpha), 'beta', rad2deg(ad.be
     'el', rad2deg(u(1)), 'ail', rad2deg(u(2)), 'rdr', rad2deg(u(3)));
 a = vital.models.f16.aero(in);
 if isfield(AC, 'aeroScale')
-    % M6 mutations (vital.aircraft.f16.config 'AeroScale'): each multiplier that
-    % is not 1 rebuilds ONE coefficient with ONE term scaled, in the generated
-    % model's own order of operations; multipliers equal to 1 leave a untouched.
+    % M6 mutations and M8 uncertainty multipliers (vital.aircraft.f16.config
+    % 'AeroScale'): each multiplier that is not 1 scales ONE term of the generated
+    % model and the coefficient is rebuilt in the model's own order of operations;
+    % multipliers equal to 1 leave a untouched.
     s = AC.aeroScale;
-    if s.Cm_q ~= 1
+    if s.Cm_table ~= 1
+        a.cmt = s.Cm_table * a.cmt;                       % M8: pitching-moment table cmt(el, alpha)
+    end
+    if s.Cm_q ~= 1 || s.Cm_table ~= 1
         a.cm = a.cmt + a.cq2v * (s.Cm_q * a.cmq);
     end
-    if s.Cl_p ~= 1
+    if s.Cl_table ~= 1
+        a.cl1 = (s.Cl_table * a.clt + (a.dclda * a.dail) + (a.dcldr * a.drdr));   % M8: rolling-moment table clt(beta, alpha)
+    end
+    if s.Cl_p ~= 1 || s.Cl_table ~= 1
         a.cl = a.cl1 + a.b2v * ((s.Cl_p * a.clp * a.p) + (a.clr * a.r));
+    end
+    if s.Cnr_table ~= 1
+        a.cnr = s.Cnr_table * a.cnr;                      % M8: yaw-damping table cnr(alpha)
     end
     if s.Cnt_table ~= 1
         a.cn = (s.Cnt_table * a.cnt + a.dcnda * a.dail + a.dcndr * a.drdr) + a.b2v * ((a.cnp * a.p) + (a.cnr * a.r));
+    elseif s.Cnr_table ~= 1
+        a.cn = a.cn1 + a.b2v * ((a.cnp * a.p) + (a.cnr * a.r));
     end
 end
 qS = ad.qbar * AC.S;

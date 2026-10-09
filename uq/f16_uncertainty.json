@@ -1,0 +1,38 @@
+{
+  "id": "f16_uncertainty_v1",
+  "label": "JUDGMENT",
+  "source": "JUDGMENT: engineering judgment fixed by the coordinator in docs/PLAN_M5_M8.md, section 'M8 uncertainty' (2026-10-07). These 1-sigma widths are NOT published values; NASA's NESC F-16 package gives no uncertainty for its aerodynamic tables.",
+  "rationale": "Damping (rotary) derivatives are less certain than static tables, so their sigma is doubled (0.10 vs 0.05).",
+  "distribution": "independent normal N(1, sigma) per multiplier (Monte Carlo)",
+  "coverage": 0.99,
+  "coverage_note": "per group: box half-width k_g * sigma with k_g = sqrt(chi2inv(coverage, d)), d = number of parameters in the group, so the box contains the group's 99 % joint ellipsoid; the full box is the product of the group boxes",
+  "multiplier_note": "Each parameter is an AeroScale multiplier (vital.aircraft.f16.config) on ONE term of the NASA aero model about the MRC (35 % MAC); it is not a CG-derivative uncertainty (ADR R2-5). Parameter Cn_r is the AeroScale field Cnr_table (the name Cn_r is used by tests/M6/tAeroScale.m as an unknown name; see reports/fragments/uq/NOTES.md).",
+  "groups": [
+    {
+      "name": "pitchDamping",
+      "parameters": [
+        {"name": "Cm_q", "aeroScale": "Cm_q", "term": "cmq", "sigma": 0.10}
+      ]
+    },
+    {
+      "name": "pitchStatic",
+      "parameters": [
+        {"name": "Cm_table", "aeroScale": "Cm_table", "term": "cmt", "sigma": 0.05}
+      ]
+    },
+    {
+      "name": "latDamping",
+      "parameters": [
+        {"name": "Cl_p", "aeroScale": "Cl_p", "term": "clp", "sigma": 0.10},
+        {"name": "Cn_r", "aeroScale": "Cnr_table", "term": "cnr", "sigma": 0.10}
+      ]
+    },
+    {
+      "name": "latStatic",
+      "parameters": [
+        {"name": "Cl_table", "aeroScale": "Cl_table", "term": "clt", "sigma": 0.05},
+        {"name": "Cnt_table", "aeroScale": "Cnt_table", "term": "cnt", "sigma": 0.05}
+      ]
+    }
+  ]
+}
