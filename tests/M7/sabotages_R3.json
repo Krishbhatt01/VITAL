@@ -1,0 +1,54 @@
+[
+ {
+  "id": "S7R-1",
+  "file": "+vital/+ctrl/suggestGains.m",
+  "pattern": "s.protected(i).regressed = isnan(g.inEnvelope.levelHeadline) || g.inEnvelope.levelHeadline > s.protected(i).bareLevel;",
+  "replacement": "s.protected(i).regressed = g.inEnvelope.levelHeadline > s.protected(i).bareLevel;",
+  "targets": [
+   "tCtrlR3/notAssessableProtectedGroupIsRegression"
+  ],
+  "rationale": "A protected group that becomes NOT_ASSESSABLE (NaN headline) with the proposed gains is no longer a regression: NaN > 1 is false, so TARGET_REACHED is claimed (FC-702 spirit). (proposed by review R3; registered by r3tests)"
+ },
+ {
+  "id": "S7R-2",
+  "file": "+vital/+ctrl/suggestGains.m",
+  "pattern": "kp = round(k / opts.Resolution) * opts.Resolution;",
+  "replacement": "kp = floor(k / opts.Resolution) * opts.Resolution;",
+  "targets": [
+   "tCtrlR3/roundingIsToNearest",
+   "tCtrlR3/m7GainsPinned"
+  ],
+  "rationale": "Rounding mode changed (truncation): the proposed gains become Kq 0.01, Kr 0.81, still TARGET_REACHED, and no test pins the proposal to the gains M8 analyses (vital.uq.augmentedBuilder hard-codes 0.02/0.14/0.82). (proposed by review R3; registered by r3tests)"
+ },
+ {
+  "id": "S7R-3",
+  "file": "+vital/+fq/evaluatePoint.m",
+  "pattern": "if numel(names) == numel(classical) && all(ismember(classical, names)) && all(strcmp({m.status}, 'OK'))",
+  "replacement": "if all(ismember(classical, names))",
+  "targets": [
+   "tCtrlR3/equivalentSystemFlagAllNamesPresent"
+  ],
+  "rationale": "3.1.12 equivalent-system flag misses an extra 'other' mode or a non-OK classical mode (only the presence of the five names is checked). (proposed by review R3; registered by r3tests)"
+ },
+ {
+  "id": "S7R-4",
+  "file": "+vital/+ctrl/yawDamper.m",
+  "pattern": "Kari * (u(2) - da0)",
+  "replacement": "Kari * (da0 - u(2))",
+  "targets": [
+   "tCtrlLaws/lawIdentities",
+   "tCtrlClosedLoop/handClosedLoopYawDamper"
+  ],
+  "rationale": "Aileron-rudder interconnect sign reversed. (proposed by review R3; registered by r3tests)"
+ },
+ {
+  "id": "S7R-5",
+  "file": "+vital/+ctrl/closedLoop.m",
+  "pattern": "r.improvement = ([r.table.dzeta] > 0) & strcmp(r.status, 'STABLE');",
+  "replacement": "r.improvement = ([r.table.dzeta] > 0);",
+  "targets": [
+   "tCtrlClosedLoop/wrongSignIsReportedUnstable"
+  ],
+  "rationale": "FC-806: a mode whose damping rose is reported as an improvement although the closed loop is unstable. (proposed by review R3; registered by r3tests)"
+ }
+]

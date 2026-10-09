@@ -1,0 +1,83 @@
+[
+ {
+  "id": "S8R-1",
+  "file": "+vital/+uq/analyze.m",
+  "pattern": "'sigma', B.sigmaEff",
+  "replacement": "'sigma', B.sigma",
+  "targets": [
+   "tUqR3/monteCarloSigmaScalesWithWidth"
+  ],
+  "rationale": "Monte Carlo drawn with the x1 judgment sigmas at every width scale (sigma instead of the scaled sigmaEff): the x0.5/x1.5 sensitivity columns of the headline report silently reuse the x1 Monte Carlo. (proposed by review R3; registered by r3tests)"
+ },
+ {
+  "id": "S8R-2",
+  "file": "+vital/+uq/F16Evaluator.m",
+  "pattern": "k = [sprintf('%.17g|', theta), '#', ...",
+  "replacement": "k = [sprintf('%.4g|', theta), '#', ...",
+  "targets": [
+   "tUqR3/cacheKeyDistinguishesNearbyTheta"
+  ],
+  "rationale": "Cache key printed with too few digits: fmincon's forward-difference points (step 1e-3 relative) and nearby Monte Carlo samples hit the cached value of a different theta, so gradients are zero (false convergence) and samples get another point's margin. (proposed by review R3; registered by r3tests)"
+ },
+ {
+  "id": "S8R-3",
+  "file": "+vital/+uq/boundWorst.m",
+  "pattern": "o.converged = flag > 0;",
+  "replacement": "o.converged = flag >= 0;",
+  "targets": [
+   "tBoundWorstToys/notConvergedIsNotAssessable"
+  ],
+  "rationale": "Exit flag 0 (evaluation budget exhausted) counted as converged: FC-901 non-convergence becomes an OK search. (proposed by review R3; registered by r3tests)"
+ },
+ {
+  "id": "S8R-4",
+  "file": "+vital/+uq/verdict.m",
+  "pattern": "elseif strcmp(bw.status, 'OK') && bw.value >= opts.Reserve",
+  "replacement": "elseif ~strcmp(bw.status, 'VIOLATED') && bw.value >= opts.Reserve",
+  "targets": [
+   "tMonteCarloVerdict/verdictTruthTable",
+   "tUqR3/infBoundWorstIsNotRobust"
+  ],
+  "rationale": "NOT_ASSESSABLE bound-worst (non-converged search, non-OK point) with an adequate Monte Carlo turned into ROBUST. (proposed by review R3; registered by r3tests)"
+ },
+ {
+  "id": "S8R-5",
+  "file": "+vital/+uq/verdict.m",
+  "pattern": "elseif strcmp(bw.status, 'OK') && bw.value >= opts.Reserve",
+  "replacement": "elseif (strcmp(bw.status, 'OK') || bw.value == Inf) && bw.value >= opts.Reserve",
+  "targets": [
+   "tUqR3/infBoundWorstIsNotRobust"
+  ],
+  "rationale": "The tempting 'fix' for the open 3.3.1.3 issue: a +Inf bound-worst (stable spiral at every SAMPLED point, search not run) is declared ROBUST although the box was never searched. (proposed by review R3; registered by r3tests)"
+ },
+ {
+  "id": "S8R-6",
+  "file": "+vital/+uq/boundWorst.m",
+  "pattern": "bw.nonOK = find(~strcmp(S.status, 'OK')).';",
+  "replacement": "bw.nonOK = find(~strcmp(S.status, 'OK') & isnan(S.margin)).';",
+  "targets": [
+   "tUqR3/partialMarginNonOKPointCounted"
+  ],
+  "rationale": "FC-903 with several candidate conditions: a point where one condition fails to trim but another is OK keeps a finite margin and is no longer counted as non-OK, so the failed condition is silently dropped. (proposed by review R3; registered by r3tests)"
+ },
+ {
+  "id": "S8R-7",
+  "file": "+vital/+uq/F16Evaluator.m",
+  "pattern": "if ie.nExcluded > 0 || isempty(ie.criticalIndex) || isnan(ie.minMargin)",
+  "replacement": "if isempty(ie.criticalIndex) || isnan(ie.minMargin)",
+  "targets": [
+   "tUqR3/excludedInEnvelopePointGivesNaN"
+  ],
+  "rationale": "Confirmation/nominal in-envelope margin ignores EXCLUDED in-envelope points (trim failure at another condition at the arg-min) instead of returning NaN -> NOT_OK: a moving limit into a non-trimmable point is hidden. (proposed by review R3; registered by r3tests)"
+ },
+ {
+  "id": "S8R-8",
+  "file": "+vital/+uq/F16Evaluator.m",
+  "pattern": "idx = find(strcmp({res.points.envelope}, 'IN'));",
+  "replacement": "idx = 1:numel(res.points);",
+  "targets": [
+   "tUqR3/candidatesAreInEnvelopeOnly"
+  ],
+  "rationale": "Candidate conditions ranked over all 36 points including the 6 EXTRAPOLATED ones (outside the NESC validity envelope). (proposed by review R3; registered by r3tests)"
+ }
+]
