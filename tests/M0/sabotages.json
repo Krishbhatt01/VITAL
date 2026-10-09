@@ -48,5 +48,16 @@
    "tCatalogueRules/closedMilestonePlannedRowIsAProblem"
   ],
   "rationale": "A closed milestone with a PLANNED failure-catalogue row would claim coverage that does not exist."
+ },
+ {
+  "id": "S0-6",
+  "file": "+vital/+test/applySabotage.m",
+  "pattern": "    sub = sub(~ismember({sub.name}, {'.', '..', 'work'}));",
+  "replacement": "    sub = sub([]);",
+  "targets": [
+   "tSabotageReports/copyHasReportsButNotScratch",
+   "tSabotageReports/nullSabotageNotDetected"
+  ],
+  "rationale": "Review R3 B1 regression: the sabotage copy loses reports/ again, so tests that read reports fail on any edit (vacuous detections)."
  }
 ]

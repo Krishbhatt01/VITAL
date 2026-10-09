@@ -1,0 +1,6 @@
+[
+  {"id": "S-FIXR-0", "file": "+fxr/scaleValue.m", "pattern": "% scale factor applied", "replacement": "%  scale factor applied",
+   "targets": ["tReadsReport/scaledReportValue"], "rationale": "Fixture NULL sabotage (whitespace in a comment): must NOT be detected."},
+  {"id": "S-FIXR-1", "file": "+fxr/scaleValue.m", "pattern": "y = 2 * x;", "replacement": "y = 3 * x;",
+   "targets": ["tReadsReport/scaledReportValue"], "rationale": "Fixture real sabotage: wrong factor must turn tReadsReport RED."}
+]
