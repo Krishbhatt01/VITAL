@@ -176,6 +176,36 @@ out = vital.sim.run(AC, env, x0, u0, 'dt', 0.01, 'tFinal', T, 'Inputs', f, 'Cont
   - d margin(3.3.1.1-CatA-other)/d Cn_r > 0 (more yaw damping, more Dutch-roll damping)
 - `AeroScale` default path bit-identical.
 
+**Amendment after review R3** (coordinator, 2026-10-09; the user approved the fix/accept split). It supersedes the M8 contract above where they differ. Original pre-registrations are kept in the test headers and marked superseded.
+
+- **R3-M4, moving limit: re-search.**
+  - If the confirmation finds a smaller margin at a condition that was not a candidate, that condition is added to the candidates and the search is re-run.
+  - This repeats until the confirmation no longer moves, at most 3 rounds.
+  - The status can be `OK` only if the final confirmation did not move. If it still moves after 3 rounds, the status is `NOT_ASSESSABLE` with a reason starting `MOVING_LIMIT`.
+  - The report lists each round.
+- **R3-M3, the four NOT_ASSESSABLE groups.**
+  - **(a) Longitudinal groups (3.2.x) are searched over the longitudinal parameters only** (pitchDamping, pitchStatic), with the lateral parameters held at 1.
+    - Justification: at a wings-level, beta = 0 trim the lateral multipliers do not change any longitudinal metric. This must be shown by a test at several in-envelope conditions and box corners, within 1e-9 relative. If it is not shown, (a) is not used.
+    - Lateral groups keep the full box, because Cm_table moves the trim.
+  - **(b) Groups whose margin is +Inf (3.3.1.3 spiral) are searched on a smooth surrogate:** the spiral root's real part. The search maximizes it (the most unstable spiral) over the box.
+    - If the converged maximum is <= 0, the spiral is stable over the whole box. The bound-worst is +Inf with status `OK`, and the report says "stable over the box (surrogate search)".
+    - If it is > 0, the time-to-double margin is computed at that point.
+    - Candidate conditions for +Inf groups are ranked by the same surrogate, never by grid order.
+- **R3-M2, nonsmooth objectives: accept, document and add one toy test.**
+  - The report states that the bound-worst is a search estimate (an upper bound on the true minimum), not a proof.
+  - Groups whose metric is binary or flat (3.3.1.4) are labelled "sampled only".
+  - A new toy: a kinked interior valley, the minimum of two planes. Its expected status is pre-registered before the run.
+- **R3-M5, Cm_table: accept and document.**
+  - The report says that every multiplier acts on NASA's tables about the MRC (35 % MAC). Cm_table scales Cm0, M_alpha and M_de together, so it also moves the trim and the SAS's elevator authority.
+  - The report prints the Mahalanobis distance of each arg-min.
+  - A REG test gives the effective derivative ratios at the CG for Cm_table, Cl_table and Cnr_table at their x1 box edges.
+- **Minor items in the same change:**
+  - m2: print the joint-box coverage (0.9707 at x1).
+  - m6: list the groups omitted for a NaN headline, with the reason.
+  - m9: add a sentence that robustness of a box implies robustness of the boxes it contains, and that NOT_ASSESSABLE means "not established", not "fails".
+  - m1: re-label tF16Uq hypothesis 2 as a guard.
+  - m4: tF16Uq uses the longitudinal-only search where (a) applies, to cut its runtime.
+
 ## Exit criteria for "done to M8"
 1. `run_vital_tests('M8')` is GREEN from a fresh MATLAB session (`restoredefaultpath`, no `startup_vital`), with 0 excluded.
 2. `run_sabotage('M5')` … `('M8')` detect every sabotage, with the tree unchanged.

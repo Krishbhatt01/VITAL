@@ -274,3 +274,36 @@ Closed by the user ("go ahead with the next stage"), on the 2026-10-07 coordinat
   - Tree unchanged: 1 in both.
   - The 9 sabotages R3 found NOT DETECTED (S8R-1, -2, -5, -6, -7, -8, S7R-1, -2, -3) are now all DETECTED. For S7R-2, both targets fail.
 - No pre-registered expectation failed. No real bug found.
+# CHANGELOG fragment (uq2, 2026-10-09): M8 amendment after review R3
+
+- Implemented the R3 amendment (docs/PLAN_M5_M8.md):
+  - R3-M4: moving-limit re-search, at most 3 rounds, MOVING_LIMIT status.
+  - R3-M3(a): longitudinal-only search of 3.2.x groups, gated by an invariance test (worst deviation 3.8e-14 against 1e-9).
+  - R3-M3(b): spiral surrogate search, with candidates ranked by the surrogate.
+  - R3-M2: "search estimate (upper bound), not a proof", the "sampled only" label, and the kinked-valley toy.
+  - R3-M5: the MRC note, the Mahalanobis distance of each arg-min, and the effective CG-derivative ratios.
+  - Minor items: m1 (tF16Uq hypothesis 2 is now a guard), m2 (joint coverage 0.9707), m4 (tF16Uq uses the longitudinal-only search), m6 (omitted groups listed), m9 (box-nesting sentence).
+- New: +vital/+uq/searchPlan.m, surrogateWorst.m, mahalanobis.m, boxCoverage.m.
+- Changed: +vital/+uq/boundWorst.m, analyze.m, F16Evaluator.m, writeReport.m, headline.m, and run_f16_uq.m.
+- Tests:
+  - New: tests/M8/tUqR3Fixes.m, tUqR3F16.m, tUqR3Report.m.
+  - Changed: tBoundWorstToys.m (3 SUPERSEDED, 3' added) and tF16Uq.m (m1 relabel, hypothesis 9).
+  - Sabotages: tests/M8/sabotages_uq2.json (S8V-1..4).
+- **RED:** reports/work/uq2/M8_red_uq2.txt.
+  - TOTAL 539, PASS 505, RED_EXPECTED 23, RED_UNEXPECTED 0, RED_SUSPICIOUS 0, VACUOUS 11, REGRESSION 0, EXCLUDED 0; gateOK 1.
+  - The 11 VACUOUS are 8 unchanged tBoundWorstToys tests plus 3 guards of existing behaviour: lonLatInvariance, effectiveDerivativeRatios and kinkedValley.
+- **GREEN:** reports/work/uq2/M8_green_uq2.txt. TOTAL 569, PASS 569, FAIL 0, EXCLUDED 0, VACUOUS 0, REGRESSION 0; gateOK 1; 1855 s.
+- **Sabotage:** reports/work/uq2/M8_sabotage_uq2.txt and M8_sabotage_uq_R3.txt.
+  - uq2: S8V-1..4, 4/4 DETECTED.
+  - uq + R3: S8U-1..5 and S8R-1..8, 13/13 DETECTED.
+  - Tree unchanged 1 in both runs.
+- **Runtime:** tF16Uq took 408 s in the gate, against 794 s in R3's gate.
+- **Not run:** the full default run_f16_uq (left to the coordinator), so reports/uq/f16_uq_default.* is stale.
+
+## M8 default analysis re-run after the R3 amendment (2026-10-09, coordinator)
+- `run_f16_uq('Overwrite', true)`, 5,272 s. Report: `reports/uq/f16_uq_default.md/.json`. The previous version is in git (commit 5085581).
+- **Headline at x1:**
+  - 13 groups ROBUST. 3.3.1.3-CatA/B are now ROBUST through the spiral surrogate: stable over the box. They were NOT_ASSESSABLE before.
+  - 2 NOT_ROBUST, unchanged: 3.2.2.1.1-CatA (CAP, -0.005879) and 3.3.1.1-CatA-COGA (-0.09506).
+  - 2 NOT_ASSESSABLE: 3.2.2.1.2-CatA (search value 0.0164) and -CatB (0.186). The cause is FC-901: the true minimum lies at a kink, as the kinked-valley toy predicts. R3's independent 2-D grid gives the same positive minima, so no violation is hidden.
+- **Other widths:** x0.5 is ROBUST except 3.3.1.1-CatA-COGA. At x1.5 the NOT_ROBUST groups are 3.2.2.1.1-CatA, 3.2.2.1.2-CatA and 3.3.1.1-CatA-COGA.

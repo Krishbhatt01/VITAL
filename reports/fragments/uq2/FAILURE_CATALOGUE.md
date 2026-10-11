@@ -1,0 +1,13 @@
+# FAILURE_CATALOGUE fragment (uq2, 2026-10-09)
+
+Proposed new rows. The IDs are proposals; the coordinator assigns the final numbers. Six-column format of docs/FAILURE_CATALOGUE.md.
+
+| ID | Milestone | Failure mode | Detection | Error / status ID | Test |
+|---|---|---|---|---|---|
+| FC-919 | M8 | Moving limit accepted as OK: the arg-min was optimized for the wrong condition and never re-searched at the moved one | the moved condition is added and the search re-run (at most MaxRounds = 3 rounds); OK only if the final confirmation did not move; also covered by tests/M8/tBoundWorstToys.m#movingLimitCaught | `NOT_ASSESSABLE` (reason starts `MOVING_LIMIT`) | `tests/M8/tUqR3Fixes.m#movingLimitReSearch` |
+| FC-920 | M8 | A +Inf group (stable spiral) left unsearched (FC-901) or its candidates chosen by grid order | surrogate Re(spiral root) maximized by vital.uq.surrogateWorst; candidates ranked by the surrogate; also covered by tests/M8/tUqR3F16.m#surrogateCandidates and tests/M8/tUqR3Report.m#spiralSurrogate | `OK` (+Inf, 'stable over the box (surrogate search)') / `VIOLATED` / `NOT_ASSESSABLE` | `tests/M8/tUqR3Fixes.m#surrogateSearch` |
+| FC-921 | M8 | Longitudinal-only search applied where the lateral multipliers matter (a lateral group, or a lon/lat coupling) | searchPlan applies it to 3.2.x groups only; invariance gate test (1e-9 relative); runtime spot check falls back to the full box; also covered by tests/M8/tUqR3F16.m#lonLatInvariance | test failure / plan 'full' | `tests/M8/tUqR3Fixes.m#searchPlanModes` |
+| FC-922 | M8 | A bound-worst on a kinked, binary or flat objective presented as a converged proof | report: "search estimate (upper bound), not a proof"; 'sampled only' label; kinked-valley toy pre-registered NOT_ASSESSABLE (FC-901); also covered by tests/M8/tUqR3Report.m#sampledOnlyAndSearchEstimate | `NOT_ASSESSABLE` / label | `tests/M8/tUqR3Fixes.m#kinkedValley` |
+| FC-923 | M8 | Arg-min likelihood misreported (Mahalanobis distance without sigma, or the wrong degrees of freedom) | closed forms of vital.uq.mahalanobis; analyze's value recomputed (tests/M8/tUqR3Report.m#mahalanobisAndMrcNote) | test failure | `tests/M8/tUqR3Fixes.m#mahalanobisDistance` |
+| FC-924 | M8 | Groups with a NaN in-envelope headline dropped silently from the default analysis | r.omitted with the reason, listed in the report and the printout | listed | `tests/M8/tUqR3Report.m#omittedGroupsListed` |
+| FC-925 | M8 | Joint coverage of the product box misreported (0.99 instead of 0.9707) | vital.uq.boxCoverage closed form, printed in the report | test failure | `tests/M8/tUqR3Fixes.m#jointCoverage` |
