@@ -25,6 +25,10 @@ classdef (TestTags = {'M8'}) tF16Uq < vital.test.VitalTestCase
 %   2. bound-worst <= nominal margin, for both groups and every width (exact: the
 %      centre of the box is evaluated by the same chain, AeroScale all 1 being
 %      bit-identical to the default path, tAeroScaleUq).
+%      RE-LABELLED A GUARD by the R3 amendment (2026-10-09; review R3 m1; text
+%      above kept): this cannot fail while the centre is evaluated and the
+%      candidates contain the critical condition. It is a GUARD that the
+%      centre is evaluated, not evidence about the box.
 %   3. bound-worst is non-increasing with the width: value(x0.5) >=
 %      value(x1) >= value(x1.5) (1e-9 abs: the step-study linearization noise
 %      floor; the boxes are nested).
@@ -59,6 +63,24 @@ classdef (TestTags = {'M8'}) tF16Uq < vital.test.VitalTestCase
 %         nominal margin 1.22 (zeta_d ~ 0.42 against 0.19) is dominated by the
 %         yaw damper; -30 % of the airframe's cnr and clp cannot halve zeta_d.
 %   8. Every report value is labelled: r.label is 'JUDGMENT'.
+%
+%   R3 AMENDMENT (agent uq2, 2026-10-09; docs/PLAN_M5_M8.md "Amendment after
+%   review R3"; pre-registered before the implementation):
+%   - m4: the analysis runs with the amended defaults, so the longitudinal
+%     group 3.2.2.1.1-CatA is searched over (Cm_q, Cm_table) only (R3-M3(a),
+%     gated by tests/M8/tUqR3F16.m#lonLatInvariance): 4 corners instead of 64,
+%     which cuts the runtime (the 3.3.1.1 group keeps the full box). Hypotheses
+%     1-8 are unchanged and still hold for that search.
+%   9. LONGITUDINAL-ONLY SEARCH OF 3.2.2.1.1-CatA: plan.mode 'longitudinal',
+%      bw.searchNames {Cm_q, Cm_table} at every width; every evaluated point
+%      has the four lateral multipliers exactly 1. At x1 the bound-worst is the
+%      exact lower corner (Cm_q 1 - 0.257583, Cm_table 1 - 0.128791, lateral
+%      1; bw.theta equal to the x1 box's lo there, exactly) with margin
+%      -0.0058793 (REG: review R3 3.5 re-evaluated this corner, -0.0058793;
+%      1e-7 abs, R3 printed 5 significant digits), status 'VIOLATED'. The
+%      Mahalanobis distance of that arg-min (x1 sigmas, Dof 2) is sqrt(2) k1 =
+%      3.6428 (1e-9 rel, ANALYTIC). 3.3.1.1-CatA-other: plan.mode 'full',
+%      bw.searchNames all six parameters.
 
     properties
         R
@@ -108,10 +130,11 @@ classdef (TestTags = {'M8'}) tF16Uq < vital.test.VitalTestCase
         end
 
         function boundWorstNotAboveNominal(tc)
+            % GUARD (hypothesis 2 re-labelled by the R3 amendment, review R3 m1)
             for n = tc.GROUPS
                 g = tc.grp(n{1});
                 for j = 1:numel(tc.W)
-                    tc.verifyLessThanOrEqual(g.widths(j).bw.value, g.margin0, sprintf('%s x%g', n{1}, tc.W(j)));
+                    tc.verifyLessThanOrEqual(g.widths(j).bw.value, g.margin0, sprintf('guard (centre evaluated): %s x%g', n{1}, tc.W(j)));
                 end
             end
         end
@@ -182,6 +205,31 @@ classdef (TestTags = {'M8'}) tF16Uq < vital.test.VitalTestCase
             w = g.widths(tc.W == 1);
             tc.verifyWithin(w.bw.value, 0, Inf, 'REG', 'H2: Dutch-roll group keeps a positive margin at x1', ...
                 'Quantity', '3.3.1.1-CatA-other bound-worst x1');
+        end
+
+        function longitudinalOnlySearch(tc)
+            g = tc.grp('3.2.2.1.1-CatA');
+            tc.verifyEqual(g.plan.mode, 'longitudinal', 'hypothesis 9');
+            for j = 1:numel(tc.W)
+                bw = g.widths(j).bw;
+                tc.verifyEqual(bw.searchNames, {'Cm_q', 'Cm_table'}, sprintf('hypothesis 9 x%g', tc.W(j)));
+                lat = ~ismember(g.widths(j).box.aeroScale, {'Cm_q', 'Cm_table'});
+                tc.verifyTrue(all(all(bw.points.theta(:, lat) == 1)), sprintf('hypothesis 9 x%g: lateral at 1', tc.W(j)));
+            end
+            w = g.widths(tc.W == 1);
+            lon = ismember(w.box.aeroScale, {'Cm_q', 'Cm_table'});
+            tc.verifyEqual(w.bw.theta(lon), w.box.lo(lon), 'hypothesis 9: the exact lower corner');
+            tc.verifyEqual(w.bw.theta(~lon), ones(1, 4));
+            tc.verifyEqual(w.bw.status, 'VIOLATED');
+            tc.verifyTol(w.bw.value, -0.0058793, 1e-7, 'abs', 'REG', 'reports/review/R3_REVIEW.md 3.5 (exact corner)', ...
+                'Quantity', '3.2.2.1.1-CatA bound-worst x1');
+            k1 = sqrt(2) * erfinv(0.99);
+            tc.verifyTol(w.mahalanobis.D, sqrt(2) * k1, 1e-9, 'rel', 'ANALYTIC', 'hypothesis 9: corner of (Cm_q, Cm_table)', ...
+                'Quantity', 'Mahalanobis distance of the x1 arg-min');
+            tc.verifyEqual(w.mahalanobis.dof, 2);
+            g = tc.grp('3.3.1.1-CatA-other');
+            tc.verifyEqual(g.plan.mode, 'full', 'hypothesis 9');
+            tc.verifyNumElements(g.widths(1).bw.searchNames, 6);
         end
 
         function labelledJudgment(tc)

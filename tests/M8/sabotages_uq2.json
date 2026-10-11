@@ -1,0 +1,43 @@
+[
+ {
+  "id": "S8V-1",
+  "file": "+vital/+uq/boundWorst.m",
+  "pattern": "for ir = 1:opts.MaxRounds",
+  "replacement": "for ir = 1:1",
+  "targets": [
+   "tUqR3Fixes/movingLimitReSearch",
+   "tBoundWorstToys/movingLimitCaught"
+  ],
+  "rationale": "The moving-limit loop stops after one round: a confirmation that moves is never re-searched at the moved condition, so a search optimized for the wrong condition is reported (R3-M4)."
+ },
+ {
+  "id": "S8V-2",
+  "file": "+vital/+uq/surrogateWorst.m",
+  "pattern": "    q.margin = -q.value;",
+  "replacement": "    q.margin = q.value;",
+  "targets": [
+   "tUqR3Fixes/surrogateSearch"
+  ],
+  "rationale": "Surrogate sign flipped: the search minimizes Re(spiral root), i.e. it finds the MOST STABLE spiral in the box and calls the box stable (R3-M3(b))."
+ },
+ {
+  "id": "S8V-3",
+  "file": "+vital/+uq/searchPlan.m",
+  "pattern": "elseif opts.LonOnly && startsWith(group, '3.2.')",
+  "replacement": "elseif opts.LonOnly && startsWith(group, '3.')",
+  "targets": [
+   "tUqR3Fixes/searchPlanModes"
+  ],
+  "rationale": "The longitudinal-only search applied to a lateral group (3.3.x): the lateral multipliers that drive the group are held at 1, so its worst case is never searched (R3-M3(a))."
+ },
+ {
+  "id": "S8V-4",
+  "file": "+vital/+uq/mahalanobis.m",
+  "pattern": "D = sqrt(sum(((theta - nominal) ./ sigma).^2, 2));",
+  "replacement": "D = sqrt(sum((theta - nominal).^2, 2));",
+  "targets": [
+   "tUqR3Fixes/mahalanobisDistance"
+  ],
+  "rationale": "Mahalanobis distance computed without sigma (a Euclidean distance in multiplier units): the reported likelihood of an arg-min is wrong by a factor of 10-20 (R3-M5)."
+ }
+]

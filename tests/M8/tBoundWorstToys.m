@@ -29,6 +29,21 @@ classdef (TestTags = {'M8'}) tBoundWorstToys < vital.test.VitalTestCase
 %      confirmation (all five conditions) finds 0.090 at c5, which REPLACES it:
 %      value 0.090, cond 'c5', confirmation.moved true, searchValue 0.095
 %      (1e-12 abs), status 'OK'; nominal critical c1, 0.100.
+%      SUPERSEDED by the R3 amendment (2026-10-09; docs/PLAN_M5_M8.md, R3-M4):
+%      the status 'OK' after a moving limit is no longer the contract. The
+%      text above is kept as registered; the expectation now checked is 3'.
+%   3'. MOVING LIMIT, RE-SEARCH (agent uq2, 2026-10-09, before the
+%      implementation; same toy, the confirmation also returns the condition):
+%      round 1 over c1..c4: search 0.095 at theta 1.5 (c1), confirmation 0.090
+%      at c5, moved -> c5 is added and the search is re-run; round 2 over
+%      c1..c5: search 0.090 at theta 1.5 (c5, a vertex: 0.140 - 0.100 x 0.5),
+%      confirmation 0.090 at c5, not moved -> status 'OK', 2 rounds, value =
+%      searchValue = 0.090, cond 'c5', theta 1.5, final confirmation.moved
+%      false; rounds(1): searchValue 0.095, cond 'c1', confirmation.moved true
+%      (margin 0.090, cond 'c5'); nominal critical c1, 0.100 (all 1e-12 abs,
+%      ANALYTIC). Rationale (R3 M4): an arg-min optimized for the wrong
+%      condition does not support 'OK'; the re-search at the moved condition
+%      does, once its confirmation no longer moves.
 %   4. ACTIVE-SET SWITCH INSIDE THE BOX (d = 2, h = [0.2 0.2]; one condition, two
 %      records): mA = 0.30 + 0.1 u1, mB = 0.40 - 0.3 u2, m = min, record = the
 %      arg-min. Nominal: 0.30, record 'A'. Bound-worst: 0.100 (1e-12) at
@@ -95,7 +110,7 @@ classdef (TestTags = {'M8'}) tBoundWorstToys < vital.test.VitalTestCase
         function c = movingConfirm(th)
             m = [0.100 - 0.010 * (th - 1), 0.110, 0.120, 0.130, 0.140 - 0.100 * (th - 1)];
             [mm, k] = min(m);
-            c = struct('status', 'OK', 'margin', mm, 'condLabel', sprintf('c%d', k), 'record', 'R1', 'reason', '');
+            c = struct('status', 'OK', 'margin', mm, 'condLabel', sprintf('c%d', k), 'cond', k, 'record', 'R1', 'reason', '');
         end
 
         function q = switching(th)
@@ -150,10 +165,18 @@ classdef (TestTags = {'M8'}) tBoundWorstToys < vital.test.VitalTestCase
             bw = vital.uq.boundWorst(P);
             tc.verifyEqual(bw.nominal.cond, 'c1');
             tc.verifyTol(bw.nominal.margin, 0.100, 1e-12, 'abs', 'ANALYTIC', 'header 3', 'Quantity', 'nominal margin');
-            tc.verifyTol(bw.searchValue, 0.095, 1e-12, 'abs', 'ANALYTIC', 'header 3: search over c1..c4', 'Quantity', 'search value');
+            % header 3' (R3 amendment): the moving limit triggers a re-search
+            tc.assertNumElements(bw.rounds, 2, 'header 3'': two rounds');
+            R1 = bw.rounds(1);
+            tc.verifyTol(R1.searchValue, 0.095, 1e-12, 'abs', 'ANALYTIC', 'header 3'': round 1 search over c1..c4', 'Quantity', 'round 1 search value');
+            tc.verifyEqual(R1.cond, 'c1');
+            tc.verifyTrue(R1.confirmation.moved, 'the confirmation catches the moving limit');
+            tc.verifyTol(R1.confirmation.margin, 0.090, 1e-12, 'abs', 'ANALYTIC', 'header 3'': c5 at theta 1.5', 'Quantity', 'round 1 confirmation');
+            tc.verifyEqual(R1.confirmation.cond, 'c5');
             tc.verifyTrue(bw.confirmation.evaluated);
-            tc.verifyTrue(bw.confirmation.moved, 'the confirmation catches the moving limit');
-            tc.verifyTol(bw.value, 0.090, 1e-12, 'abs', 'ANALYTIC', 'header 3: c5 at theta 1.5', 'Quantity', 'bound-worst after confirmation');
+            tc.verifyFalse(bw.confirmation.moved, 'header 3'': the final confirmation does not move');
+            tc.verifyTol(bw.searchValue, 0.090, 1e-12, 'abs', 'ANALYTIC', 'header 3'': round 2 search over c1..c5', 'Quantity', 'search value');
+            tc.verifyTol(bw.value, 0.090, 1e-12, 'abs', 'ANALYTIC', 'header 3'': c5 at theta 1.5', 'Quantity', 'bound-worst');
             tc.verifyEqual(bw.cond, 'c5');
             tc.verifyEqual(bw.theta, 1.5);
             tc.verifyEqual(bw.status, 'OK', bw.reason);
