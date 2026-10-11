@@ -34,6 +34,15 @@ classdef F16Evaluator < handle
     %   T = vital.uq.F16Evaluator.inEnvelopeMargins(res, group, L)
     %         per in-envelope point (index, cond, label, margin, record), sorted
     %         by margin (stable): the candidate conditions of the search.
+    %   T = vital.uq.F16Evaluator.inEnvelopeSurrogate(res, group, L)
+    %         the same points with field surrogate = Re of the point's spiral
+    %         root (1/s), sorted most unstable first (NaN last; stable): the
+    %         candidates of a +Inf group (review R3 M3: never grid order).
+    %   T = vital.uq.F16Evaluator.candidates(res, group, L, mode)
+    %         inEnvelopeSurrogate for mode 'surrogate', else inEnvelopeMargins.
+    %   q = E.spiralPoint(theta, c)  the spiral surrogate at a point (q.status,
+    %         q.value = Re of the spiral root, q.record, q.reason); S.spiralRe
+    %         is kept in the cached point summary.
     %   lbl = vital.uq.F16Evaluator.condLabel(c)   'h_ft=13000 mach=0.45 cg_pct_mac=30'
     %   Counters: nPointEvals (single-point assessments run), nCacheHits, nAssess.
     %   Errors: vital:badInput (unknown AeroScale field, theta of the wrong size,
@@ -100,6 +109,7 @@ classdef F16Evaluator < handle
             p = res.points(1);
             S.status = p.status; S.stage = p.stage; S.reason = p.reason;
             S.cond = p.cond;
+            S.spiralRe = vital.uq.F16Evaluator.spiralRe(p);
             G = res.groups;
             S.groups = struct('group', {}, 'pointClass', {}, 'why', {}, 'level', {}, 'marginTo', {}, 'recordTo', {});
             for g = 1:numel(G)
@@ -146,6 +156,21 @@ classdef F16Evaluator < handle
             if isnan(q.margin)
                 q.status = 'NO_RECORD';
                 q.reason = sprintf('group %s has no rated Level-%d record at the point', group, L);
+            end
+        end
+
+        function q = spiralPoint(E, theta, c)
+            % the spiral surrogate at one point (R3-M3(b); cached with the point):
+            % q.status ('OK', the point's status, or 'NO_SPIRAL'), q.value (Re of
+            % the spiral root, 1/s), q.record, q.reason
+            S = E.pointSummary(theta, c);
+            q = struct('status', 'OK', 'value', S.spiralRe, 'record', 'spiral root', 'reason', '');
+            if ~strcmp(S.status, 'OK')
+                q.status = S.status; q.value = NaN;
+                q.reason = sprintf('point %s at stage %s: %s', S.status, S.stage, S.reason);
+            elseif isnan(S.spiralRe)
+                q.status = 'NO_SPIRAL';
+                q.reason = 'no single mode named spiral at the point (no surrogate)';
             end
         end
 
@@ -212,6 +237,43 @@ classdef F16Evaluator < handle
             T = struct('index', num2cell(idx(o)).', 'cond', {res.points(idx(o)).cond}.', ...
                 'label', cellfun(@(c) vital.uq.F16Evaluator.condLabel(c), {res.points(idx(o)).cond}, 'UniformOutput', false).', ...
                 'margin', num2cell(ms), 'record', rec(o));
+        end
+
+        function T = inEnvelopeSurrogate(res, group, L)
+            % the in-envelope points ranked by the spiral surrogate (R3-M3(b)):
+            % surrogate = Re of the point's 'spiral' mode (NaN if the point is
+            % not OK or has no single spiral mode), most unstable first (NaN last)
+            T = vital.uq.F16Evaluator.inEnvelopeMargins(res, group, L);
+            s = NaN(numel(T), 1);
+            for ii = 1:numel(T)
+                s(ii) = vital.uq.F16Evaluator.spiralRe(res.points(T(ii).index));
+            end
+            [~, o] = sort(-s);                  % descending, NaN last, stable
+            T = T(o);
+            for ii = 1:numel(T)
+                T(ii).surrogate = s(o(ii));
+            end
+        end
+
+        function T = candidates(res, group, L, mode)
+            % candidate conditions of a search plan mode (vital.uq.searchPlan):
+            % 'surrogate' -> inEnvelopeSurrogate, otherwise inEnvelopeMargins
+            if strcmp(mode, 'surrogate')
+                T = vital.uq.F16Evaluator.inEnvelopeSurrogate(res, group, L);
+            else
+                T = vital.uq.F16Evaluator.inEnvelopeMargins(res, group, L);
+            end
+        end
+
+        function re = spiralRe(p)
+            % real part of the 'spiral' mode of an assessed point (NaN if none)
+            re = NaN;
+            if isstruct(p) && isfield(p, 'status') && strcmp(p.status, 'OK') && isfield(p, 'info') ...
+                    && isfield(p.info, 'modes')
+                md = p.info.modes;
+                k = strcmp({md.name}, 'spiral');
+                if sum(k) == 1, re = md(k).re; end
+            end
         end
 
         function t = condLabel(c)

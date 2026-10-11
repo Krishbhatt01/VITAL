@@ -14,6 +14,12 @@ function r = run_f16_uq(opts)
 %                                   vital.uq.analyze options: Groups,
 %                                   WidthScales, Conditions, NumLHS, NumStarts,
 %                                   MaxEvals, NumCandidates, N
+%   run_f16_uq(..., 'MaxRounds', 3, 'LonOnly', true, 'Surrogate', true)
+%                                   the review-R3 amendment (2026-10-09; defaults
+%                                   on): moving limits re-searched (at most
+%                                   MaxRounds rounds), 3.2.x groups searched over
+%                                   Cm_q and Cm_table only, +Inf spiral groups
+%                                   searched on Re(spiral root)
 %   run_f16_uq(..., 'Label', 'x', 'ReportDir', d, 'Overwrite', true, 'Quiet', true)
 %
 %   Writes <ReportDir>\f16_uq_<Label>.json/.md (default reports\uq,
@@ -22,6 +28,8 @@ function r = run_f16_uq(opts)
 %   Prints the headline table: per group the nominal Level, the bound-worst
 %   margin and status, the Monte Carlo successes/N and Clopper-Pearson lower
 %   bound, and the verdict at every width; the widths are labelled JUDGMENT.
+%   Below it: the bound-worst is a search estimate (upper bound), not a proof;
+%   the box nesting; the groups omitted for a NaN headline.
 %   r: the vital.uq.analyze result plus r.files (json, md) and r.printout.
 %   Works from a fresh MATLAB session: it puts VITAL on the path itself.
 arguments
@@ -37,13 +45,17 @@ arguments
     opts.MaxEvals (1,1) double = 60
     opts.NumCandidates (1,1) double = 4
     opts.N (1,1) double = 200
+    opts.MaxRounds (1,1) double = 3
+    opts.LonOnly (1,1) logical = true
+    opts.Surrogate (1,1) logical = true
 end
 addpath(fileparts(mfilename('fullpath')));
 rdir = opts.ReportDir;
 if isempty(rdir), rdir = fullfile(vital.paths('reports'), 'uq'); end
 r = vital.uq.analyze('Groups', opts.Groups, 'WidthScales', opts.WidthScales, 'Conditions', opts.Conditions, ...
     'NumLHS', opts.NumLHS, 'NumStarts', opts.NumStarts, 'MaxEvals', opts.MaxEvals, ...
-    'NumCandidates', opts.NumCandidates, 'N', opts.N, 'Quiet', opts.Quiet);
+    'NumCandidates', opts.NumCandidates, 'N', opts.N, 'Quiet', opts.Quiet, 'MaxRounds', opts.MaxRounds, ...
+    'LonOnly', opts.LonOnly, 'Surrogate', opts.Surrogate);
 name = ['f16_uq_' opts.Label];
 kept = '';
 if ~opts.Overwrite && (isfile(fullfile(rdir, [name '.json'])) || isfile(fullfile(rdir, [name '.md'])))

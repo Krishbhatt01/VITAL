@@ -2,7 +2,8 @@ function bw = boundWorst(problem, opts)
 %BOUNDWORST  Bound-worst margin over a parameter box (M8; generic, no aircraft).
 %   bw = vital.uq.boundWorst(problem)
 %   bw = vital.uq.boundWorst(problem, 'NumLHS', 32, 'Seed', 2026, 'NumStarts', 2,
-%                            'MaxEvals', 60, 'FDStep', 1e-3, 'Reserve', 0)
+%                            'MaxEvals', 60, 'FDStep', 1e-3, 'Reserve', 0,
+%                            'MaxRounds', 3)
 %
 %   problem fields
 %     names       1 x d parameter names
@@ -15,13 +16,17 @@ function bw = boundWorst(problem, opts)
 %                 q.record (the active record), q.reason
 %     confirmFcn  (optional, [] = none) c = f(theta): a FRESH assessment over
 %                 ALL conditions at theta; c.status, c.margin, c.condLabel,
-%                 c.record, c.reason
+%                 c.record, c.reason, and c.cond (the condition itself, needed
+%                 to re-search a moving limit)
 %
-%   SEARCH (every evaluated point is kept). At a point theta the margin is the
-%   minimum over the candidate conditions that are OK (NaN if none is) and the
-%   point is OK only if every condition is OK; an exception in pointFcn is a
-%   point with status ERROR and the exception's identifier in its reason.
+%   SEARCH of one round (every evaluated point is kept). At a point theta the
+%   margin is the minimum over the candidate conditions that are OK (NaN if
+%   none is) and the point is OK only if every condition is OK; an exception
+%   in pointFcn is a point with status ERROR and the exception's identifier in
+%   its reason.
 %     1. the nominal point (phase 'centre')
+%     1b. from round 2 on: the arg-min of every earlier round ('previous'), so
+%        the moved condition is evaluated where it was found
 %     2. the 2^d corners of the box ('corner')
 %     3. a seeded Latin-hypercube sample of NumLHS points ('lhs'): in every
 %        dimension each of the NumLHS equal strata holds exactly one point
@@ -33,30 +38,44 @@ function bw = boundWorst(problem, opts)
 %        point that is not OK is NaN to the optimizer. A start whose objective
 %        is not finite cannot be optimized and counts as not converged. A start
 %        converges when fmincon's exit flag is > 0.
-%   Bound-worst = the minimum margin over EVERY evaluated point; the arg-min
-%   (theta, condition, record) is the active set.
-%   CONFIRMATION: when confirmFcn is given it is called at the arg-min. If it
-%   finds a smaller margin (a moving limit: the critical condition changed with
-%   the parameters), that margin and condition REPLACE the search value and
-%   bw.confirmation.moved is true.
+%   The round's bound-worst = the minimum margin over EVERY point evaluated in
+%   it; the arg-min (theta, condition, record) is the active set.
+%   CONFIRMATION AND MOVING LIMIT (docs/PLAN_M5_M8.md, M8 amendment R3-M4):
+%   when confirmFcn is given it is called at the round's arg-min. If it finds
+%   a smaller margin at another condition (a moving limit), that condition is
+%   added to the candidates and the search is run again (a new round), until
+%   the confirmation no longer moves, at most MaxRounds rounds. If the final
+%   confirmation still moves, its margin and condition REPLACE the search
+%   value and the status cannot be OK. bw.rounds lists every round.
 %   STATUS
-%     'VIOLATED'        some evaluated point (or the confirmation) has margin <
-%                       Reserve: a counterexample, definitive even if the
-%                       optimizer did not converge
-%     'NOT_ASSESSABLE'  no counterexample, and a point inside the box is not OK
-%                       (trim infeasible, metric NaN, ...) or the confirmation is
-%                       not OK, or an optimizer start did not converge (FC-901;
-%                       the reason then starts with 'FC-901')
-%     'OK'              every evaluated point OK, every start converged
-%   bw fields: status, reason, value, searchValue, theta, cond (label), record,
-%     nominal (margin, cond, record, status at the centre), points (theta
-%     (nE x d), phase, margin, cond, record, status, reason, condMargin
-%     (nE x nC)), nEvaluated, optimizer (struct array: start, x, fval,
-%     exitflag, funcCount, converged, message), converged, confirmation
-%     (evaluated, status, margin, cond, record, moved, reason), nonOK (indices
-%     into points), reserve, options, names, lo, hi.
+%     'VIOLATED'        some evaluated point (or a confirmation) of any round
+%                       has margin < Reserve: a counterexample, definitive even
+%                       if the optimizer did not converge
+%     'NOT_ASSESSABLE'  no counterexample, and: the final confirmation still
+%                       moves (reason starts 'MOVING_LIMIT'), or a point inside
+%                       the box is not OK (trim infeasible, metric NaN, ...),
+%                       or the confirmation is not OK, or an optimizer start of
+%                       the final round did not converge (FC-901; the reason
+%                       then starts with 'FC-901' unless one of the others
+%                       applies)
+%     'OK'              every evaluated point OK, every start of the final
+%                       round converged, and the final confirmation did not move
+%   THE BOUND-WORST IS A SEARCH ESTIMATE: the smallest margin found, an upper
+%   bound on the true minimum over the box, not a proof (review R3 M2).
+%   bw fields: status, reason, value, searchValue, theta, cond (label),
+%     condition (the condition itself), record, nominal (margin, cond, record,
+%     status at the centre, round 1), points (of the final round: theta
+%     (nE x d), phase, margin, cond, condIndex, record, status, reason,
+%     condMargin (nE x nC)), nEvaluated, optimizer (struct array: start, x,
+%     fval, exitflag, funcCount, converged, message), converged, confirmation
+%     (evaluated, status, margin, cond, condition, record, moved, reason),
+%     rounds (round, candidates, nEvaluated, searchValue, theta, cond, record,
+%     converged, nNonOK, nViolating, confirmation), nRounds, conditions,
+%     condLabels (the final candidates), nonOK (indices into points), reserve,
+%     options, names, lo, hi.
 %   Errors: vital:badInput (inconsistent problem: sizes, lo > hi, nominal
-%   outside the box, no condition, pointFcn not a function handle).
+%   outside the box, no condition, pointFcn not a function handle; MaxRounds
+%   not a positive integer).
 arguments
     problem (1,1) struct
     opts.NumLHS (1,1) double = 32
@@ -65,93 +84,161 @@ arguments
     opts.MaxEvals (1,1) double = 60
     opts.FDStep (1,1) double = 1e-3
     opts.Reserve (1,1) double = 0
+    opts.MaxRounds (1,1) double = 3
 end
 P = validateProblem(problem);
+if ~(isfinite(opts.MaxRounds) && opts.MaxRounds >= 1 && opts.MaxRounds == round(opts.MaxRounds))
+    error('vital:badInput', 'MaxRounds must be a positive integer.');
+end
 d = numel(P.lo);
-nC = numel(P.conditions);
 lo = P.lo; hi = P.hi;
+conds = P.conditions(:).';
+labels = P.condLabels(:).';
+prev = zeros(0, d);
+R = struct('round', {}, 'candidates', {}, 'nEvaluated', {}, 'searchValue', {}, 'theta', {}, 'cond', {}, ...
+    'record', {}, 'converged', {}, 'nNonOK', {}, 'nViolating', {}, 'confirmation', {});
+anyViol = false;
+nonOKEarlier = 0;
+stopWhy = '';
+nC = 0; S = []; O = [];
 
-S = struct('theta', zeros(0, d), 'phase', {cell(0, 1)}, 'margin', zeros(0, 1), 'cond', {cell(0, 1)}, ...
-    'record', {cell(0, 1)}, 'status', {cell(0, 1)}, 'reason', {cell(0, 1)}, 'condMargin', zeros(0, nC));
+for ir = 1:opts.MaxRounds
+    nC = numel(conds);
+    S = struct('theta', zeros(0, d), 'phase', {cell(0, 1)}, 'margin', zeros(0, 1), 'cond', {cell(0, 1)}, ...
+        'condIndex', zeros(0, 1), 'record', {cell(0, 1)}, 'status', {cell(0, 1)}, 'reason', {cell(0, 1)}, ...
+        'condMargin', zeros(0, nC));
 
-% ---- 1. centre --------------------------------------------------------------------------
-evalPoint(P.nominal, 'centre');
-bw.nominal = struct('margin', S.margin(1), 'cond', S.cond{1}, 'record', S.record{1}, 'status', S.status{1});
-
-% ---- 2. corners -------------------------------------------------------------------------
-for k = 0:2^d - 1
-    bits = bitget(k, 1:d);
-    th = lo;
-    th(bits == 1) = hi(bits == 1);
-    evalPoint(th, 'corner');
-end
-
-% ---- 3. seeded Latin hypercube -----------------------------------------------------------
-n = opts.NumLHS;
-if n > 0
-    rs = RandStream('mt19937ar', 'Seed', opts.Seed);
-    U = zeros(n, d);
-    for j = 1:d
-        U(:, j) = (randperm(rs, n).' - rand(rs, n, 1)) / n;
+    % ---- 1. centre (and the arg-min of earlier rounds) ------------------------------------
+    evalPoint(P.nominal, 'centre');
+    if ir == 1
+        bw.nominal = struct('margin', S.margin(1), 'cond', S.cond{1}, 'record', S.record{1}, 'status', S.status{1});
     end
-    for i = 1:n
-        evalPoint(lo + (hi - lo) .* U(i, :), 'lhs');
+    for j = 1:size(prev, 1)
+        evalPoint(prev(j, :), 'previous');
     end
+
+    % ---- 2. corners -------------------------------------------------------------------------
+    for k = 0:2^d - 1
+        bits = bitget(k, 1:d);
+        th = lo;
+        th(bits == 1) = hi(bits == 1);
+        evalPoint(th, 'corner');
+    end
+
+    % ---- 3. seeded Latin hypercube -----------------------------------------------------------
+    n = opts.NumLHS;
+    if n > 0
+        rs = RandStream('mt19937ar', 'Seed', opts.Seed);
+        U = zeros(n, d);
+        for j = 1:d
+            U(:, j) = (randperm(rs, n).' - rand(rs, n, 1)) / n;
+        end
+        for i = 1:n
+            evalPoint(lo + (hi - lo) .* U(i, :), 'lhs');
+        end
+    end
+
+    % ---- 4. fmincon from the best distinct points --------------------------------------------
+    [~, ord] = sort(S.margin);
+    T = S.theta(ord, :);
+    [~, iu] = unique(T, 'rows', 'stable');
+    nS = min(opts.NumStarts, numel(iu));
+    starts = T(iu(1:nS), :);
+    O = struct('start', {}, 'x', {}, 'fval', {}, 'exitflag', {}, 'funcCount', {}, 'converged', {}, 'message', {});
+    for s = 1:nS
+        O(s) = runStart(starts(s, :), s); %#ok<AGROW>
+    end
+
+    % ---- bound-worst and active set of this round ---------------------------------------------
+    bw.converged = nS > 0 && all([O.converged]);
+    use = find(~isnan(S.margin));
+    if isempty(use)
+        bw.value = NaN; bw.theta = NaN(1, d); bw.cond = ''; bw.record = ''; bw.condition = [];
+    else
+        [bw.value, k] = min(S.margin(use));
+        k = use(k);
+        bw.theta = S.theta(k, :); bw.cond = S.cond{k}; bw.record = S.record{k};
+        bw.condition = [];
+        if S.condIndex(k) > 0, bw.condition = conds{S.condIndex(k)}; end
+    end
+    bw.searchValue = bw.value;
+
+    % ---- confirmation ----------------------------------------------------------------------------
+    bw.confirmation = struct('evaluated', false, 'status', '', 'margin', NaN, 'cond', '', 'condition', [], ...
+        'record', '', 'moved', false, 'reason', 'no confirmation function');
+    c = [];
+    if ~isempty(P.confirmFcn) && all(isfinite(bw.theta))
+        try
+            c = P.confirmFcn(bw.theta);
+        catch err
+            c = struct('status', 'ERROR', 'margin', NaN, 'condLabel', '', 'record', '', ...
+                'reason', sprintf('%s: %s', err.identifier, err.message));
+        end
+        cc = []; if isfield(c, 'cond'), cc = c.cond; end
+        bw.confirmation = struct('evaluated', true, 'status', c.status, 'margin', c.margin, 'cond', c.condLabel, ...
+            'condition', cc, 'record', c.record, 'moved', false, 'reason', c.reason);
+        if strcmp(c.status, 'OK') && c.margin < bw.value
+            bw.confirmation.moved = true;
+            bw.confirmation.reason = sprintf(['moving limit: the confirmation found margin %.6g at %s (%s), smaller ' ...
+                'than the search value %.6g at %s (%s)'], c.margin, c.condLabel, c.record, bw.value, bw.cond, bw.record);
+        elseif strcmp(c.status, 'OK') && c.margin > bw.value
+            bw.confirmation.reason = sprintf(['the confirmation margin %.6g is above the search value %.6g (the ' ...
+                'confirmation does not cover the candidate %s?); the search value is kept'], c.margin, bw.value, bw.cond);
+        elseif strcmp(c.status, 'OK')
+            bw.confirmation.reason = 'the confirmation reproduces the search value';
+        end
+    end
+
+    % ---- record the round --------------------------------------------------------------------------
+    nViol = sum(S.margin < opts.Reserve);
+    cf = bw.confirmation;
+    if nViol > 0 || (cf.evaluated && strcmp(cf.status, 'OK') && cf.margin < opts.Reserve)
+        anyViol = true;
+    end
+    nNon = sum(~strcmp(S.status, 'OK'));
+    R(ir) = struct('round', ir, 'candidates', {labels}, 'nEvaluated', numel(S.margin), 'searchValue', bw.value, ...
+        'theta', bw.theta, 'cond', bw.cond, 'record', bw.record, 'converged', bw.converged, 'nNonOK', nNon, ...
+        'nViolating', nViol, 'confirmation', rmfield(cf, 'condition'));
+
+    % ---- re-search at a moved condition (R3-M4) ----------------------------------------------------
+    if ~cf.moved || anyViol
+        break                                   % settled, or a counterexample decides
+    end
+    if ir == opts.MaxRounds
+        stopWhy = sprintf('still moving after %d round(s) (MaxRounds %d)', ir, opts.MaxRounds);
+        break
+    end
+    if ~isfield(c, 'cond')
+        stopWhy = 'the confirmation returned no condition, so the moved condition cannot be added to the candidates';
+        break
+    end
+    if any(strcmp(labels, c.condLabel))
+        stopWhy = sprintf(['the moved condition %s is already a candidate (the confirmation and the point ' ...
+            'evaluation disagree)'], c.condLabel);
+        break
+    end
+    nonOKEarlier = nonOKEarlier + nNon;
+    conds{end+1} = c.cond; %#ok<AGROW>
+    labels{end+1} = c.condLabel; %#ok<AGROW>
+    prev(end+1, :) = bw.theta; %#ok<AGROW>
 end
 
-% ---- 4. fmincon from the best distinct points --------------------------------------------
-[~, ord] = sort(S.margin);
-T = S.theta(ord, :);
-[~, iu] = unique(T, 'rows', 'stable');
-nS = min(opts.NumStarts, numel(iu));
-starts = T(iu(1:nS), :);
-O = struct('start', {}, 'x', {}, 'fval', {}, 'exitflag', {}, 'funcCount', {}, 'converged', {}, 'message', {});
-for s = 1:nS
-    O(s) = runStart(starts(s, :), s); %#ok<AGROW>
-end
-
-% ---- bound-worst and active set -----------------------------------------------------------
+% ---- final result -----------------------------------------------------------------------------
 bw.points = S;
 bw.nEvaluated = numel(S.margin);
 bw.optimizer = O;
-bw.converged = nS > 0 && all([O.converged]);
+bw.rounds = R;
+bw.nRounds = numel(R);
+bw.conditions = conds;
+bw.condLabels = labels;
 bw.reserve = opts.Reserve;
 bw.options = opts;
 bw.names = P.names; bw.lo = lo; bw.hi = hi;
-use = find(~isnan(S.margin));
-if isempty(use)
-    bw.value = NaN; bw.theta = NaN(1, d); bw.cond = ''; bw.record = '';
-else
-    [bw.value, k] = min(S.margin(use));
-    k = use(k);
-    bw.theta = S.theta(k, :); bw.cond = S.cond{k}; bw.record = S.record{k};
-end
-bw.searchValue = bw.value;
-
-% ---- confirmation ----------------------------------------------------------------------------
-bw.confirmation = struct('evaluated', false, 'status', '', 'margin', NaN, 'cond', '', 'record', '', ...
-    'moved', false, 'reason', 'no confirmation function');
-if ~isempty(P.confirmFcn) && all(isfinite(bw.theta))
-    try
-        c = P.confirmFcn(bw.theta);
-    catch err
-        c = struct('status', 'ERROR', 'margin', NaN, 'condLabel', '', 'record', '', ...
-            'reason', sprintf('%s: %s', err.identifier, err.message));
-    end
-    bw.confirmation = struct('evaluated', true, 'status', c.status, 'margin', c.margin, 'cond', c.condLabel, ...
-        'record', c.record, 'moved', false, 'reason', c.reason);
-    if strcmp(c.status, 'OK') && c.margin < bw.value
-        bw.confirmation.moved = true;
-        bw.confirmation.reason = sprintf(['moving limit: the confirmation found margin %.6g at %s (%s), smaller ' ...
-            'than the search value %.6g at %s (%s); it replaces the search value'], c.margin, c.condLabel, ...
-            c.record, bw.value, bw.cond, bw.record);
-        bw.value = c.margin; bw.cond = c.condLabel; bw.record = c.record;
-    elseif strcmp(c.status, 'OK') && c.margin > bw.value
-        bw.confirmation.reason = sprintf(['the confirmation margin %.6g is above the search value %.6g (the ' ...
-            'confirmation does not cover the candidate %s?); the search value is kept'], c.margin, bw.value, bw.cond);
-    elseif strcmp(c.status, 'OK')
-        bw.confirmation.reason = 'the confirmation reproduces the search value';
-    end
+movedFinal = bw.confirmation.moved;
+if movedFinal                                   % the final confirmation replaces the search value
+    bw.value = bw.confirmation.margin; bw.cond = bw.confirmation.cond; bw.record = bw.confirmation.record;
+    bw.condition = bw.confirmation.condition;
+    if isempty(stopWhy), stopWhy = 'a counterexample decided first'; end
 end
 
 % ---- status ------------------------------------------------------------------------------------
@@ -159,21 +246,40 @@ bw.nonOK = find(~strcmp(S.status, 'OK')).';
 confOK = ~bw.confirmation.evaluated || strcmp(bw.confirmation.status, 'OK');
 viol = find(S.margin < opts.Reserve);
 confViol = bw.confirmation.evaluated && confOK && bw.confirmation.margin < opts.Reserve;
-if ~isempty(viol) || confViol
+if ~isempty(viol) || confViol || anyViol
     bw.status = 'VIOLATED';
-    if confViol && bw.confirmation.moved
+    if confViol && movedFinal
         bw.reason = sprintf('counterexample (confirmation, moving limit): margin %.6g < reserve %g at %s (%s), theta %s', ...
             bw.value, opts.Reserve, bw.cond, bw.record, mat2str(bw.theta, 6));
-    else
+    elseif ~isempty(viol)
         bw.reason = sprintf('counterexample: margin %.6g < reserve %g at %s (%s), theta %s; %d of %d evaluated points violate', ...
             bw.value, opts.Reserve, bw.cond, bw.record, mat2str(bw.theta, 6), numel(viol), bw.nEvaluated);
+    else
+        bw.reason = sprintf('counterexample in an earlier round (%s); final value %.6g at %s (%s)', ...
+            strjoin(arrayfun(@(r) sprintf('round %d: %d violating points', r.round, r.nViolating), R, ...
+            'UniformOutput', false), ', '), bw.value, bw.cond, bw.record);
     end
     if ~bw.converged
         bw.reason = [bw.reason '; definitive although the optimizer did not converge'];
     end
-elseif ~isempty(bw.nonOK) || ~confOK || ~bw.converged
+elseif movedFinal || ~isempty(bw.nonOK) || nonOKEarlier > 0 || ~confOK || ~bw.converged
     bw.status = 'NOT_ASSESSABLE';
     why = {};
+    if movedFinal
+        why{end+1} = sprintf(['MOVING_LIMIT: the confirmation at the arg-min of round %d found margin %.6g at %s ' ...
+            '(%s), below the search value %.6g; %s'], bw.nRounds, bw.value, bw.cond, bw.record, bw.searchValue, stopWhy);
+    end
+    if ~isempty(bw.nonOK)
+        i = bw.nonOK(1);
+        why{end+1} = sprintf('%d of %d evaluated points are not OK inside the box, e.g. %s (%s) at theta %s', ...
+            numel(bw.nonOK), bw.nEvaluated, S.status{i}, S.reason{i}, mat2str(S.theta(i, :), 6));
+    end
+    if nonOKEarlier > 0
+        why{end+1} = sprintf('%d points of earlier rounds are not OK inside the box', nonOKEarlier);
+    end
+    if ~confOK
+        why{end+1} = sprintf('the confirmation is not OK: %s (%s)', bw.confirmation.status, bw.confirmation.reason);
+    end
     if ~bw.converged
         bad = find(~[O.converged]);
         if isempty(bad), txt = 'no optimizer start'; else
@@ -182,22 +288,11 @@ elseif ~isempty(bw.nonOK) || ~confOK || ~bw.converged
         end
         why{end+1} = sprintf('FC-901: the optimizer did not converge (%s) and no counterexample was found', txt);
     end
-    if ~isempty(bw.nonOK)
-        i = bw.nonOK(1);
-        why{end+1} = sprintf('%d of %d evaluated points are not OK inside the box, e.g. %s (%s) at theta %s', ...
-            numel(bw.nonOK), bw.nEvaluated, S.status{i}, S.reason{i}, mat2str(S.theta(i, :), 6));
-    end
-    if ~confOK
-        why{end+1} = sprintf('the confirmation is not OK: %s (%s)', bw.confirmation.status, bw.confirmation.reason);
-    end
-    if ~bw.converged && (~isempty(bw.nonOK) || ~confOK)
-        why = [why(2:end), why(1)];   % the non-OK points are the primary reason
-    end
     bw.reason = strjoin(why, '; ');
 else
     bw.status = 'OK';
-    bw.reason = sprintf('every evaluated point OK (%d), every optimizer start converged; bound-worst %.6g >= reserve %g', ...
-        bw.nEvaluated, bw.value, opts.Reserve);
+    bw.reason = sprintf(['every evaluated point OK (%d), every optimizer start converged; bound-worst %.6g >= ' ...
+        'reserve %g; %d round(s), the final confirmation did not move'], bw.nEvaluated, bw.value, opts.Reserve, bw.nRounds);
 end
 bw = orderfields(bw);
 
@@ -206,7 +301,7 @@ bw = orderfields(bw);
         m = NaN(1, nC); st = 'OK'; why = ''; recs = repmat({''}, 1, nC);
         for kc = 1:nC
             try
-                q = P.pointFcn(th, P.conditions{kc});
+                q = P.pointFcn(th, conds{kc});
             catch err
                 q = struct('status', 'ERROR', 'margin', NaN, 'record', '', ...
                     'reason', sprintf('%s: %s', err.identifier, err.message));
@@ -215,20 +310,22 @@ bw = orderfields(bw);
                 m(kc) = q.margin; recs{kc} = q.record;
             elseif strcmp(st, 'OK')
                 st = q.status;
-                why = sprintf('%s: %s', P.condLabels{kc}, q.reason);
+                why = sprintf('%s: %s', labels{kc}, q.reason);
             end
         end
         okc = find(~isnan(m));
         if isempty(okc)
-            f = NaN; cl = ''; rc = '';
+            f = NaN; cl = ''; rc = ''; ci = 0;
         else
-            [f, j] = min(m(okc));
-            cl = P.condLabels{okc(j)}; rc = recs{okc(j)};
+            [f, jm] = min(m(okc));
+            ci = okc(jm);
+            cl = labels{ci}; rc = recs{ci};
         end
         S.theta(end+1, :) = th;
         S.phase{end+1, 1} = phase;
         S.margin(end+1, 1) = f;
         S.cond{end+1, 1} = cl;
+        S.condIndex(end+1, 1) = ci;
         S.record{end+1, 1} = rc;
         S.status{end+1, 1} = st;
         S.reason{end+1, 1} = why;
