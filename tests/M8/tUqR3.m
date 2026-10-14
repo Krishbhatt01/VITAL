@@ -65,6 +65,10 @@ classdef (TestTags = {'M8'}) tUqR3 < vital.test.VitalTestCase
 %      find(envelope == 'IN'); making every Level-1 record at one
 %      EXTRAPOLATED point OK with margin -10 (the worst point of the grid)
 %      leaves the table unchanged (isequaln).
+%   AMENDMENT R4 (agent uq3, 2026-10-13): R4-6 renames the field Cnr_table to
+%   Cn_r (read Cn_r above; the spec parameter keeps sigma 0.1); item 1's
+%   analyze call adds 'Method' 'sqp' and 'CSR' false (the R3 search; item 1 is
+%   about the Monte Carlo sigma). Expectations unchanged.
 
     properties
         R
@@ -115,14 +119,14 @@ classdef (TestTags = {'M8'}) tUqR3 < vital.test.VitalTestCase
     methods (Test)
         function monteCarloSigmaScalesWithWidth(tc)
             spec = vital.uq.loadSpec();
-            spec.parameters = spec.parameters(strcmp({spec.parameters.aeroScale}, 'Cnr_table'));
+            spec.parameters = spec.parameters(strcmp({spec.parameters.aeroScale}, 'Cn_r'));
             tc.assertNumElements(spec.parameters, 1);
-            tc.verifyTol(spec.parameters.sigma, 0.1, 0, 'abs', 'REG', 'uq/f16_uncertainty.json Cnr_table sigma (JUDGMENT)', ...
-                'Quantity', 'sigma Cnr_table');
+            tc.verifyTol(spec.parameters.sigma, 0.1, 0, 'abs', 'REG', 'uq/f16_uncertainty.json Cn_r sigma (JUDGMENT)', ...
+                'Quantity', 'sigma Cn_r');
             N = 4; seed = 2026;
             r = vital.uq.analyze('Groups', {'3.3.1.1-CatA-other'}, 'WidthScales', [0.5 1.5], 'Spec', spec, ...
                 'Rules', tc.R, 'Conditions', tc.Cr, 'NumLHS', 0, 'NumStarts', 1, 'MaxEvals', 4, ...
-                'NumCandidates', 1, 'N', N, 'Seed', seed);
+                'NumCandidates', 1, 'N', N, 'Seed', seed, 'Method', 'sqp', 'CSR', false);
             W = r.groups(1).widths;
             tc.assertNumElements(W, 2);
             z = randn(RandStream('mt19937ar', 'Seed', seed), N, 1);
@@ -139,12 +143,12 @@ classdef (TestTags = {'M8'}) tUqR3 < vital.test.VitalTestCase
 
         function cacheKeyDistinguishesNearbyTheta(tc)
             c = tc.cReadme;
-            E = vital.uq.F16Evaluator({'Cnr_table'}, 'Rules', tc.R, 'Conditions', tc.Cr);
+            E = vital.uq.F16Evaluator({'Cn_r'}, 'Rules', tc.R, 'Conditions', tc.Cr);
             S1 = E.pointSummary(1, c);
             S2 = E.pointSummary(1 + 1e-5, c);
             tc.verifyEqual(E.nPointEvals, 2, 'header 2: two distinct theta are two evaluations');
             tc.verifyEqual(E.nCacheHits, 0, 'header 2: no cache hit for a different theta');
-            F = vital.uq.F16Evaluator({'Cnr_table'}, 'Rules', tc.R, 'Conditions', tc.Cr);
+            F = vital.uq.F16Evaluator({'Cn_r'}, 'Rules', tc.R, 'Conditions', tc.Cr);
             tc.verifyTrue(isequaln(S2, F.pointSummary(1 + 1e-5, c)), 'header 2: the summary is that of theta itself');
             S1b = E.pointSummary(1, c);
             tc.verifyEqual(E.nCacheHits, 1, 'header 2: the same theta is a cache hit');

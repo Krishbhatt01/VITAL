@@ -19,6 +19,11 @@ classdef (TestTags = {'M8'}) tRunF16Uq < vital.test.VitalTestCase
 %      the test), the run writes a timestamped name (f16_uq_test_<stamp>.*), the
 %      existing files are byte-identical afterwards, and the printout says the
 %      existing file was kept.
+%   AMENDMENT R4 (agent uq3, 2026-10-13): the call adds 'Method' 'sqp' and
+%   'CSR' false, so the run keeps the R3 search and its runtime (the R4 spec
+%   has 7 parameters: 128 corners at the README point, about 1 min); the
+%   expectations are unchanged. The R4 entry point (CSR, grid search, report)
+%   is tested in tests/M8/tUqR4F16.m#endToEndCsr.
 
     properties
         dir
@@ -36,7 +41,8 @@ classdef (TestTags = {'M8'}) tRunF16Uq < vital.test.VitalTestCase
         function r = small(tc, label)
             Cr = vital.fq.loadConditions(fullfile(vital.paths('rules'), 'mil_f_8785c', 'conditions_f16.json'), 'Grid', 'readme');
             r = run_f16_uq('Groups', {'3.3.1.1-CatA-other'}, 'Conditions', Cr, 'WidthScales', 1, 'NumLHS', 4, ...
-                'NumStarts', 1, 'MaxEvals', 10, 'NumCandidates', 1, 'N', 10, 'Label', label, 'ReportDir', tc.dir, 'Quiet', true);
+                'NumStarts', 1, 'MaxEvals', 10, 'NumCandidates', 1, 'N', 10, 'Label', label, 'ReportDir', tc.dir, 'Quiet', true, ...
+                'Method', 'sqp', 'CSR', false);
         end
     end
 

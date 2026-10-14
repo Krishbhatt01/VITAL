@@ -43,6 +43,18 @@ classdef (TestTags = {'M8'}) tUqR3Report < vital.test.VitalTestCase
 %      vital.uq.boxCoverage(box(spec)).joint, i.e. '0.9707') and the sentences
 %      'implies robustness of every box it contains' and 'NOT_ASSESSABLE means
 %      "not established"'.
+%
+%   AMENDMENT R4 (agent uq3, 2026-10-13): R4-5 changed uq/f16_uncertainty.json
+%   and R4-3/R4-4 the default search. Items 1-7 are pinned to the R3 design, so
+%   this class now runs it explicitly: the R3 spec embedded below
+%   (tUqR3Report.legacySpec), 'Method' 'sqp', 'CSR' false. Expectations
+%   UNCHANGED; R4-6: the lateral field is Cn_r. The R4 report is tested in
+%   tests/M8/tUqR4F16.m.
+%
+%   AMENDMENT R4b (agent uq4, 2026-10-14; docs/PLAN_M5_M8.md "Amendment R4b",
+%   R4-9): lateral groups now drop Cm_q from their search by default; this
+%   class keeps the R3 design, so its analyze call adds 'LatDropCmq' false.
+%   Expectations UNCHANGED.
 
     properties
         r
@@ -63,15 +75,38 @@ classdef (TestTags = {'M8'}) tUqR3Report < vital.test.VitalTestCase
             R = R(ismember({R.group}, [tc.GROUPS tc.OMITTED]));
             tc.assertEqual(sort(unique({R.group})), sort([tc.GROUPS tc.OMITTED]), 'records of the six groups');
             Cr = vital.fq.loadConditions(fullfile(vital.paths('rules'), 'mil_f_8785c', 'conditions_f16.json'), 'Grid', 'readme');
-            tc.spec = vital.uq.loadSpec();
+            tc.spec = tUqR3Report.legacySpec();   % R4: the R3 design
             tc.r = vital.uq.analyze('Rules', R, 'Conditions', Cr, 'WidthScales', 1, 'NumLHS', 2, 'NumStarts', 1, ...
-                'MaxEvals', 20, 'NumCandidates', 1, 'N', 4);
+                'MaxEvals', 20, 'NumCandidates', 1, 'N', 4, 'Spec', tc.spec, 'Method', 'sqp', 'CSR', false, ...
+                'LatDropCmq', false);   % R4/R4b: the R3 design
             tc.dir = tempname;
             mkdir(tc.dir);
             tc.addTeardown(@() rmdir(tc.dir, 's'));
             f = vital.uq.writeReport(tc.r, tc.dir, 'f16_uq_r3report');
             tc.md = fileread(f.md);
             tc.hl = strjoin(vital.uq.headline(tc.r), newline);
+        end
+    end
+
+    methods (Static)
+        function spec = legacySpec()
+            % The R3 uncertainty specification (f16_uncertainty_v1: Cm_table one
+            % parameter of pitchStatic), embedded so that this class keeps pinning
+            % the R3 design after R4-5 changed uq/f16_uncertainty.json. R4-6: the
+            % field of Cn_r is 'Cn_r' (was 'Cnr_table').
+            P = @(n, f, t, s) struct('name', n, 'aeroScale', f, 'term', t, 'sigma', s);
+            raw = struct('id', 'f16_uncertainty_v1', 'label', 'JUDGMENT', ...
+                'source', 'JUDGMENT: the R3 spec (docs/PLAN_M5_M8.md, M8 table), embedded in the test', ...
+                'coverage', 0.99, 'groups', {{ ...
+                struct('name', 'pitchDamping', 'parameters', {{P('Cm_q', 'Cm_q', 'cmq', 0.10)}}), ...
+                struct('name', 'pitchStatic', 'parameters', {{P('Cm_table', 'Cm_table', 'cmt', 0.05)}}), ...
+                struct('name', 'latDamping', 'parameters', {{P('Cl_p', 'Cl_p', 'clp', 0.10), P('Cn_r', 'Cn_r', 'cnr', 0.10)}}), ...
+                struct('name', 'latStatic', 'parameters', {{P('Cl_table', 'Cl_table', 'clt', 0.05), ...
+                P('Cnt_table', 'Cnt_table', 'cnt', 0.05)}})}});
+            f = [tempname '.json'];
+            fid = fopen(f, 'w'); fprintf(fid, '%s', jsonencode(raw)); fclose(fid);
+            spec = vital.uq.loadSpec(f);
+            delete(f);
         end
     end
 
@@ -103,7 +138,7 @@ classdef (TestTags = {'M8'}) tUqR3Report < vital.test.VitalTestCase
             tc.verifyTrue(g.plan.spotCheck.passed, 'header 2: spot check');
             bw = g.widths(1).bw;
             tc.verifyEqual(bw.searchNames, {'Cm_q', 'Cm_table'});
-            lat = ismember(g.widths(1).box.aeroScale, {'Cl_p', 'Cnr_table', 'Cl_table', 'Cnt_table'});
+            lat = ismember(g.widths(1).box.aeroScale, {'Cl_p', 'Cn_r', 'Cl_table', 'Cnt_table'});
             tc.verifyTrue(all(all(bw.points.theta(:, lat) == 1)), 'header 2: lateral multipliers held at 1');
             tc.verifyEqual(sum(strcmp(bw.points.phase, 'corner')), 4, 'header 2: 2^2 corners');
             tc.verifySubstring(tc.md, 'longitudinal parameters only');

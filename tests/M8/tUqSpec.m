@@ -48,6 +48,25 @@ classdef (TestTags = {'M8'}) tUqSpec < vital.test.VitalTestCase
 %      vital:badInput; WidthScale 4 (pitchDamping lower bound 1 - 4*0.2576 < 0)
 %      -> vital:uq:negativeMultiplier.
 
+%   SUPERSEDED BY AMENDMENT R4 (agent uq3, 2026-10-13, before the
+%   implementation; docs/PLAN_M5_M8.md "Amendment R4", R4-5 and R4-6; headers
+%   1-3 above are kept as registered for the R3 spec):
+%   1'. SPEC = THE R4 PLAN (REG; JUDGMENT sigmas): id 'f16_uncertainty_v2'
+%      (the new spec version label), label 'JUDGMENT', coverage 0.99; groups
+%        pitchDamping  Cm_q (Cm_q, cmq, 0.10)                               d = 1
+%        pitchStatic   Cm_basic (Cm_basic, 'cmt(el=0)', 0.05),
+%                      Cm_de (Cm_de, 'cmt-cmt(el=0)', 0.05)                 d = 2
+%        latDamping    Cl_p (Cl_p, clp, 0.10), Cn_r (Cn_r, cnr, 0.10)       d = 2
+%        latStatic     Cl_table (Cl_table, clt, 0.05), Cnt_table (Cnt_table, cnt, 0.05)  d = 2
+%      R4-6: the AeroScale field of Cn_r is now 'Cn_r' (the deviation of
+%      header 1 is withdrawn).
+%   2'. k_g per group: [k1 k2 k2 k2] (closed forms of header 2, 1e-12 rel).
+%   3'. BOX x1 half-widths (ANALYTIC, w k_g sigma): Cm_q 0.25758, Cm_basic and
+%      Cm_de 0.15174, Cl_p and Cn_r 0.30349, Cl_table and Cnt_table 0.15174
+%      (1e-5 abs); the 1e-15 checks of header 3 at x0.5, x1, x1.5 with the R4
+%      parameters. Header 3b and 4 are unchanged (the variants of 4 index the
+%      first parameter of group 2, which now has two).
+
     properties
         spec
         dir
@@ -79,16 +98,19 @@ classdef (TestTags = {'M8'}) tUqSpec < vital.test.VitalTestCase
     methods (Test)
         function specIsThePlan(tc)
             s = tc.spec;
+            % header 1' (R4-5/R4-6; header 1 SUPERSEDED)
+            tc.verifyEqual(s.id, 'f16_uncertainty_v2', 'header 1'': R4 spec version label');
             tc.verifyEqual(s.label, 'JUDGMENT');
             tc.verifyTol(s.coverage, 0.99, 0, 'abs', 'REG', 'PLAN M8: 99 % joint coverage', 'Quantity', 'coverage');
             tc.verifyEqual({s.groups.name}, {'pitchDamping', 'pitchStatic', 'latDamping', 'latStatic'});
-            tc.verifyEqual([s.groups.d], [1 1 2 2]);
+            tc.verifyEqual([s.groups.d], [1 2 2 2]);
             P = s.parameters;
-            tc.verifyEqual({P.name}, {'Cm_q', 'Cm_table', 'Cl_p', 'Cn_r', 'Cl_table', 'Cnt_table'});
-            tc.verifyEqual({P.aeroScale}, {'Cm_q', 'Cm_table', 'Cl_p', 'Cnr_table', 'Cl_table', 'Cnt_table'});
-            tc.verifyEqual({P.term}, {'cmq', 'cmt', 'clp', 'cnr', 'clt', 'cnt'});
-            tc.verifyEqual({P.group}, {'pitchDamping', 'pitchStatic', 'latDamping', 'latDamping', 'latStatic', 'latStatic'});
-            tc.verifyExact([P.sigma], [0.10 0.05 0.10 0.10 0.05 0.05], 'REG', 'PLAN M8 table (JUDGMENT sigmas)', ...
+            tc.verifyEqual({P.name}, {'Cm_q', 'Cm_basic', 'Cm_de', 'Cl_p', 'Cn_r', 'Cl_table', 'Cnt_table'});
+            tc.verifyEqual({P.aeroScale}, {'Cm_q', 'Cm_basic', 'Cm_de', 'Cl_p', 'Cn_r', 'Cl_table', 'Cnt_table'});
+            tc.verifyEqual({P.term}, {'cmq', 'cmt(el=0)', 'cmt-cmt(el=0)', 'clp', 'cnr', 'clt', 'cnt'});
+            tc.verifyEqual({P.group}, {'pitchDamping', 'pitchStatic', 'pitchStatic', 'latDamping', 'latDamping', ...
+                'latStatic', 'latStatic'});
+            tc.verifyExact([P.sigma], [0.10 0.05 0.05 0.10 0.10 0.05 0.05], 'REG', 'PLAN M8 R4-5 (JUDGMENT sigmas)', ...
                 'Quantity', 'sigma');
             tc.verifySubstring(s.source, 'JUDGMENT');
         end
@@ -96,32 +118,33 @@ classdef (TestTags = {'M8'}) tUqSpec < vital.test.VitalTestCase
         function coverageFactors(tc)
             kg = [tc.spec.groups.kg];
             k1 = sqrt(2) * erfinv(0.99); k2 = sqrt(-2 * log(0.01));
-            tc.verifyTol(kg, [k1 k1 k2 k2], 1e-12, 'rel', 'ANALYTIC', ...
-                'sqrt(chi2inv(.99,1)) = sqrt(2) erfinv(.99); sqrt(chi2inv(.99,2)) = sqrt(-2 ln .01)', 'Quantity', 'k_g');
-            tc.verifyTol(kg, [2.5758 2.5758 3.0349 3.0349], 5e-5, 'abs', 'REG', 'PLAN M8 table, 4 digits', 'Quantity', 'k_g (plan)');
+            tc.verifyTol(kg, [k1 k2 k2 k2], 1e-12, 'rel', 'ANALYTIC', ...
+                'header 2'': sqrt(chi2inv(.99,1)) = sqrt(2) erfinv(.99); sqrt(chi2inv(.99,2)) = sqrt(-2 ln .01)', 'Quantity', 'k_g');
+            tc.verifyTol(kg, [2.5758 3.0349 3.0349 3.0349], 5e-5, 'abs', 'REG', 'PLAN M8 table, 4 digits (R4-5: pitchStatic d = 2)', ...
+                'Quantity', 'k_g (plan)');
         end
 
         function boxHalfWidths(tc)
             k1 = sqrt(2) * erfinv(0.99); k2 = sqrt(-2 * log(0.01));   % failed hypothesis 3a: full-precision closed forms
-            kg = [k1 k1 k2 k2 k2 k2];
-            sg = [0.10 0.05 0.10 0.10 0.05 0.05];
+            kg = [k1 k2 k2 k2 k2 k2 k2];                % header 3' (R4-5)
+            sg = [0.10 0.05 0.05 0.10 0.10 0.05 0.05];
             for w = [0.5 1 1.5]
                 B = vital.uq.box(tc.spec, 'WidthScale', w);
                 h = w * kg .* sg;
                 q = sprintf('x%g', w);
-                tc.verifyEqual(B.names, {'Cm_q', 'Cm_table', 'Cl_p', 'Cn_r', 'Cl_table', 'Cnt_table'});
-                tc.verifyEqual(B.aeroScale, {'Cm_q', 'Cm_table', 'Cl_p', 'Cnr_table', 'Cl_table', 'Cnt_table'});
+                tc.verifyEqual(B.names, {'Cm_q', 'Cm_basic', 'Cm_de', 'Cl_p', 'Cn_r', 'Cl_table', 'Cnt_table'});
+                tc.verifyEqual(B.aeroScale, {'Cm_q', 'Cm_basic', 'Cm_de', 'Cl_p', 'Cn_r', 'Cl_table', 'Cnt_table'});
                 tc.verifyTol(B.halfWidth, h, 1e-15, 'abs', 'ANALYTIC', 'header 3: h = w k_g sigma', 'Quantity', ['half-width ' q]);
                 tc.verifyTol(B.lo, 1 - h, 1e-15, 'abs', 'ANALYTIC', 'header 3', 'Quantity', ['lo ' q]);
                 tc.verifyTol(B.hi, 1 + h, 1e-15, 'abs', 'ANALYTIC', 'header 3', 'Quantity', ['hi ' q]);
-                tc.verifyExact(B.nominal, ones(1, 6), 'ANALYTIC', 'nominal multipliers', 'Quantity', ['nominal ' q]);
+                tc.verifyExact(B.nominal, ones(1, 7), 'ANALYTIC', 'nominal multipliers', 'Quantity', ['nominal ' q]);
                 tc.verifyTol(B.sigmaEff, w * sg, 1e-15, 'abs', 'ANALYTIC', 'w sigma', 'Quantity', ['sigmaEff ' q]);
                 tc.verifyEqual(B.label, 'JUDGMENT');
                 tc.verifyEqual(B.widthScale, w);
             end
             B = vital.uq.box(tc.spec);
-            tc.verifyTol(B.halfWidth, [0.25758 0.12879 0.30349 0.30349 0.15174 0.15174], 1e-5, 'abs', 'ANALYTIC', ...
-                'header 3 x1 values', 'Quantity', 'half-width x1 (5 digits)');
+            tc.verifyTol(B.halfWidth, [0.25758 0.15174 0.15174 0.30349 0.30349 0.15174 0.15174], 1e-5, 'abs', 'ANALYTIC', ...
+                'header 3'' x1 values', 'Quantity', 'half-width x1 (5 digits)');
         end
 
         function boxContainsGroupEllipsoid(tc)
@@ -148,11 +171,11 @@ classdef (TestTags = {'M8'}) tUqSpec < vital.test.VitalTestCase
             raw = jsondecode(fileread(fullfile(vital.paths('root'), 'uq', 'f16_uncertainty.json')));
             r = raw; r.groups(1).parameters = rmfield(r.groups(1).parameters, 'sigma');
             tc.verifyError(@() vital.uq.loadSpec(tc.writeVariant(r, 'noSigma')), 'vital:uq:badSpec');
-            r = raw; r.groups(2).parameters.sigma = 0;
+            r = raw; r.groups(2).parameters(1).sigma = 0;
             tc.verifyError(@() vital.uq.loadSpec(tc.writeVariant(r, 'zeroSigma')), 'vital:uq:badSpec');
-            r = raw; r.groups(2).parameters.aeroScale = 'Cx_table';
+            r = raw; r.groups(2).parameters(1).aeroScale = 'Cx_table';
             tc.verifyError(@() vital.uq.loadSpec(tc.writeVariant(r, 'unknownField')), 'vital:uq:badSpec');
-            r = raw; r.groups(2).parameters.aeroScale = 'Cm_q';
+            r = raw; r.groups(2).parameters(1).aeroScale = 'Cm_q';
             tc.verifyError(@() vital.uq.loadSpec(tc.writeVariant(r, 'repeatedField')), 'vital:uq:badSpec');
             r = raw; r.label = 'PUB';
             tc.verifyError(@() vital.uq.loadSpec(tc.writeVariant(r, 'notJudgment')), 'vital:uq:badSpec');

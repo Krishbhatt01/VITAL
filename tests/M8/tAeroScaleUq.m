@@ -37,12 +37,25 @@ classdef (TestTags = {'M8'}) tAeroScaleUq < vital.test.VitalTestCase
 %   4. FAILURE MODES: 'Cn_r' (still unknown), a negative Cm_table, a NaN
 %      Cnr_table, a vector Cl_table -> vital:badInput.
 
+%   SUPERSEDED BY AMENDMENT R4 (agent uq3, 2026-10-13; docs/PLAN_M5_M8.md,
+%   "Amendment R4", R4-5 and R4-6; the text above is kept as registered):
+%   - R4-6: the field Cnr_table is renamed Cn_r (the plan's name, authorized
+%     by the user; tests/M6/tAeroScale.m now uses 'Cx_q' as its unknown
+%     name). Everywhere above, read Cn_r for Cnr_table; the expectations are
+%     otherwise unchanged.
+%   - R4-5: config().aeroScale has EIGHT fields: the six above (with Cn_r) plus
+%     Cm_basic and Cm_de (tests/M8/tUqR4F16.m). Header 1 is checked with all
+%     eight equal to 1.
+%   - Header 4: 'Cn_r' is no longer unknown; the unknown examples are now
+%     'Cnr_table' (the old name) and 'Cx_q'; the NaN case uses Cn_r.
+
     properties
         Ft = 0.3048
     end
 
     properties (Constant)
-        ONES6 = struct('Cm_q', 1, 'Cl_p', 1, 'Cnt_table', 1, 'Cm_table', 1, 'Cl_table', 1, 'Cnr_table', 1)
+        ONES6 = struct('Cm_q', 1, 'Cl_p', 1, 'Cnt_table', 1, 'Cm_table', 1, 'Cl_table', 1, 'Cn_r', 1, ...
+            'Cm_basic', 1, 'Cm_de', 1)   % R4: eight fields (name kept)
     end
 
     methods (Access = private)
@@ -65,7 +78,7 @@ classdef (TestTags = {'M8'}) tAeroScaleUq < vital.test.VitalTestCase
         function defaultPathBitIdentical(tc)
             AC = vital.aircraft.f16.config();
             AC6 = vital.aircraft.f16.config('AeroScale', tc.ONES6);
-            tc.verifyEqual(sort(fieldnames(AC.aeroScale)), sort(fieldnames(tc.ONES6)), 'six AeroScale fields');
+            tc.verifyEqual(sort(fieldnames(AC.aeroScale)), sort(fieldnames(tc.ONES6)), 'eight AeroScale fields (R4)');
             tc.verifyExact(AC6, AC, 'ANALYTIC', 'header 1: explicit ones = default', 'Quantity', 'AC');
             [ad, u, h, atm] = tc.generalState();
             [F, M, I] = vital.aircraft.f16.loads(ad, u, h, atm, AC);
@@ -98,7 +111,7 @@ classdef (TestTags = {'M8'}) tAeroScaleUq < vital.test.VitalTestCase
             tc.assertGreaterThan(abs(a.cnr * a.r), 1e-5, 'the state has a yaw-damping moment');
             cases = {'Cm_table', 1.13, 5, (1.13 - 1) * a.cmt; ...
                      'Cl_table', 0.85, 4, (0.85 - 1) * a.clt; ...
-                     'Cnr_table', 0.7, 6, (0.7 - 1) * a.b2v * a.cnr * a.r};
+                     'Cn_r', 0.7, 6, (0.7 - 1) * a.b2v * a.cnr * a.r};
             for j = 1:size(cases, 1)
                 AC = vital.aircraft.f16.config('AeroScale', struct(cases{j, 1}, cases{j, 2}));
                 [~, ~, Is] = vital.aircraft.f16.loads(ad, u, h, atm, AC);
@@ -115,7 +128,7 @@ classdef (TestTags = {'M8'}) tAeroScaleUq < vital.test.VitalTestCase
         function multipliersCombine(tc)
             [ad, u, h, atm, a] = tc.generalState();
             AC = vital.aircraft.f16.config('AeroScale', struct('Cm_q', 0.8, 'Cm_table', 1.1, 'Cl_p', 1.2, 'Cl_table', 0.9, ...
-                'Cnt_table', 1.05, 'Cnr_table', 0.75));
+                'Cnt_table', 1.05, 'Cn_r', 0.75));
             [~, ~, I] = vital.aircraft.f16.loads(ad, u, h, atm, AC);
             cm = 1.1 * a.cmt + a.cq2v * (0.8 * a.cmq);
             cl = (0.9 * a.clt + a.dclda * a.dail + a.dcldr * a.drdr) + a.b2v * (1.2 * a.clp * a.p + a.clr * a.r);
@@ -126,9 +139,11 @@ classdef (TestTags = {'M8'}) tAeroScaleUq < vital.test.VitalTestCase
         end
 
         function badNewMultipliers(tc)
-            tc.verifyError(@() vital.aircraft.f16.config('AeroScale', struct('Cn_r', 0.5)), 'vital:badInput');
+            % R4-6: 'Cn_r' is now a field; the unknown examples are the old name and 'Cx_q'
+            tc.verifyError(@() vital.aircraft.f16.config('AeroScale', struct('Cnr_table', 0.5)), 'vital:badInput');
+            tc.verifyError(@() vital.aircraft.f16.config('AeroScale', struct('Cx_q', 0.5)), 'vital:badInput');
             tc.verifyError(@() vital.aircraft.f16.config('AeroScale', struct('Cm_table', -0.1)), 'vital:badInput');
-            tc.verifyError(@() vital.aircraft.f16.config('AeroScale', struct('Cnr_table', NaN)), 'vital:badInput');
+            tc.verifyError(@() vital.aircraft.f16.config('AeroScale', struct('Cn_r', NaN)), 'vital:badInput');
             tc.verifyError(@() vital.aircraft.f16.config('AeroScale', struct('Cl_table', [1 2])), 'vital:badInput');
         end
     end

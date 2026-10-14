@@ -1,0 +1,78 @@
+[
+ {
+  "id": "S8W-1",
+  "file": "+vital/+uq/csr.m",
+  "pattern": "lo = max(lo, a); clean(end+1) = a; nOptFail = 0; %#ok<AGROW>   a clean box raises the lower end",
+  "replacement": "hi = min(hi, a); nOptFail = 0;",
+  "targets": [
+   "tUqCsr/linearOneParameter",
+   "tUqCsr/cornerTouchesFirst",
+   "tUqCsr/threeParametersHybrid",
+   "tUqCsr/equalPercentageShape"
+  ],
+  "rationale": "CSR bisection direction wrong: a box searched clean lowers the upper end of the bracket instead of raising the lower end, so alpha* collapses below the true value (R4-1)."
+ },
+ {
+  "id": "S8W-2",
+  "file": "+vital/+uq/analyze.m",
+  "pattern": "cp.m = opts.EqualPct * ones(1, numel(ix));",
+  "replacement": "cp.m = B1.sigma(ix);",
+  "targets": [
+   "tUqR4F16/endToEndCsr",
+   "tUqR4bF16/nonLatticeEqualShape"
+  ],
+  "rationale": "The equal-percentage reference shape is built from the judged sigmas instead of 10 % for every parameter, so it re-imports the judged ratios it is meant to remove (R4-1(b)). Target tUqR4bF16/nonLatticeEqualShape added by agent uq4 (2026-10-14): tUqR4F16/endToEndCsr now runs its longitudinal group on the R4b lattice, so it no longer reaches this (non-lattice) line; the new test runs the non-lattice path with Cm_de (sigma 0.05, so m = sigma differs from 10 %)."
+ },
+ {
+  "id": "S8W-3",
+  "file": "+vital/+uq/boundWorst.m",
+  "pattern": "Lc = opts.LipschitzFactor * maxS;           % the Lipschitz estimate: safety factor x measured slopes",
+  "replacement": "Lc = maxS;",
+  "targets": [
+   "tUqGridCert/lipschitzSafetyFactor"
+  ],
+  "rationale": "The Lipschitz safety factor 2 is dropped: the grid certificate uses the bare measured secant slopes, which underestimate the true slope between grid points (R4-3)."
+ },
+ {
+  "id": "S8W-4",
+  "file": "+vital/+uq/diffEvolution.m",
+  "pattern": "        u = reflectInto(u, lo, hi, w, rs);",
+  "replacement": "        % (bound handling omitted)",
+  "targets": [
+   "tUqHybrid/deRespectsBounds",
+   "tUqHybrid/diffEvolutionUnit"
+  ],
+  "rationale": "Differential evolution ignores the bounds: mutated trial vectors outside the box are evaluated, i.e. the global stage samples parameters outside the uncertainty box (R4-4)."
+ },
+ {
+  "id": "S8W-5",
+  "file": "+vital/+aircraft/+f16/loads.m",
+  "pattern": "in0 = in; in0.el = 0;",
+  "replacement": "in0 = in;",
+  "targets": [
+   "tUqR4F16/splitPitchingMomentTable"
+  ],
+  "rationale": "The elevator increment of Cm_de is computed against the actual elevator instead of el = 0, so cmt0 = cmt, the increment is zero and Cm_basic scales the whole table (R4-5)."
+ },
+ {
+  "id": "S8W-6",
+  "file": "+vital/+uq/verdict.m",
+  "pattern": "counter = logical(cs.cpvConfirmed) && cs.alphaHi <= 1;",
+  "replacement": "counter = false;",
+  "targets": [
+   "tUqCsr/verdictTruthTableR4",
+   "tUqCsr/nominalFails"
+  ],
+  "rationale": "The verdict ignores the CSR counterexample: a confirmed CPV inside the judged box (alpha*(judged) < 1) no longer makes the group NOT_ROBUST, so only a low Clopper-Pearson bound can (R4-2)."
+ },
+ {
+  "id": "S8W-7",
+  "file": "+vital/+uq/csr.m",
+  "pattern": "if aF < hi && aF <= Amax + 1e-12",
+  "replacement": "if aF < hi",
+  "targets": [
+   "tUqCsr/capRespectedWithFarPrior"
+  ],
+  "rationale": "The CSR accepts a failing point beyond the cap as its upper bound and then searches boxes beyond AlphaMax (the defect the reduced smoke run of run_f16_uq exposed: equal-shape searches at alpha 8.37 > 3) (R4-1)."
+ }
+]

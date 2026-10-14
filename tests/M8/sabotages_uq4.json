@@ -1,0 +1,94 @@
+[
+ {
+  "id": "S8X-1",
+  "file": "+vital/+uq/lattice.m",
+  "pattern": "refinable = S.allOK & any(S.H > 1, 2) & ~X;",
+  "replacement": "refinable = S.allOK & S.anyFail & any(S.H > 1, 2) & ~X;",
+  "targets": [
+   "tUqLattice/kinkedHiddenBand"
+  ],
+  "rationale": "Lattice refinement skips the cells near the zero level set whose sampled minimum is > 0 (only cells that already straddle a failure are refined), so a failure hidden between the base lattice points is never found (R4-3 corrected)."
+ },
+ {
+  "id": "S8X-2",
+  "file": "+vital/+uq/lattice.m",
+  "pattern": "L = fac * sl;",
+  "replacement": "L = sl;",
+  "targets": [
+   "tUqLattice/lipschitzCertificate"
+  ],
+  "rationale": "The Lipschitz safety factor 2 is dropped in the lattice certificate: the cell bound uses the bare measured local slopes (R4-3 corrected: L = 2 x the measured local slopes)."
+ },
+ {
+  "id": "S8X-3",
+  "file": "+vital/+uq/F16Evaluator.m",
+  "pattern": "elseif mb < ma",
+  "replacement": "elseif mb > ma",
+  "targets": [
+   "tUqBracket/worseOfTwoSides",
+   "tUqR4bF16/bracketKnownCase"
+  ],
+  "rationale": "Breakpoint bracketing takes the BETTER of the two one-sided linearizations instead of the worse, so a bracketed point can hide the failing side (R4-7: the requirement must hold for both)."
+ },
+ {
+  "id": "S8X-4",
+  "file": "+vital/+uq/bracket.m",
+  "pattern": "if ~(strcmp(p.status, 'NOT_CONVERGED') && strcmp(p.stage, 'linearize'))",
+  "replacement": "if ~any(strcmp(p.status, {'NOT_CONVERGED', 'INFEASIBLE'}))",
+  "targets": [
+   "tUqBracket/trimFailureNeverBracketed"
+  ],
+  "rationale": "Bracketing is applied to trim failures (INFEASIBLE, or NOT_CONVERGED at stage trim): a physical failure near a breakpoint is turned into an OK point by its neighbours (R4-7: physical failures are never bracketed)."
+ },
+ {
+  "id": "S8X-5",
+  "file": "+vital/+uq/stagePlan.m",
+  "pattern": "if cj.alphaLo <= B(2) && cj.alphaHi >= B(1)",
+  "replacement": "if cj.alphaLo >= B(1) && cj.alphaHi <= B(2)",
+  "targets": [
+   "tUqStaged/stagePlanTruthTable"
+  ],
+  "rationale": "The staged run re-runs only groups whose CSR bracket lies INSIDE [0.8, 1.2] instead of every bracket that OVERLAPS it, so a wide bracket straddling the band (e.g. [0, 2.76]) is never re-run at the full budget (R4-8)."
+ },
+ {
+  "id": "S8X-6",
+  "file": "+vital/+uq/gatePlan.m",
+  "pattern": "if check.passed",
+  "replacement": "if true",
+  "targets": [
+   "tUqStaged/gateFallback"
+  ],
+  "rationale": "Lateral groups drop Cm_q without the gate: a failed invariance check does not restore the full set of parameters (R4-9: gated, with a fallback)."
+ },
+ {
+  "id": "S8X-7",
+  "file": "+vital/+uq/lattice.m",
+  "pattern": "idx = idx(~evDone{c}(idx));",
+  "replacement": "idx = idx(:);",
+  "targets": [
+   "tUqLattice/sharedLatticeEvaluatedOnce"
+  ],
+  "rationale": "The lattice re-evaluates points it has already evaluated (no evaluation store), so the shared lattice is not evaluated once per candidate condition (R4-3 corrected: one evaluation pass reused by every group, shape and alpha)."
+ },
+ {
+  "id": "S8X-8",
+  "file": "+vital/+uq/analyze.m",
+  "pattern": "G2 = runGroups(need2, opts, ctx);",
+  "replacement": "G2 = runGroups(need2, o1, ctx);",
+  "targets": [
+   "tUqR4bF16/stagedEndToEnd"
+  ],
+  "rationale": "Stage 2 of the staged run re-runs the selected groups at the stage-1 (reduced) budget instead of the full budget, so it can never resolve what stage 1 could not (R4-8)."
+ },
+ {
+  "id": "S8X-9",
+  "file": "+vital/+uq/analyze.m",
+  "pattern": "LP.shapes = struct('name', {'judged', 'equal'}, 'm', {B1.halfWidth(ixL), opts.EqualPct * ones(1, numel(ixL))});",
+  "replacement": "LP.shapes = struct('name', {'judged', 'equal'}, 'm', {B1.halfWidth(ixL), B1.halfWidth(ixL)});",
+  "targets": [
+   "tUqR4F16/endToEndCsr",
+   "tUqR4bF16/stagedEndToEnd"
+  ],
+  "rationale": "The lattice's equal-percentage shape is built from the judged half-widths instead of 10 % for every parameter, so the 'equal' CSR of the longitudinal groups re-imports the judged ratios (R4-1(b) on the R4b lattice path)."
+ }
+]

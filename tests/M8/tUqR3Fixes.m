@@ -103,6 +103,16 @@ classdef (TestTags = {'M8'}) tUqR3Fixes < vital.test.VitalTestCase
 %        'LonOnly' false: 3.2.2.1.1-CatA                      -> 'full'
 %        fields {Cnr_table} only: 3.2.2.1.1-CatA              -> 'full'
 %        fields {Cl_p Cm_table Cm_q}: 3.2.2.1.1-CatA -> 'longitudinal', idx [2 3]
+%
+%   AMENDMENT R4 (agent uq3, 2026-10-13, before the implementation):
+%   - R4-6: read Cn_r for Cnr_table (item 6 field lists).
+%   - Item 5 SUPERSEDED in part (R4-5 made pitchStatic a 2-parameter group,
+%     7 parameters in all): the joint coverage of the R4 x1 box is
+%     erf(k1/sqrt2) erf(k2/sqrt2)^6 = 0.99 x 0.995187^3 (per 2-groups) =
+%     0.97577 (closed form in the test, 1e-14 abs; 4 digits 0.9758, 5e-5 abs,
+%     ANALYTIC). The R3 value 0.97070 belonged to the R3 spec and is no longer
+%     checked against the default spec. Group values (0.99 for d = 1,
+%     0.99519 for d = 2) and the width independence are unchanged.
 
     methods (Static)
         function P = problem(d, h, fcn, labels)
@@ -309,7 +319,11 @@ classdef (TestTags = {'M8'}) tUqR3Fixes < vital.test.VitalTestCase
             B = vital.uq.box(spec);
             cv = vital.uq.boxCoverage(B);
             tc.verifyTol(cv.joint, prod(erf(B.kg / sqrt(2))), 1e-14, 'abs', 'ANALYTIC', 'header 5', 'Quantity', 'joint coverage');
-            tc.verifyTol(cv.joint, 0.97070, 5e-6, 'abs', 'INDEP', 'reports/review/R3_REVIEW.md 3.3', 'Quantity', 'joint coverage (R3)');
+            % R4: item 5 SUPERSEDED in part (R3 value 0.97070 was for the R3 spec)
+            k1 = sqrt(chi2inv(0.99, 1)); k2r4 = sqrt(chi2inv(0.99, 2));
+            tc.verifyTol(cv.joint, erf(k1 / sqrt(2)) * erf(k2r4 / sqrt(2))^6, 1e-14, 'abs', 'ANALYTIC', 'R4 note: item 5', ...
+                'Quantity', 'joint coverage (R4 spec)');
+            tc.verifyTol(cv.joint, 0.9758, 5e-5, 'abs', 'ANALYTIC', 'R4 note: item 5, 4 digits', 'Quantity', 'joint coverage (R4, 4 digits)');
             k2 = sqrt(chi2inv(0.99, 2));
             for g = cv.groups(:).'
                 if g.d == 1
@@ -325,7 +339,7 @@ classdef (TestTags = {'M8'}) tUqR3Fixes < vital.test.VitalTestCase
         end
 
         function searchPlanModes(tc)
-            F = {'Cm_q', 'Cm_table', 'Cl_p', 'Cnr_table', 'Cl_table', 'Cnt_table'};
+            F = {'Cm_q', 'Cm_table', 'Cl_p', 'Cn_r', 'Cl_table', 'Cnt_table'};   % R4-6: Cn_r
             sp = @(g, m, m0, varargin) vital.uq.searchPlan(g, m, m0, F, varargin{:});
             p = sp('3.2.2.1.1-CatA', {'CAP', 'omega_nsp_rad_s'}, 0.05);
             tc.verifyEqual(p.mode, 'longitudinal');
@@ -347,7 +361,7 @@ classdef (TestTags = {'M8'}) tUqR3Fixes < vital.test.VitalTestCase
             tc.verifySubstring(p.sampledReason, 'binary');
             tc.verifyEqual(sp('3.3.1.1-CatB', {'zeta_d'}, Inf).mode, 'full');
             tc.verifyEqual(sp('3.2.2.1.1-CatA', {'CAP'}, 0.05, 'LonOnly', false).mode, 'full');
-            tc.verifyEqual(vital.uq.searchPlan('3.2.2.1.1-CatA', {'CAP'}, 0.05, {'Cnr_table'}).mode, 'full');
+            tc.verifyEqual(vital.uq.searchPlan('3.2.2.1.1-CatA', {'CAP'}, 0.05, {'Cn_r'}).mode, 'full');
             p = vital.uq.searchPlan('3.2.2.1.1-CatA', {'CAP'}, 0.05, {'Cl_p', 'Cm_table', 'Cm_q'});
             tc.verifyEqual(p.mode, 'longitudinal');
             tc.verifyEqual(p.idx, [2 3]);

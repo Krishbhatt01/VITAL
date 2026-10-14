@@ -37,6 +37,10 @@ classdef (TestTags = {'M6'}) tAeroScale < vital.test.VitalTestCase
 %      other coefficient is unchanged (isequal).
 %   3. An unknown multiplier name, a negative, a NaN or a non-scalar value is
 %      vital:badInput.
+%   Changed 2026-10-13 by coordinator decision R4-6 (user-authorized): the
+%   unknown-name example in badAeroScaleRejected is now 'Cx_q' (was 'Cn_r',
+%   which became the AeroScale field of the M8 uncertainty analysis, the M8
+%   plan's name; docs/PLAN_M5_M8.md "Amendment R4", R4-6). No other change.
 
     properties
         Ft = 0.3048
@@ -103,7 +107,7 @@ classdef (TestTags = {'M6'}) tAeroScale < vital.test.VitalTestCase
         end
 
         function badAeroScaleRejected(tc)
-            tc.verifyError(@() vital.aircraft.f16.config('AeroScale', struct('Cn_r', 0.5)), 'vital:badInput');
+            tc.verifyError(@() vital.aircraft.f16.config('AeroScale', struct('Cx_q', 0.5)), 'vital:badInput');
             tc.verifyError(@() vital.aircraft.f16.config('AeroScale', struct('Cm_q', -0.3)), 'vital:badInput');
             tc.verifyError(@() vital.aircraft.f16.config('AeroScale', struct('Cl_p', NaN)), 'vital:badInput');
             tc.verifyError(@() vital.aircraft.f16.config('AeroScale', struct('Cl_p', [1 2])), 'vital:badInput');

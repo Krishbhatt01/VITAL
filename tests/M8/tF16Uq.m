@@ -81,6 +81,22 @@ classdef (TestTags = {'M8'}) tF16Uq < vital.test.VitalTestCase
 %      Mahalanobis distance of that arg-min (x1 sigmas, Dof 2) is sqrt(2) k1 =
 %      3.6428 (1e-9 rel, ANALYTIC). 3.3.1.1-CatA-other: plan.mode 'full',
 %      bw.searchNames all six parameters.
+%
+%   AMENDMENT R4 (agent uq3, 2026-10-13; docs/PLAN_M5_M8.md "Amendment R4"):
+%   R4-5 changed uq/f16_uncertainty.json (Cm_table split into Cm_basic and
+%   Cm_de) and R4-3/R4-4 changed the default search (grid / hybrid) and the
+%   headline (CSR). Hypotheses 1-9 above are pinned to the R3 design, so this
+%   class now runs the R3 design explicitly: the R3 spec embedded below
+%   (tF16Uq.legacySpec, f16_uncertainty_v1), 'Method' 'sqp', 'CSR' false. Its
+%   expectations are UNCHANGED (a regression guard of the R3 design); R4-6:
+%   read Cn_r for Cnr_table. The R4 design on the F-16 is tested in
+%   tests/M8/tUqR4F16.m.
+%
+%   AMENDMENT R4b (agent uq4, 2026-10-14; docs/PLAN_M5_M8.md "Amendment R4b",
+%   R4-9): lateral groups now drop Cm_q from their search by default. Item 9
+%   pins the R3 plan of 3.3.1.1-CatA-other (all six parameters), so the
+%   analyze call adds 'LatDropCmq' false (the R3 design). Expectations
+%   UNCHANGED. R4-9 is tested in tests/M8/tUqStaged.m and tUqR4bF16.m.
 
     properties
         R
@@ -99,8 +115,31 @@ classdef (TestTags = {'M8'}) tF16Uq < vital.test.VitalTestCase
             tc.R = vital.fq.loadRules();
             tc.C = vital.ctrl.inEnvelopeConditions();
             tc.r = vital.uq.analyze('Groups', tc.GROUPS, 'WidthScales', tc.W, 'Rules', tc.R, 'Conditions', tc.C, ...
-                'NumLHS', 8, 'NumStarts', 1, 'MaxEvals', 20, 'NumCandidates', 2, 'N', 20);
+                'NumLHS', 8, 'NumStarts', 1, 'MaxEvals', 20, 'NumCandidates', 2, 'N', 20, ...
+                'Spec', tF16Uq.legacySpec(), 'Method', 'sqp', 'CSR', false, 'LatDropCmq', false);   % R4/R4b: the R3 design
             tc.sas = jsondecode(fileread(fullfile(vital.paths('reports'), 'ctrl', 'f16_sas_suggestion.json')));
+        end
+    end
+
+    methods (Static)
+        function spec = legacySpec()
+            % The R3 uncertainty specification (f16_uncertainty_v1: Cm_table one
+            % parameter of pitchStatic), embedded so that this class keeps pinning
+            % the R3 design after R4-5 changed uq/f16_uncertainty.json. R4-6: the
+            % field of Cn_r is 'Cn_r' (was 'Cnr_table').
+            P = @(n, f, t, s) struct('name', n, 'aeroScale', f, 'term', t, 'sigma', s);
+            raw = struct('id', 'f16_uncertainty_v1', 'label', 'JUDGMENT', ...
+                'source', 'JUDGMENT: the R3 spec (docs/PLAN_M5_M8.md, M8 table), embedded in the test', ...
+                'coverage', 0.99, 'groups', {{ ...
+                struct('name', 'pitchDamping', 'parameters', {{P('Cm_q', 'Cm_q', 'cmq', 0.10)}}), ...
+                struct('name', 'pitchStatic', 'parameters', {{P('Cm_table', 'Cm_table', 'cmt', 0.05)}}), ...
+                struct('name', 'latDamping', 'parameters', {{P('Cl_p', 'Cl_p', 'clp', 0.10), P('Cn_r', 'Cn_r', 'cnr', 0.10)}}), ...
+                struct('name', 'latStatic', 'parameters', {{P('Cl_table', 'Cl_table', 'clt', 0.05), ...
+                P('Cnt_table', 'Cnt_table', 'cnt', 0.05)}})}});
+            f = [tempname '.json'];
+            fid = fopen(f, 'w'); fprintf(fid, '%s', jsonencode(raw)); fclose(fid);
+            spec = vital.uq.loadSpec(f);
+            delete(f);
         end
     end
 
@@ -163,13 +202,13 @@ classdef (TestTags = {'M8'}) tF16Uq < vital.test.VitalTestCase
         end
 
         function yawDampingSign(tc)
-            spec = vital.uq.loadSpec();
+            spec = tF16Uq.legacySpec();   % R4: the R3 spec
             B = vital.uq.box(spec);
             E = vital.uq.F16Evaluator(B.aeroScale, 'Rules', tc.R, 'Conditions', tc.C);
             g = tc.grp('3.3.1.1-CatA-other');
             c = g.critical.cond;
             th = ones(1, 6);
-            iR = strcmp(B.aeroScale, 'Cnr_table'); iM = strcmp(B.aeroScale, 'Cm_q');   % failed hypothesis 5b: Cm_q, not Cm_table
+            iR = strcmp(B.aeroScale, 'Cn_r'); iM = strcmp(B.aeroScale, 'Cm_q');   % failed hypothesis 5b: Cm_q, not Cm_table
             m = @(t) E.groupMargin(t, c, g.group, g.level0).margin;
             tp = th; tp(iR) = 1.02; tm = th; tm(iR) = 0.98;
             dR = (m(tp) - m(tm)) / 0.04;

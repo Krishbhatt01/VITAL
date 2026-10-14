@@ -83,6 +83,13 @@ classdef (TestTags = {'M8'}) tUqR3F16 < vital.test.VitalTestCase
 %         inEnvelopeMargins (isequaln);
 %      d) REG (R3 3.8: the x1 corner maximum and the x1.5 moving-limit
 %         condition): 5,000 ft / M 0.55 / CG 20 % is among the first 4.
+%
+%   AMENDMENT R4 (agent uq3, 2026-10-13): R4-6 renames Cnr_table to Cn_r (read
+%   Cn_r above). R4-5 replaced Cm_table by Cm_basic and Cm_de in
+%   uq/f16_uncertainty.json, so item 1 now builds the R3 x1.5 box itself from
+%   the R3 table (sigma 0.10 0.05 0.10 0.10 0.05 0.05, k_g of d = 1, 1, 2, 2);
+%   its expectations are unchanged (a guard of the legacy field Cm_table). The
+%   extended gate with Cm_basic and Cm_de is tests/M8/tUqR4F16.m#lonLatInvarianceR4.
 
     properties
         R
@@ -151,11 +158,13 @@ classdef (TestTags = {'M8'}) tUqR3F16 < vital.test.VitalTestCase
 
     methods (Test)
         function lonLatInvariance(tc)
-            spec = vital.uq.loadSpec();
-            B = vital.uq.box(spec, 'WidthScale', 1.5);
+            % R4: the R3 x1.5 box, built from the R3 table (header R4 note)
+            k1 = sqrt(chi2inv(0.99, 1)); k2 = sqrt(chi2inv(0.99, 2));
+            h = 1.5 * [k1 k1 k2 k2 k2 k2] .* [0.10 0.05 0.10 0.10 0.05 0.05];
+            B = struct('aeroScale', {{'Cm_q', 'Cm_table', 'Cl_p', 'Cn_r', 'Cl_table', 'Cnt_table'}}, 'lo', 1 - h, 'hi', 1 + h);
             f = B.aeroScale;
             iLon = find(ismember(f, {'Cm_q', 'Cm_table'}));
-            iLat = find(ismember(f, {'Cl_p', 'Cnr_table', 'Cl_table', 'Cnt_table'}));
+            iLat = find(ismember(f, {'Cl_p', 'Cn_r', 'Cl_table', 'Cnt_table'}));
             tc.assertNumElements(iLon, 2); tc.assertNumElements(iLat, 4);
             g32 = tc.R(startsWith({tc.R.group}, '3.2.'));
             tc.verifyTrue(all(ismember(unique({g32.metric}), tc.LON)), 'guard: every 3.2.x metric is in the longitudinal list');
@@ -232,13 +241,13 @@ classdef (TestTags = {'M8'}) tUqR3F16 < vital.test.VitalTestCase
             tc.log(1, sprintf('Cl_table %.6f: L_beta x %.9f, N_beta x %.9f', kc, rc(3), rc(4)));
             tc.verifyTol(rc(3), kc, 1e-9, 'rel', 'ANALYTIC', 'header 2c', 'Quantity', 'L_beta,cg ratio (Cl_table)');
             tc.verifyTol(rc([1 2 4]), [1 1 1], 1e-12, 'abs', 'ANALYTIC', 'header 2b/2c', 'Quantity', 'M_alpha, M_de, N_beta ratios (Cl_table)');
-            % Cnr_table
+            % Cn_r (R4-6: was Cnr_table)
             kn = 1 - k2 * 0.10; knh = 1 + k2 * 0.10;
-            rn = r('Cnr_table', kn); rnh = r('Cnr_table', knh);
-            tc.log(1, sprintf('Cnr_table %.6f: N_r x %.6f; %.6f: N_r x %.6f', kn, rn(5), knh, rnh(5)));
-            tc.verifyTol(rn(5) + rnh(5), 2, 1e-8, 'abs', 'ANALYTIC', 'header 2f: affine in Cnr_table', 'Quantity', 'N_r ratio sum');
-            tc.verifyTol(rn(1:4), [1 1 1 1], 1e-12, 'abs', 'ANALYTIC', 'header 2b', 'Quantity', 'other ratios (Cnr_table)');
-            tc.verifyWithin(rn(5), kn, kn + 0.03, 'REG', 'header 2f (prediction)', 'Quantity', 'N_r,cg ratio at Cnr_table lower edge');
+            rn = r('Cn_r', kn); rnh = r('Cn_r', knh);
+            tc.log(1, sprintf('Cn_r %.6f: N_r x %.6f; %.6f: N_r x %.6f', kn, rn(5), knh, rnh(5)));
+            tc.verifyTol(rn(5) + rnh(5), 2, 1e-8, 'abs', 'ANALYTIC', 'header 2f: affine in Cn_r', 'Quantity', 'N_r ratio sum');
+            tc.verifyTol(rn(1:4), [1 1 1 1], 1e-12, 'abs', 'ANALYTIC', 'header 2b', 'Quantity', 'other ratios (Cn_r)');
+            tc.verifyWithin(rn(5), kn, kn + 0.03, 'REG', 'header 2f (prediction)', 'Quantity', 'N_r,cg ratio at Cn_r lower edge');
         end
 
         function surrogateCandidates(tc)
