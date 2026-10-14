@@ -671,3 +671,125 @@ This is a label, not a verdict change. It applies when any metric has unit '0/1'
 At this condition the MRC part of M_alpha is destabilizing (A/(A+B) = -0.316). Scaling cmt down therefore makes M_alpha about the CG MORE stable, while it cuts elevator power by 12 %. The coupled Cm_table perturbation is not "less static stability". Accepted and documented (amendment R3-M5).
 
 **Evidence.** tests/M8/tUqR3Fixes.m, tUqR3F16.m, tUqR3Report.m, tBoundWorstToys.m (3'), tF16Uq.m (9, m1 guard).
+
+
+## ADR-034 (proposed; agent uq3, 2026-10-13): M8 amendment R4, implementation decisions
+
+The design is the coordinator's binding amendment (docs/PLAN_M5_M8.md, "Amendment R4: judgment-light robustness", R4-1..R4-6). These are the choices where it left room, and one contract inconsistency.
+
+### uq3-1: CSR algorithm: bisection on alpha with the box searches (R4-1)
+- **Decision.** `vital.uq.csr` brackets alpha* between box searches ("clean" / "failing") and refines every failing point along its ray from the nominal. Not the direct form (min ||p - pbar||_inf,m subject to margin(p) <= 0).
+- **Why.**
+  - The direct form only returns a failing point, i.e. an UPPER bound on alpha*. Claiming alpha* to +/- 0.01 also needs the box just below to be free of failures, which is a box search anyway. The bisection backs both ends with evidence: the lower end by a box searched clean (grid-certified or hybrid search estimate), the upper end by a failing point confirmed by a fresh in-envelope assessment.
+  - It reuses everything the bound-worst already has: the grid certificate (R4-3), the hybrid search (R4-4), the moving-limit confirmation (R3-M4), the evaluator cache, and the x1 bound-worst result as a prior.
+  - The scaled infinity norm is homogeneous, so a ray bisection from the nominal to a failing point (one point evaluation per step, not a box search) moves the upper end to the first sign change on that ray. For margins where the box corner touches first, the ray of the cap search's arg-min IS the CPV direction, and the bracket closes with one more box search (tests/M8/tUqCsr.m: K1, K2, K6 need 2 box searches).
+- **Details.**
+  - alphaStar := alphaLo, the largest box searched clean; alphaHi := the scaled norm of the CPV; OK means alphaHi - alphaLo <= 0.01 and a confirmed CPV.
+  - Steps: the cap box R(3) first (clean: ROBUST_TO_CAP); then the box at alphaHi - 0.01 ("optimistic"), and after two consecutive failed optimistic steps the bisection midpoint; at most MaxSearches = 15 box searches per shape.
+  - The nominal failing gives alpha* = 0 with CPV = the nominal.
+  - DecideAt = 1 for the judged shape: if the bracket straddles 1 the box R(1) is searched, so "alpha*(judged) >= 1" is always decided by a search of exactly the judged box.
+  - Priors: the x1 bound-worst result is the judged shape's prior; every judged search and the judged CPV are the equal shape's priors. A clean prior box that contains R(a) gives alphaLo >= a, and a prior failing point gives alphaHi <= its norm. If the judged cap box is clean, the equal shape is ROBUST_TO_CAP without a search (3 x k_g sigma >= 0.30 for every parameter).
+  - Candidate conditions: the CSR keeps every condition its box searches added (moving limits). The CPV confirmation applies R3-M4: if its critical condition is not a candidate and its margin is smaller, the condition is added, the largest clean box is searched again, and after MaxRounds = 3 rounds the status is NOT_ASSESSABLE (MOVING_LIMIT).
+  - A cap box that cannot be decided gives NOT_ASSESSABLE; the DecideAt boxes are still searched, so alphaLo is reported as a lower bound.
+- **Evidence.** tests/M8/tUqCsr.m (11 tests, 9 known-answer cases).
+
+### uq3-2: R4 verdict: "alpha*(judged) < 1 with a confirmed CPV" (R4-2)
+- NOT_ROBUST when cpvConfirmed and alphaHi <= 1 (a confirmed failing point inside the closed judged box), or when the Clopper-Pearson lower bound is below 0.95. This holds even when the bracket was not resolved (CSR NOT_ASSESSABLE): a confirmed counterexample inside the judged box is definitive, as for the bound-worst.
+- ROBUST when the CSR is OK with alphaStar >= 1, or ROBUST_TO_CAP, and the CP lower bound is >= 0.95. Anything else is NOT_ASSESSABLE.
+- `vital.uq.verdict` dispatches on its first argument: a CSR result (field alphaStar) gives the R4 headline verdict; a bound-worst result gives the original box verdict. The box verdict is still reported per width (r.groups.widths.verdict) beside the headline (r.groups.verdict). The R3 truth tables (tMonteCarloVerdict, tUqR3) are unchanged.
+
+### uq3-3: Grid certification (R4-3)
+- The grid is an integer lattice on the box coordinate t = (theta - lo)/(hi - lo): 11 points per dimension, refined by halving down to 1/2^8 of the base spacing, so keys are exact and the box corners are on the grid.
+- Local refinement around the minimum: the cells touching the best lattice point are halved three times (GridLocalLevels).
+- Lipschitz estimate: per axis i, L_i = 2 x the largest |dm|/dt_i over every grid edge ever evaluated (a running maximum, so refining never lowers it). Cell bound = min(vertex margins) - sum_i L_i dt_i / 2: every point of the cell is within dt_i/2 of a vertex along each axis (separable Lipschitz bound).
+- Cells whose bound is below the reserve are halved and the slopes re-measured, until:
+  - certified (OK);
+  - a grid point violates (VIOLATED);
+  - a grid point is not OK (NOT_ASSESSABLE);
+  - the finest spacing or the GridBudget (5000 lattice points; 2000 in vital.uq.analyze) is reached (NOT_ASSESSABLE, reason starting 'GRID').
+- The label is always 'grid-certified (Lipschitz estimate)': the slope bound is an estimate from measured secants, not a proof.
+- Evidence: tests/M8/tUqGridCert.m. The uq2 kinked valley (FC-901 under sqp) is now certified OK.
+
+### uq3-4: Hybrid search (R4-4)
+- **Global stage:** `vital.uq.diffEvolution`, DE/rand/1/bin (Storn and Price 1997), F 0.7, CR 0.9, seeded with Seed + 1. Its initial population is the round's LHS points (no extra cost), topped up with seeded uniform points if needed.
+  - Bounds: a component is reflected at the bound it crossed, and drawn uniformly if it is still outside, so every point lies in the box.
+  - The budget is fixed (no early stop). Convergence (the population spread) is reported, not required.
+- **Local stage:** `fminsearch` from the NumStarts best distinct points of all earlier stages, on z with theta = lo + (hi - lo)(1 + sin(z - 3))/2, budget MaxEvals per start, TolX (in z; 1e-3 in boundWorst, 1e-2 in vital.uq.analyze) and TolFun 1e-4.
+  - The offset 3 was found necessary during the implementation. fminsearch's first simplex is 5 % of each non-zero component but only 0.00025 for a zero one, so a start at the exact centre (z = 0) stopped at once with "converged". The offset gives first steps of 0.07-0.23 rad (regression test tUqHybrid#centreStartDoesNotStopAtOnce).
+  - A point that is not OK is +Inf to Nelder-Mead.
+- **Status:** OK needs every Nelder-Mead start to end with exit flag 1; otherwise FC-901 (as for sqp). The stage table (bw.stages) lists each stage's points and convergence.
+- **Measured cost:** at a vertex optimum the sin transform is flat. Nelder-Mead needs about 60-140 evaluations in 3-D and about 140-400 in 7-D to meet the tolerances (scratch characterization with MATLAB's fminsearch; failed hypothesis tUqHybrid 2).
+- Evidence: tests/M8/tUqHybrid.m.
+
+### uq3-5: Method rule and the R4-3 / R4-5 inconsistency (DEVIATION NOTE)
+- `vital.uq.searchMethod(d)`: 'grid' for d <= GridMaxDim (2) searched parameters, 'hybrid' above. The rule goes by the number of SEARCHED parameters, as R4-3 ("groups searched over 2 parameters") and R4-4 ("more than 2 parameters") state it.
+- **Inconsistency.** R4-3 calls the 2-parameter groups "(longitudinal)", but R4-5 makes the longitudinal search {Cm_q, Cm_basic, Cm_de}, i.e. 3 parameters. With the R4 spec, no default F-16 group has <= 2 searched parameters, so every group is searched by the hybrid method and R4-3 is exercised only by the toys and by tUqR4F16#endToEndCsr (a 1-parameter spec).
+- `vital.uq.analyze('GridMaxDim', 3)` grids the longitudinal groups instead. Its cost is 11^3 = 1331 lattice points per box before refinement, times 4 candidates. The coordinator decides; nothing in the contract was changed.
+
+### uq3-6: Cm_basic / Cm_de (R4-5)
+- loads.m evaluates the generated model a second time with el = 0 (the same alpha, beta, rates and Mach), but only when Cm_basic or Cm_de is not 1. Then:
+  - cmt <- Cm_basic cmt0 + Cm_de (cmt - cmt0)
+  - then the legacy Cm_table multiplies the result
+  - cm = cmt + cq2v Cm_q cmq
+- With both at 1 the block is skipped, so the generated model and the R3 Cm_table path are bit-identical (tUqR4F16#splitPitchingMomentTable, #defaultPathAndRename; tAeroScaleUq).
+- Spec v2 (`f16_uncertainty_v2`): pitchStatic = {Cm_basic, Cm_de}, sigma 0.05 each, d = 2, so k_g = 3.0349 and the x1 half-width is 0.1517 (was 0.1288 for Cm_table).
+- The joint x1 box coverage becomes 0.97579 (was 0.97070).
+- The term labels are 'cmt(el=0)' and 'cmt-cmt(el=0)'.
+
+### uq3-7: R3-era tests pinned to the R3 design
+- tF16Uq and tUqR3Report test the R3 design's numbers: Cm_table, sqp, the x0.5/x1/x1.5 widths, and the CAP corner -0.0058793. They now run it explicitly on an embedded v1 spec (Cn_r field), with 'Method' 'sqp' and 'CSR' false. Their expectations are unchanged.
+- tRunF16Uq and tUqR3#monteCarloSigmaScalesWithWidth add 'Method' 'sqp' and 'CSR' false to keep their runtime.
+- tUqR3F16#lonLatInvariance builds the R3 x1.5 box from the R3 table.
+- The R4 design on the F-16 is tested in tests/M8/tUqR4F16.m.
+
+### uq3-8: Default budgets of vital.uq.analyze / run_f16_uq (stated in the header and the report)
+- WidthScales 1.
+- NumLHS 32, NumCandidates 4, MaxRounds 3, N = 200, seed 2026: unchanged.
+- grid: 11 points, 3 local levels, 8 refinement levels, 2000 points.
+- hybrid: DE 16 x 8, then Nelder-Mead from 2 starts x 150 evaluations, with TolX 1e-2 in z (about 0.5 % of the box in the interior and finer near a bound) and TolFun 1e-4.
+- CSR: AlphaMax 3, resolution 0.01, EqualPct 0.10, MaxSearches 15.
+- MaxEvals is 150, not 60: measured from a 7-D vertex start, Nelder-Mead needs 92 evaluations with TolX 1e-2 and 142 with TolX 1e-3. With 60, every 7-D box would be FC-901.
+
+
+## ADR-035 (proposed; agent uq4, 2026-10-14): M8 amendment R4b, implementation decisions
+
+The design is the coordinator's binding amendment (docs/PLAN_M5_M8.md, "Amendment R4b": R4-3 corrected, R4-7, R4-8, R4-9). These are the choices where it left room, and the interpretations I had to make. No contract decision was changed.
+
+### uq4-1: The shared adaptive lattice (R4-3 corrected; `vital.uq.lattice`)
+- **One lattice, one evaluation per (point, condition).** Integer lattice over the AlphaMax box of the judged shape (nominal +/- 3 k_g sigma), GridPoints 11 per axis (odd: the nominal is a lattice point), K = 10 x 2^MaxLevel. `pointFcn(theta, cond)` returns EVERY group's margin from one call (in the F-16: one `F16Evaluator.pointSummary`), and an evaluation store guarantees no (point, condition) pair is evaluated twice. A point is evaluated at a condition only when a group that has the condition needs it (lazily). Box queries (`res.box`) read the final lattice and never evaluate (tUqLattice#sharedLatticeEvaluatedOnce).
+- **Certificate: literal "cell minimum - L h".** bound = min(vertex margins) - sum_i L_i h_i with h_i the full cell edge along axis i, L_i = 2 x the measured local slope. This is twice as conservative as the geometric bound (each point is within h_i/2 of a vertex); I kept the contract text literally. Cost consequence: see uq4-6.
+- **"Local slopes".** L_i = 2 x max(the cell's own edge slopes along i, the base-lattice edge slopes along i of the base cells within one base cell of it, i.e. its 3^d base neighbourhood). The own edges alone miss a kink inside a cell whose vertices are equal; the neighbourhood sees it (tUqLattice#kinkedHiddenBand).
+- **Refinement set (interpretation).** The contract says "subdivided while its certified lower bound < 0 and its sampled minimum > 0, i.e. only near the zero level set". Taken literally, cells that already straddle the zero level set (some vertex failing) are never subdivided, so alpha* cannot be resolved to +/- 0.01 (a 1-D counterexample: margin 1.5 - s on the base cell [1.2, 1.8] keeps alpha* in [1.2, 1.8]). I therefore also subdivide straddling cells, but only cells that can still move alpha* of some shape: entry alpha (smallest alpha whose R(alpha) meets the cell) below min(alphaHi - 0.01, the first cell with a non-OK vertex); with no failure known, every uncertified cell meeting the cap box; and, for the judged shape, cells meeting R(1) while 1 lies inside the bracket (the DecideAt rule of uq3-1). Cells with a non-OK vertex are never subdivided (they block, honestly).
+- **Anisotropic subdivision.** Only the axes whose term L_i h_i is at least half the largest are halved; a cell whose dominant axis is at the finest spacing is exhausted. This keeps face-first touching cheap (one axis matters).
+- **Caps (stated).** MaxLevel 10 halvings per axis; MaxPoints per GROUP (the points of the group's own cells, base included): 20000 for the toys (vital.uq.lattice default), 6000 in vital.uq.analyze / run_f16_uq (LatticeMaxPoints). The cap is per group so that sharing never changes an answer (tUqLattice header 9d holds exactly). A capped group reports NOT_ASSESSABLE with a reason starting 'GRID' and the bracket.
+- **Box "meets" (clarification).** A cell meets a box when their interiors intersect; a cell that only touches the box boundary does not need a certificate, because every box point on its boundary also lies in a cell whose interior meets the box and the certificate holds on closed cells. Hence R(alphaLo) itself is certified (tUqLattice#boxStatus).
+- **alpha* and the CPV.** alphaStar = alphaLo = min(AlphaMax, smallest entry alpha of an uncertified cell); alphaHi = the smallest scaled infinity norm of a failing lattice point within the cap (the CPV; ties: smaller margin). OK when alphaHi - alphaLo <= 0.01 and the CPV confirmation (fresh in-envelope assessment) is OK with margin < 0. "A box search only to confirm the CPV" is read as: no bisection of box searches; the CPV is confirmed by the fresh assessment (R4-1's confirmation). ROBUST_TO_CAP needs every cell meeting R(3) certified and the confirmation at the cap-box arg-min not moving.
+- **Moving limit (R3-M4).** Each round: refine, then confirm every CPV, cap-box arg-min and width-box arg-min. A smaller confirmed margin at a non-candidate condition adds it to that group; the lattice is evaluated there once; at most MaxRounds 3.
+- **Candidates.** The lattice uses the analysis' NumCandidates per group (2 in stage 1 of the staged run); the union over the longitudinal groups is evaluated. Lattice groups need no stage 2 (R4-8), so stage-1 candidates plus the moving-limit confirmations are final for them.
+- **Fallback.** A longitudinal group whose equal-percentage cap box would leave the lattice box (judged half-width below 0.10) or whose cap box has a negative multiplier uses vital.uq.searchMethod instead; its plan says so (never the case for the default spec: half-widths 0.2576 / 0.1517 / 0.1517).
+
+### uq4-2: Breakpoint bracketing (R4-7; `vital.uq.bracket`, `vital.uq.breakpoints`, `F16Evaluator`)
+- Breakpoints are parsed from the generated model file (`which('vital.models.f16.aero')`): every `vital.daveml.lookup` line maps its k-th breakpoint vector `K.fN_bpk` to its k-th input; alpha = union over v_alpha inputs (-10:5:45), el = union over v_el inputs (-24:12:24). Never retyped.
+- Eligible: status NOT_CONVERGED at stage 'linearize' and trim alpha or elevator within 0.01 deg (inclusive). d = 1e-3, then 2e-3, 5e-3, 1e-2 ("increased up to 1e-2 if needed"), the next d only when the sides are OK but do not straddle or a side's linearization is NOT_CONVERGED. A side that is a physical failure (stage trim, or a status other than OK/NOT_CONVERGED) stops: not bracketed. When both alpha and el are near breakpoints, BOTH must be straddled.
+- The F16Evaluator caches raw single-point summaries separately from the final (possibly bracketed) summaries, so a side is never itself bracketed and nPointEvals counts every raw evaluation (3 for the known case). Worse of two sides per group: OK only if both OK (else the non-OK side's entry), Level max, margin min per Level (NaN if either is NaN), record of the worse side; spiral Re max.
+- Both side values are reported (E.bracketed -> r.bracketed -> the report table "BRACKETED points").
+- **Not bracketed: the fresh assessment (`E.assessAt`, the confirmation).** vital.fq.assess is read-only for M8; a CPV that lands exactly on such a point would give a NOT_OK confirmation (open issue, NOTES.md).
+
+### uq4-3: Staged run (R4-8; `vital.uq.stageBudget`, `vital.uq.stagePlan`, `analyze('Staged', true)`)
+- Stage-1 budget: NumCandidates min(full, 2), differential evolution min(full, 8) members x min(full, 4) generations (full: 16 x 8); everything else unchanged, in particular the Monte Carlo N = 200 (the stated N: the R4 verdict needs N >= 59 for a Clopper-Pearson lower bound of 0.95, so a smaller stage-1 N would make every verdict NOT_ROBUST by budget alone). 'Stage1' overrides the three values.
+- Stage 2 (full budget) when stagePlan says so: judged CSR bracket [alphaLo, alphaHi] overlaps [0.8, 1.2] (closed intervals; a NOT_ASSESSABLE bracket like [0, 2.76] overlaps), or the judged CSR (no CSR: the x1 bound-worst) is NOT_ASSESSABLE with 'FC-901' or 'budget' in its reason. Lattice groups never. Stage 2 is skipped when its budget equals stage 1's (it could add nothing). Stage-2 groups keep a stage-1 summary in g.stage.stage1. The report column "decided by" gives 'stage 1', 'stage 2' or 'stage 1 (lattice)'.
+- `analyze` keeps 'Staged' false by default (direct calls run one stage); `run_f16_uq` defaults to true (the default run).
+
+### uq4-4: Lateral groups without Cm_q (R4-9)
+- `searchPlan(..., 'LatDropCmq', true)`: groups named 3.3.x drop Cm_q when the box has it and at least one other parameter (mode 'lateral'; a 'surrogate' group keeps its mode). Default false in searchPlan (R3/R4 plans unchanged), true in analyze and run_f16_uq.
+- Class gate: tUqR4bF16#lateralInvarianceCmq, 9 lateral metrics + Re(spiral), 3 conditions x lateral {1, x1 lower corner} x Cm_q at 1 -/+ 3 k1 sigma: largest relative deviation 9.4e-15 (limit 1e-9).
+- Runtime gate per group at its critical condition (vital.uq.invarianceCheck, 1e-9 relative; the margin, or the spiral surrogate for a surrogate group) with Cm_q at the extremes of every box searched; fallback vital.uq.gatePlan restores all parameters (plan.latCheck).
+- The R3-pinned classes tF16Uq and tUqR3Report now pass 'LatDropCmq' false (their expectations unchanged).
+
+### uq4-5: Defaults switched on
+analyze: Lattice true, LatDropCmq true, Bracket true, Staged false. run_f16_uq: all four true. F16Evaluator: Bracket true. Stub-phase defaults were the old behaviour (so the RED baseline was unchanged).
+
+### uq4-6: Cost of the lattice (measured; see CHANGELOG.md and NOTES.md)
+Toy, 3-D, corner-first linear: about 19,000 lattice points for both shapes to 0.01 (about 1,000 new points per halving level near the touching corner, because the literal certificate needs margin > 2 sum |dm_i| per cell). The F-16 numbers are in the CHANGELOG.
+
+**Evidence.** tests/M8/tUqLattice.m (11), tUqBracket.m (11), tUqStaged.m (5), tUqR4bF16.m (3).

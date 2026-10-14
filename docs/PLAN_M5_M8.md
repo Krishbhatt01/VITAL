@@ -206,6 +206,69 @@ out = vital.sim.run(AC, env, x0, u0, 'dt', 0.01, 'tFinal', T, 'Inputs', f, 'Cont
   - m1: re-label tF16Uq hypothesis 2 as a guard.
   - m4: tF16Uq uses the longitudinal-only search where (a) applies, to cut its runtime.
 
+**Amendment R4: judgment-light robustness** (coordinator, 2026-10-13; approved by the user after a literature review). It supersedes earlier M8 text where they differ. Original pre-registrations stay in the test headers, marked superseded.
+
+Basis:
+- Crespo, Kenny and Giesy (NASA LaRC), "A Verification-driven Approach to Control Analysis and Tuning": the Critical Similitude Ratio (CSR), the Critical Parameter Value (CPV) and the Maximal Set.
+- GARTEUR FM-AG11 (NLR-TP-2004-147): optimisation-based worst-case search is the most promising clearance method. A global search does not guarantee the worst case, so hybrid global + local search is preferred.
+- No published uncertainty exists for the NESC F-16 tables, so the widths stay a labelled JUDGMENT. The conclusion is made to depend on them as little as possible.
+
+- **R4-1, CSR is the headline.**
+  - For each group, alpha* is the largest scaling alpha in [0, AlphaMax = 3] of a reference box about the nominal, R(alpha) = [1 - alpha m, 1 + alpha m], for which the in-envelope margin to the nominal Level stays >= 0.
+  - CPV = the parameter vector where the box first touches failure. The report also gives the parametric safety margin alpha* m in physical (multiplier) units.
+  - Two reference shapes: (a) the judged half-widths m = k_g sigma (x1), the headline; (b) equal percentage, m_i = 0.10 for every parameter. That makes alpha* x 10 % the tolerated uniform tolerance, a cross-check that removes the judged ratios between parameters.
+  - **Status:**
+    - `OK`: alpha* found to +/- 0.01, with a confirmed CPV.
+    - `ROBUST_TO_CAP`: no failure up to AlphaMax.
+    - `NOT_ASSESSABLE`: the search could not decide, with the reason.
+  - CSR is monotone in alpha because the boxes are nested. Any algorithm is allowed (bisection on alpha with the bound-worst search, or the direct form: minimize the scaled infinity norm ||p - p_bar||_inf,m subject to margin(p) <= 0), if it passes the known-answer tests.
+  - The CPV is confirmed by a fresh in-envelope assessment, with the moving-limit rule of R3-M4.
+- **R4-2, verdict.**
+  - `ROBUST`: CSR status OK with alpha*(judged) >= 1, or ROBUST_TO_CAP; and the Monte Carlo Clopper-Pearson lower bound >= 0.95 (unchanged).
+  - `NOT_ROBUST`: alpha*(judged) < 1 with a confirmed CPV, or the CP lower bound < 0.95.
+  - Otherwise `NOT_ASSESSABLE`.
+  - The default run no longer computes the x0.5 / x1.5 widths; CSR replaces them. They stay available as an option.
+- **R4-3, two-parameter (longitudinal) groups are decided on a grid.**
+  - Groups searched over 2 parameters use a dense grid with local refinement around the minimum, plus a Lipschitz bound estimated from the measured grid slopes with safety factor 2. The result is a certified lower bound on the margin between the grid points.
+  - That decides the status: OK if the certified bound is >= 0; VIOLATED on a grid counterexample.
+  - The status label says "grid-certified (Lipschitz estimate)". This replaces FC-901 for those groups.
+- **R4-4, hybrid search for groups with more than 2 parameters.**
+  - A seeded global stage (a VITAL implementation of differential evolution, since the Global Optimization Toolbox is not installed) with a stated budget, then a local derivative-free stage (`fminsearch`, Nelder-Mead, with a bound transform) in place of sqp, because the margins have kinks.
+  - All points from the centre, corner, LHS, global and local stages are kept, and the bound-worst is the minimum over them.
+  - Convergence is reported per stage. The result is still labelled a "search estimate".
+- **R4-5, split Cm_table** (aero-database build-up).
+  - New AeroScale fields: `Cm_basic` scales cmt(alpha, el = 0), the static part; `Cm_de` scales the elevator increment cmt(alpha, el) - cmt(alpha, 0), the elevator power.
+  - Both multipliers equal to 1 leave the model bit-identical. Cm_table stays as a legacy field.
+  - The pitchStatic group of the spec becomes {Cm_basic, Cm_de}: sigma 0.05 each, d = 2. The longitudinal-only search and its invariance gate include them.
+  - A REG test of the effective CG-derivative ratios is required for the new fields.
+- **R4-6, rename Cnr_table to Cn_r** (the plan's name), authorized by the user. The unknown-name example in tests/M6/tAeroScale.m#badAeroScaleRejected changes from 'Cn_r' to 'Cx_q'. That is the only edit to a closed-milestone test, and its header records why. Every registered sabotage pattern that names the field is updated to match.
+- **Not in M8:** robust gain design (maximizing CSR with the M7 search) is a separate increment after M8.
+
+**Amendment R4b** (coordinator, 2026-10-14; user decisions 1a, 2b, 3b after review). It corrects R4 where they differ.
+
+- **R4-3 corrected: a shared adaptive lattice for the longitudinal groups.**
+  - R4-5 made the longitudinal parameters 3 (Cm_q, Cm_basic, Cm_de), so R4-3 applies to the longitudinal search whatever its dimension (<= 3).
+  - One lattice over the AlphaMax box (alpha = 3, judged shape), evaluated once per candidate condition and reused by every longitudinal group, both reference shapes and every CSR alpha.
+  - Start at 11 points per axis, then refine cells adaptively: a cell is subdivided while its certified lower bound (cell minimum - L h, with L = 2 x the measured local slopes) is < 0 and its sampled minimum is > 0, i.e. only near the zero level set. There is a stated cap on levels and points.
+  - For any box R(alpha) of either shape: OK if the certified bound over the cells inside the box is >= 0; VIOLATED on a lattice counterexample; otherwise NOT_ASSESSABLE ("GRID").
+  - alpha* is read from the lattice to +/- 0.01, with a box search only to confirm the CPV.
+  - Rejected alternative: Gaussian-process or other surrogates (they add model error to a certification answer).
+- **R4-7 (new): breakpoint bracketing of linearization failures.** Investigated 2026-10-14:
+  - The R4 smoke-run point at 13,000 ft / M 0.45 / CG 20 % failed because its trim alpha was 5.000036 deg, 3.6e-5 deg from the alpha = 5 deg table breakpoint.
+  - theta x (1 -/+ 1e-3) trims at 5.0007 / 4.9994 deg, on opposite sides of the breakpoint, and both evaluate OK.
+  - Rule: when a point's linearization is NOT_CONVERGED, and its trim alpha or elevator lies within 0.01 deg of a NESC aero-table breakpoint of that variable, evaluate the two parameter-perturbed points theta x (1 - d) and theta x (1 + d), with d = 1e-3 (increased up to 1e-2 if needed). This is accepted only if their trims lie on opposite sides of that breakpoint and both are OK.
+  - The point's margin is then the WORSE of the two: the requirement must hold for both one-sided linearizations of the kinked model. It is status OK and is labelled `BRACKETED`, with both values reported.
+  - In every other case the point stays non-OK exactly as before.
+  - Physical failures are never bracketed: trim INFEASIBLE or NOT_CONVERGED, DIVERGENT modes, non-classical modes.
+  - The breakpoint lists are read from the generated NESC models, never retyped.
+- **R4-8 (new): staged default run.**
+  - Stage 1: the whole default analysis at a reduced budget (NumCandidates 2, a smaller differential-evolution stage, the stated Monte Carlo N).
+  - Stage 2: only groups whose CSR(judged) bracket overlaps [0.8, 1.2], or whose status is NOT_ASSESSABLE for budget reasons (FC-901), are re-run at the full budget. The longitudinal lattice groups need no stage 2.
+  - The report states which stage decided each group.
+- **R4-9 (new): lateral groups drop Cm_q.**
+  - Cm_q acts only through the pitch rate, which is zero at the wings-level trim, so it cannot change lateral metrics.
+  - This is gated by a test (lateral metrics unchanged within 1e-9 relative when Cm_q varies) and falls back to the full set if the gate fails.
+
 ## Exit criteria for "done to M8"
 1. `run_vital_tests('M8')` is GREEN from a fresh MATLAB session (`restoredefaultpath`, no `startup_vital`), with 0 excluded.
 2. `run_sabotage('M5')` … `('M8')` detect every sabotage, with the tree unchanged.
