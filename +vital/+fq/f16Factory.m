@@ -3,7 +3,9 @@ function fac = f16Factory(opts)
 %   fac = vital.fq.f16Factory()
 %   fac = vital.fq.f16Factory('AeroScale', struct('Cm_q', 0.3))   a mutation (M6) or
 %         an uncertainty sample (M8); fields Cm_q, Cl_p, Cnt_table, Cm_table,
-%         Cl_table, Cnr_table (vital.aircraft.f16.config)
+%         Cl_table, Cn_r (named Cnr_table until 2026-10-13, R4-6), Cm_basic,
+%         Cm_de (the split of the pitching-moment table, R4-5)
+%         (vital.aircraft.f16.config)
 %   fac = vital.fq.f16Factory('Controller', b)     the AUGMENTED aircraft (M7):
 %         b is a builder ctrl = b(AC, env, tr) of a STATIC controller in the
 %         vital.sim.run form (e.g. @(AC, env, tr) vital.ctrl.pitchSas(AC, env, tr,

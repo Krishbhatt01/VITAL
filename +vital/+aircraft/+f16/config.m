@@ -21,12 +21,20 @@ function AC = config(opts)
 %                     table cmt(el, alpha): M_alpha and M_de together)
 %          Cl_table   cl = (Cl_table*clt + dclda*dail + dcldr*drdr) + b2v*(Cl_p*clp*p + clr*r)
 %                     (the static sideslip rolling-moment table clt(beta, alpha))
-%          Cnr_table  cn = (Cnt_table*cnt + dcnda*dail + dcndr*drdr) + b2v*(cnp*p + (Cnr_table*cnr)*r)
-%                     (the yaw-damping table cnr(alpha); the M8 plan's "Cn_r",
-%                     renamed because tests/M6/tAeroScale.m uses 'Cn_r' as an
-%                     unknown name)
-%        Unlisted multipliers are 1; AC.aeroScale holds all six. Unknown
-%        names or values that are not finite reals >= 0: vital:badInput.
+%          Cn_r       cn = (Cnt_table*cnt + dcnda*dail + dcndr*drdr) + b2v*(cnp*p + (Cn_r*cnr)*r)
+%                     (the yaw-damping table cnr(alpha); named Cnr_table until
+%                     2026-10-13, renamed to the M8 plan's name by decision R4-6)
+%        M8 amendment R4-5 (split of the pitching-moment table, aero-database
+%        build-up; tests/M8/tUqR4F16.m):
+%          Cm_basic   scales cmt0 = cmt(el = 0, alpha), the static part
+%          Cm_de      scales dcmt = cmt(el, alpha) - cmt(el = 0, alpha), the
+%                     elevator increment (elevator power)
+%                     cm = Cm_table*(Cm_basic*cmt0 + Cm_de*dcmt) + cq2v*(Cm_q*cmq)
+%                     (computed only when Cm_basic or Cm_de is not 1; Cm_table
+%                     alone keeps its R3 meaning, the legacy field)
+%        Unlisted multipliers are 1; AC.aeroScale holds all eight. Unknown
+%        names (e.g. the old 'Cnr_table') or values that are not finite reals
+%        >= 0: vital:badInput.
 %
 %   Sources (hashed in data/MANIFEST.json):
 %     reference geometry  F16_aero.dml:368-380  S = 300 ft2, b = 30 ft, cbar = 11.32 ft
@@ -85,10 +93,13 @@ AC.controlNames = {'de', 'da', 'dr', 'throttle'};
 % Aerodynamic multipliers for pre-registered mutations (M6) and the M8
 % uncertainty analysis. Default 1 = the
 % NESC model unchanged (vital.aircraft.f16.loads then skips them entirely).
-AC.aeroScale = struct('Cm_q', 1, 'Cl_p', 1, 'Cnt_table', 1, 'Cm_table', 1, 'Cl_table', 1, 'Cnr_table', 1);
+AC.aeroScale = struct('Cm_q', 1, 'Cl_p', 1, 'Cnt_table', 1, 'Cm_table', 1, 'Cl_table', 1, 'Cn_r', 1, ...
+    'Cm_basic', 1, 'Cm_de', 1);
 for f = fieldnames(opts.AeroScale).'
     if ~isfield(AC.aeroScale, f{1})
-        error('vital:badInput', 'unknown AeroScale multiplier "%s" (allowed: Cm_q, Cl_p, Cnt_table, Cm_table, Cl_table, Cnr_table; ''Cn_beta'' was renamed Cnt_table on 2026-10-05).', f{1});
+        error('vital:badInput', ['unknown AeroScale multiplier "%s" (allowed: Cm_q, Cl_p, Cnt_table, Cm_table, ' ...
+            'Cl_table, Cn_r, Cm_basic, Cm_de; ''Cn_beta'' was renamed Cnt_table on 2026-10-05 and ''Cnr_table'' ' ...
+            'Cn_r on 2026-10-13).'], f{1});
     end
     v = opts.AeroScale.(f{1});
     if ~(isnumeric(v) && isscalar(v) && isreal(v) && isfinite(v) && v >= 0)

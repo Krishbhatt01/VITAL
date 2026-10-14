@@ -4,7 +4,9 @@ function bw = surrogateWorst(problem, marginFcn, opts)
 %   bw = vital.uq.surrogateWorst(problem, marginFcn)
 %   bw = vital.uq.surrogateWorst(problem, marginFcn, 'Reserve', 0, 'NumLHS', 32,
 %        'Seed', 2026, 'NumStarts', 2, 'MaxEvals', 60, 'FDStep', 1e-3,
-%        'MaxRounds', 3, 'Quantity', 'spiral root real part (1/s)')
+%        'MaxRounds', 3, 'Quantity', 'spiral root real part (1/s)', 'Method', 'sqp',
+%        'Extra', {})   Method and Extra (name-value options of the grid / hybrid
+%        methods) are passed to vital.uq.boundWorst (M8 amendment R4)
 %
 %   Why: the 3.3.1.3 spiral margin (time to double, T2 >= 12 s) is +Inf
 %   wherever the spiral is stable, so an optimizer started from +Inf cannot
@@ -48,6 +50,8 @@ arguments
     opts.MaxRounds (1,1) double = 3
     opts.Reserve (1,1) double = 0
     opts.Quantity (1,:) char = 'spiral root real part (1/s)'
+    opts.Method (1,:) char = 'sqp'
+    opts.Extra cell = {}
 end
 P = problem;
 if ~isfield(P, 'pointFcn') || ~isa(P.pointFcn, 'function_handle')
@@ -60,7 +64,8 @@ if isfield(P, 'confirmFcn') && ~isempty(P.confirmFcn)
     P.confirmFcn = @(th) toConfirm(cf(th));
 end
 bs = vital.uq.boundWorst(P, 'NumLHS', opts.NumLHS, 'Seed', opts.Seed, 'NumStarts', opts.NumStarts, ...
-    'MaxEvals', opts.MaxEvals, 'FDStep', opts.FDStep, 'MaxRounds', opts.MaxRounds, 'Reserve', -Inf);
+    'MaxEvals', opts.MaxEvals, 'FDStep', opts.FDStep, 'MaxRounds', opts.MaxRounds, 'Reserve', -Inf, ...
+    'Method', opts.Method, opts.Extra{:});
 bw = bs;
 sMax = -bs.value;
 bw.surrogate = struct('quantity', opts.Quantity, 'value', sMax, 'searchValue', -bs.searchValue, ...

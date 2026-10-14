@@ -21,10 +21,18 @@ if isfield(AC, 'aeroScale')
     % model and the coefficient is rebuilt in the model's own order of operations;
     % multipliers equal to 1 leave a untouched.
     s = AC.aeroScale;
+    split = s.Cm_basic ~= 1 || s.Cm_de ~= 1;
+    if split
+        % M8 amendment R4-5 (aero-database build-up): cmt0 = cmt(el = 0, alpha) is
+        % the static part, cmt - cmt0 the elevator increment (elevator power)
+        in0 = in; in0.el = 0;
+        a0 = vital.models.f16.aero(in0);
+        a.cmt = s.Cm_basic * a0.cmt + s.Cm_de * (a.cmt - a0.cmt);
+    end
     if s.Cm_table ~= 1
         a.cmt = s.Cm_table * a.cmt;                       % M8: pitching-moment table cmt(el, alpha)
     end
-    if s.Cm_q ~= 1 || s.Cm_table ~= 1
+    if s.Cm_q ~= 1 || s.Cm_table ~= 1 || split
         a.cm = a.cmt + a.cq2v * (s.Cm_q * a.cmq);
     end
     if s.Cl_table ~= 1
@@ -33,12 +41,12 @@ if isfield(AC, 'aeroScale')
     if s.Cl_p ~= 1 || s.Cl_table ~= 1
         a.cl = a.cl1 + a.b2v * ((s.Cl_p * a.clp * a.p) + (a.clr * a.r));
     end
-    if s.Cnr_table ~= 1
-        a.cnr = s.Cnr_table * a.cnr;                      % M8: yaw-damping table cnr(alpha)
+    if s.Cn_r ~= 1
+        a.cnr = s.Cn_r * a.cnr;                           % M8: yaw-damping table cnr(alpha) (was Cnr_table, R4-6)
     end
     if s.Cnt_table ~= 1
         a.cn = (s.Cnt_table * a.cnt + a.dcnda * a.dail + a.dcndr * a.drdr) + a.b2v * ((a.cnp * a.p) + (a.cnr * a.r));
-    elseif s.Cnr_table ~= 1
+    elseif s.Cn_r ~= 1
         a.cn = a.cn1 + a.b2v * ((a.cnp * a.p) + (a.cnr * a.r));
     end
 end

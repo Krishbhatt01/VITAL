@@ -3,7 +3,12 @@ function bw = boundWorst(problem, opts)
 %   bw = vital.uq.boundWorst(problem)
 %   bw = vital.uq.boundWorst(problem, 'NumLHS', 32, 'Seed', 2026, 'NumStarts', 2,
 %                            'MaxEvals', 60, 'FDStep', 1e-3, 'Reserve', 0,
-%                            'MaxRounds', 3)
+%                            'MaxRounds', 3, 'Method', 'sqp')
+%   Method 'grid' (M8 amendment R4-3): 'GridPoints' 11, 'GridLocalLevels' 3,
+%       'GridMaxRefine' 8, 'GridBudget' 5000, 'LipschitzFactor' 2
+%   Method 'hybrid' (M8 amendment R4-4): 'DEPopulation' 20, 'DEGenerations' 20,
+%       'DEF' 0.7, 'DECR' 0.9, 'NumStarts', 'MaxEvals' (per Nelder-Mead start),
+%       'TolX' 1e-3, 'TolFun' 1e-4
 %
 %   problem fields
 %     names       1 x d parameter names
@@ -62,6 +67,47 @@ function bw = boundWorst(problem, opts)
 %                       round converged, and the final confirmation did not move
 %   THE BOUND-WORST IS A SEARCH ESTIMATE: the smallest margin found, an upper
 %   bound on the true minimum over the box, not a proof (review R3 M2).
+%
+%   METHODS (docs/PLAN_M5_M8.md, M8 amendment R4; steps 3-4 above are the
+%   'sqp' method, the default, unchanged):
+%   'hybrid' (R4-4; groups with more than 2 searched parameters): steps 1-3,
+%     then a GLOBAL stage, vital.uq.diffEvolution (DE/rand/1/bin, seeded with
+%     Seed + 1, DEPopulation members, the LHS points as its initial population
+%     (topped up with seeded uniform points), DEGenerations generations; phase
+%     'de'; DEPopulation 0 skips it), then a LOCAL stage: fminsearch
+%     (Nelder-Mead) from the NumStarts best distinct points of all earlier
+%     stages, on z with theta = lo + (hi - lo)(1 + sin(z - 3))/2 (a bound
+%     transform: every point lies in the box; the offset 3 keeps every z
+%     component away from 0, where fminsearch's first simplex would be only
+%     0.00025 wide and could stop at once), budget MaxEvals per start,
+%     TolX (in z) and TolFun (margin); a point that is not OK is +Inf to
+%     Nelder-Mead (phase 'local<k>'). The local stage converges when every
+%     start ends with exit flag 1; otherwise FC-901 as for sqp. Nelder-Mead is
+%     derivative-free, so the kinks of the margin functions do not stall it.
+%     bw.stages reports every stage (centre, corner, lhs, de, local): nEval,
+%     converged (DE: the population's spread, reported only), message.
+%   'grid' (R4-3; groups with at most 2 searched parameters): step 1, then a
+%     dense grid of GridPoints points per dimension over the box on an integer
+%     lattice (box coordinate t = (theta - lo)/(hi - lo), base spacing
+%     1/(GridPoints - 1), finest spacing that / 2^GridMaxRefine; it contains
+%     the 2^d corners), phase 'grid'; LOCAL REFINEMENT around the minimum
+%     (GridLocalLevels times the cells touching the best lattice point are
+%     halved); then LIPSCHITZ CERTIFICATION: per axis i, L_i = LipschitzFactor
+%     x the largest measured slope |dm|/dt_i over every evaluated grid edge
+%     along i, and every cell has the bound min(vertex margins) - sum_i L_i
+%     dt_i/2 (every point of the cell is within dt_i/2 of a vertex along each
+%     axis); cells whose bound is below the reserve are halved and the slopes
+%     re-measured, until every bound is >= reserve (CERTIFIED), a cell reaches
+%     the finest spacing, or GridBudget lattice points are used. 'OK' needs
+%     the certificate (bw.converged = certified); without it and without a
+%     counterexample the status is 'NOT_ASSESSABLE' with a reason starting
+%     'GRID' (this replaces FC-901 for these groups). The Lipschitz constant is
+%     an ESTIMATE from measured slopes (safety factor 2), so the certificate is
+%     labelled 'grid-certified (Lipschitz estimate)'. bw.certificate: certified,
+%     lowerBound, L, maxSlope, factor, nCells, nPoints, finestStep, reason.
+%   bw.method, bw.label ('search estimate (sqp)', 'search estimate (hybrid:
+%   differential evolution + Nelder-Mead)', 'grid-certified (Lipschitz
+%   estimate)'), bw.stages.
 %   bw fields: status, reason, value, searchValue, theta, cond (label),
 %     condition (the condition itself), record, nominal (margin, cond, record,
 %     status at the centre, round 1), points (of the final round: theta
@@ -75,7 +121,10 @@ function bw = boundWorst(problem, opts)
 %     options, names, lo, hi.
 %   Errors: vital:badInput (inconsistent problem: sizes, lo > hi, nominal
 %   outside the box, no condition, pointFcn not a function handle; MaxRounds
-%   not a positive integer).
+%   not a positive integer; Method not sqp/hybrid/grid; GridPoints < 2,
+%   GridMaxRefine, GridLocalLevels < 0, GridBudget < 1, LipschitzFactor < 1;
+%   DEPopulation not 0 or an integer >= 4, DEGenerations < 0, DEF outside
+%   (0, 2], DECR outside [0, 1], TolX / TolFun not > 0).
 arguments
     problem (1,1) struct
     opts.NumLHS (1,1) double = 32
@@ -85,7 +134,22 @@ arguments
     opts.FDStep (1,1) double = 1e-3
     opts.Reserve (1,1) double = 0
     opts.MaxRounds (1,1) double = 3
+    opts.Method (1,:) char = 'sqp'
+    opts.GridPoints (1,1) double = 11
+    opts.GridMaxRefine (1,1) double = 8
+    opts.GridLocalLevels (1,1) double = 3
+    opts.GridBudget (1,1) double = 5000
+    opts.LipschitzFactor (1,1) double = 2
+    opts.DEPopulation (1,1) double = 20
+    opts.DEGenerations (1,1) double = 20
+    opts.DEF (1,1) double = 0.7
+    opts.DECR (1,1) double = 0.9
+    opts.TolX (1,1) double = 1e-3
+    opts.TolFun (1,1) double = 1e-4
 end
+validateOptions(opts);
+isGrid = strcmp(opts.Method, 'grid');
+isHybrid = strcmp(opts.Method, 'hybrid');
 P = validateProblem(problem);
 if ~(isfinite(opts.MaxRounds) && opts.MaxRounds >= 1 && opts.MaxRounds == round(opts.MaxRounds))
     error('vital:badInput', 'MaxRounds must be a positive integer.');
@@ -100,7 +164,7 @@ R = struct('round', {}, 'candidates', {}, 'nEvaluated', {}, 'searchValue', {}, '
 anyViol = false;
 nonOKEarlier = 0;
 stopWhy = '';
-nC = 0; S = []; O = [];
+nC = 0; S = []; O = []; ST = []; CERT = [];
 
 for ir = 1:opts.MaxRounds
     nC = numel(conds);
@@ -117,16 +181,26 @@ for ir = 1:opts.MaxRounds
         evalPoint(prev(j, :), 'previous');
     end
 
-    % ---- 2. corners -------------------------------------------------------------------------
+    ST = stage('centre', numel(S.margin), NaN, 'the nominal point (and earlier arg-mins)');
+    O = struct('start', {}, 'x', {}, 'fval', {}, 'exitflag', {}, 'funcCount', {}, 'converged', {}, 'message', {});
+    CERT = struct('certified', false, 'lowerBound', NaN, 'L', NaN(1, d), 'maxSlope', NaN(1, d), ...
+        'factor', opts.LipschitzFactor, 'nCells', 0, 'nPoints', 0, 'finestStep', NaN, 'reason', 'not a grid search');
+
+    % ---- 2. corners (the grid contains them) --------------------------------------------------
+    n0 = numel(S.margin);
     for k = 0:2^d - 1
+        if isGrid, break; end
         bits = bitget(k, 1:d);
         th = lo;
         th(bits == 1) = hi(bits == 1);
         evalPoint(th, 'corner');
     end
+    if ~isGrid, ST(end+1) = stage('corner', numel(S.margin) - n0, NaN, 'the 2^d vertices'); end %#ok<AGROW>
 
     % ---- 3. seeded Latin hypercube -----------------------------------------------------------
     n = opts.NumLHS;
+    if isGrid, n = 0; end
+    n0 = numel(S.margin);
     if n > 0
         rs = RandStream('mt19937ar', 'Seed', opts.Seed);
         U = zeros(n, d);
@@ -134,23 +208,46 @@ for ir = 1:opts.MaxRounds
             U(:, j) = (randperm(rs, n).' - rand(rs, n, 1)) / n;
         end
         for i = 1:n
-            evalPoint(lo + (hi - lo) .* U(i, :), 'lhs');
+            evalPoint(min(max(lo + (hi - lo) .* U(i, :), lo), hi), 'lhs');
         end
     end
+    if ~isGrid, ST(end+1) = stage('lhs', numel(S.margin) - n0, NaN, sprintf('%d seeded Latin-hypercube points', n)); end %#ok<AGROW>
 
-    % ---- 4. fmincon from the best distinct points --------------------------------------------
-    [~, ord] = sort(S.margin);
-    T = S.theta(ord, :);
-    [~, iu] = unique(T, 'rows', 'stable');
-    nS = min(opts.NumStarts, numel(iu));
-    starts = T(iu(1:nS), :);
-    O = struct('start', {}, 'x', {}, 'fval', {}, 'exitflag', {}, 'funcCount', {}, 'converged', {}, 'message', {});
-    for s = 1:nS
-        O(s) = runStart(starts(s, :), s); %#ok<AGROW>
+    % ---- 4. the method's own stages -------------------------------------------------------------
+    if isGrid
+        n0 = numel(S.margin);
+        CERT = gridStage();
+        ST(end+1) = stage('grid', numel(S.margin) - n0, double(CERT.certified), CERT.reason); %#ok<AGROW>
+        nS = 0;
+        bw.converged = CERT.certified;
+    else
+        if isHybrid
+            n0 = numel(S.margin);
+            [okDE, msgDE, genDE] = deStage();
+            ST(end+1) = stage('de', numel(S.margin) - n0, okDE, msgDE); %#ok<AGROW>
+            ST(end).generations = genDE;
+        end
+        [~, ord] = sort(S.margin);
+        T = S.theta(ord, :);
+        [~, iu] = unique(T, 'rows', 'stable');
+        nS = min(opts.NumStarts, numel(iu));
+        starts = T(iu(1:nS), :);
+        n0 = numel(S.margin);
+        for s = 1:nS
+            if isHybrid
+                O(s) = runLocal(starts(s, :), s); %#ok<AGROW>
+            else
+                O(s) = runStart(starts(s, :), s); %#ok<AGROW>
+            end
+        end
+        nm = 'fmincon'; if isHybrid, nm = 'local'; end
+        ST(end+1) = stage(nm, numel(S.margin) - n0, nS > 0 && all([O.converged]), ...
+            strjoin(arrayfun(@(i) sprintf('start %d: exit flag %g, %d evaluations', i, O(i).exitflag, ...
+            O(i).funcCount), 1:numel(O), 'UniformOutput', false), '; ')); %#ok<AGROW>
+        bw.converged = nS > 0 && all([O.converged]);
     end
 
     % ---- bound-worst and active set of this round ---------------------------------------------
-    bw.converged = nS > 0 && all([O.converged]);
     use = find(~isnan(S.margin));
     if isempty(use)
         bw.value = NaN; bw.theta = NaN(1, d); bw.cond = ''; bw.record = ''; bw.condition = [];
@@ -227,6 +324,14 @@ end
 bw.points = S;
 bw.nEvaluated = numel(S.margin);
 bw.optimizer = O;
+bw.method = opts.Method;
+bw.stages = ST;
+bw.certificate = CERT;
+switch opts.Method
+    case 'grid', bw.label = 'grid-certified (Lipschitz estimate)';
+    case 'hybrid', bw.label = 'search estimate (hybrid: differential evolution + Nelder-Mead)';
+    otherwise, bw.label = 'search estimate (sqp)';
+end
 bw.rounds = R;
 bw.nRounds = numel(R);
 bw.conditions = conds;
@@ -280,19 +385,32 @@ elseif movedFinal || ~isempty(bw.nonOK) || nonOKEarlier > 0 || ~confOK || ~bw.co
     if ~confOK
         why{end+1} = sprintf('the confirmation is not OK: %s (%s)', bw.confirmation.status, bw.confirmation.reason);
     end
-    if ~bw.converged
+    if ~bw.converged && isGrid
+        why{end+1} = sprintf(['GRID: not certified (grid-certified (Lipschitz estimate)): %s; no grid point ' ...
+            'violates, so the box is not decided'], CERT.reason);
+    elseif ~bw.converged
         bad = find(~[O.converged]);
         if isempty(bad), txt = 'no optimizer start'; else
             txt = strjoin(arrayfun(@(i) sprintf('start %d exit flag %g (%s)', i, O(i).exitflag, O(i).message), bad, ...
                 'UniformOutput', false), '; ');
         end
-        why{end+1} = sprintf('FC-901: the optimizer did not converge (%s) and no counterexample was found', txt);
+        what = 'the optimizer';
+        if isHybrid, what = 'the local stage (Nelder-Mead)'; end
+        why{end+1} = sprintf('FC-901: %s did not converge (%s) and no counterexample was found', what, txt);
     end
     bw.reason = strjoin(why, '; ');
 else
     bw.status = 'OK';
-    bw.reason = sprintf(['every evaluated point OK (%d), every optimizer start converged; bound-worst %.6g >= ' ...
-        'reserve %g; %d round(s), the final confirmation did not move'], bw.nEvaluated, bw.value, opts.Reserve, bw.nRounds);
+    if isGrid
+        how = sprintf('grid-certified (Lipschitz estimate): certified lower bound %.6g >= reserve %g', ...
+            CERT.lowerBound, opts.Reserve);
+    elseif isHybrid
+        how = 'every Nelder-Mead start of the local stage converged';
+    else
+        how = 'every optimizer start converged';
+    end
+    bw.reason = sprintf(['every evaluated point OK (%d), %s; bound-worst %.6g >= ' ...
+        'reserve %g; %d round(s), the final confirmation did not move'], bw.nEvaluated, how, bw.value, opts.Reserve, bw.nRounds);
 end
 bw = orderfields(bw);
 
@@ -331,6 +449,245 @@ bw = orderfields(bw);
         S.reason{end+1, 1} = why;
         S.condMargin(end+1, :) = m;
         ok = strcmp(st, 'OK');
+    end
+
+    function st = stage(name, nEval, converged, message)
+        st = struct('name', name, 'nEval', nEval, 'converged', converged, 'message', message, 'generations', NaN);
+        if ~isnan(converged), st.converged = logical(converged); end
+    end
+
+    function [ok, msg, gen] = deStage()
+        % global stage (R4-4): seeded differential evolution, the LHS points
+        % of this round as its initial population
+        NP = opts.DEPopulation;
+        if NP == 0
+            ok = NaN; msg = 'skipped (DEPopulation 0)'; gen = 0;
+            return
+        end
+        il = find(strcmp(S.phase, 'lhs'));
+        il = il(1:min(NP, numel(il)));
+        [~, ~, info] = vital.uq.diffEvolution(@deObjective, lo, hi, 'Population', NP, ...
+            'Generations', opts.DEGenerations, 'F', opts.DEF, 'CR', opts.DECR, 'Seed', opts.Seed + 1, ...
+            'Init', S.theta(il, :), 'InitF', S.margin(il), 'TolFun', opts.TolFun, 'TolX', opts.TolX);
+        ok = info.converged;
+        gen = info.generations;
+        msg = sprintf(['differential evolution DE/rand/1/bin: population %d (%d from the LHS), %d generations, ' ...
+            '%d evaluations; population spread %.3g in margin; converged (reported only) %d'], NP, numel(il), ...
+            info.generations, info.nEval, info.spreadF, info.converged);
+
+        function f = deObjective(x)
+            f = evalPoint(x, 'de');
+        end
+    end
+
+    function o = runLocal(x0, s)
+        % local stage (R4-4): Nelder-Mead (fminsearch) with the bound transform
+        % theta = lo + (hi - lo)(1 + sin z)/2
+        o = struct('start', x0, 'x', x0, 'fval', NaN, 'exitflag', NaN, 'funcCount', 0, 'converged', false, 'message', '');
+        i0 = find(all(S.theta == x0, 2), 1);
+        f0 = S.margin(i0);
+        if ~isfinite(f0) || ~strcmp(S.status{i0}, 'OK')
+            o.message = sprintf('objective not finite or not OK at the start (margin %g, %s): Nelder-Mead cannot run', ...
+                f0, S.status{i0});
+            return
+        end
+        act = hi > lo;
+        zc = 3;                                          % offset in z (period 2 pi): fminsearch's first simplex
+        z0 = asin(min(max(2 * (x0(act) - lo(act)) ./ (hi(act) - lo(act)) - 1, -1), 1)) + zc;   % has steps 0.07-0.23
+        cnt = 0;
+        ph = sprintf('local%d', s);
+        oo = optimset('Display', 'off', 'MaxFunEvals', opts.MaxEvals, 'MaxIter', 10 * opts.MaxEvals, ...
+            'TolX', opts.TolX, 'TolFun', opts.TolFun);
+        try
+            [z, fz, ef, out] = fminsearch(@nmObjective, z0, oo);
+            o.x = toTheta(z); o.fval = fz; o.exitflag = ef; o.funcCount = cnt;
+            o.converged = (ef == 1);
+            o.message = strtrim(regexprep(out.message, '\s+', ' '));
+            if numel(o.message) > 300, o.message = [o.message(1:300) '...']; end
+        catch err
+            o.funcCount = cnt;
+            switch err.identifier
+                case 'vital:uq:budget'
+                    o.exitflag = 0;
+                    o.message = sprintf('budget of %d evaluations exhausted', opts.MaxEvals);
+                case 'vital:uq:divergent'
+                    o.exitflag = -100;
+                    o.message = 'stopped at a divergent point (margin -Inf): a counterexample';
+                otherwise
+                    o.exitflag = NaN;
+                    o.message = sprintf('fminsearch failed: %s: %s', err.identifier, err.message);
+            end
+            [fb, kb] = min(S.margin(strcmp(S.phase, ph)));
+            if ~isempty(fb)
+                T2 = S.theta(strcmp(S.phase, ph), :);
+                o.x = T2(kb, :); o.fval = fb;
+            end
+        end
+
+        function th = toTheta(z)
+            th = x0;
+            th(act) = lo(act) + (hi(act) - lo(act)) .* (1 + sin(z(:).' - zc)) / 2;
+            th = min(max(th, lo), hi);
+        end
+
+        function f = nmObjective(z)
+            if cnt >= opts.MaxEvals
+                error('vital:uq:budget', 'evaluation budget exhausted');
+            end
+            cnt = cnt + 1;
+            [f, okp] = evalPoint(toTheta(z), ph);
+            if f == -Inf
+                error('vital:uq:divergent', 'divergent point');
+            end
+            if ~okp || isnan(f), f = Inf; end
+        end
+    end
+
+    function ce = gridStage()
+        % R4-3: dense grid + local refinement around the minimum + Lipschitz
+        % certification with measured slopes (factor LipschitzFactor)
+        ng = opts.GridPoints;
+        act = find(hi > lo);
+        da = numel(act);
+        K = (ng - 1) * 2^opts.GridMaxRefine;            % lattice: t = k / K
+        s0 = 2^opts.GridMaxRefine;
+        vals = containers.Map('KeyType', 'char', 'ValueType', 'double');
+        okv = containers.Map('KeyType', 'char', 'ValueType', 'logical');
+        nPts = 0;
+        ce = struct('certified', false, 'lowerBound', NaN, 'L', zeros(1, d), 'maxSlope', zeros(1, d), ...
+            'factor', opts.LipschitzFactor, 'nCells', 0, 'nPoints', 0, 'finestStep', NaN, 'reason', '');
+        if da == 0
+            f = S.margin(1);
+            ce.certified = strcmp(S.status{1}, 'OK') && f >= opts.Reserve;
+            ce.lowerBound = f; ce.nPoints = 0; ce.finestStep = 0;
+            ce.reason = 'degenerate box (a single point)';
+            return
+        end
+        base = 0:s0:K;
+        G = cell(1, da);
+        [G{:}] = ndgrid(base(1:end - 1));
+        C = [cell2mat(cellfun(@(g) g(:), G, 'UniformOutput', false)), s0 * ones(numel(G{1}), 1)];
+        V = dec2bin(0:2^da - 1, da) - '0';               % vertex offsets of a cell
+        V = fliplr(V);
+        for ic = 1:size(C, 1), cellVals(C(ic, :)); end
+        % local refinement around the minimum
+        for lev = 1:opts.GridLocalLevels
+            kb = bestVertex();
+            near = all(C(:, 1:da) <= kb & C(:, 1:da) + C(:, end) >= kb, 2) & C(:, end) > 1;
+            if ~any(near), break; end
+            C = refine(C, near);
+        end
+        % Lipschitz certification
+        maxS = zeros(1, da);
+        why = '';
+        while true
+            [~, sl, ~, viol, nonok] = bounds(C);
+            maxS = max(maxS, sl);
+            Lc = opts.LipschitzFactor * maxS;           % the Lipschitz estimate: safety factor x measured slopes
+            [LB, ~, bad] = bounds(C, Lc);
+            if viol
+                why = 'a grid point violates the reserve (a counterexample)'; break
+            end
+            if nonok
+                why = 'a grid point is not OK'; break
+            end
+            if ~any(bad)
+                ce.certified = true;
+                why = sprintf('every cell certified: lower bound %.6g >= reserve %g', min(LB), opts.Reserve);
+                break
+            end
+            canRef = bad & C(:, end) > 1;
+            if ~any(canRef)
+                why = sprintf(['the finest spacing (1/%d of the box) is reached with %d uncertified cell(s); ' ...
+                    'lower bound %.6g < reserve %g'], K, sum(bad), min(LB), opts.Reserve);
+                break
+            end
+            need = sum(canRef) * (3^da - 2^da);
+            if nPts + need > opts.GridBudget
+                why = sprintf(['the grid budget (%d points) would be exceeded; %d uncertified cell(s), lower ' ...
+                    'bound %.6g < reserve %g'], opts.GridBudget, sum(bad), min(LB), opts.Reserve);
+                break
+            end
+            C = refine(C, canRef);
+        end
+        [LB, ~, ~] = bounds(C, Lc);
+        ce.lowerBound = min(LB);
+        ce.maxSlope(act) = maxS;
+        ce.L(act) = Lc;
+        ce.nCells = size(C, 1);
+        ce.nPoints = nPts;
+        ce.finestStep = min(C(:, end)) / K;
+        ce.reason = sprintf('%s (%d cells, %d lattice points, finest step %.4g of the box)', why, ce.nCells, ...
+            nPts, ce.finestStep);
+
+        function C2 = refine(C1, sel)
+            kids = zeros(0, da + 1);
+            for jc = find(sel(:)).'
+                h2 = C1(jc, end) / 2;
+                for jv = 1:size(V, 1)
+                    kids(end+1, :) = [C1(jc, 1:da) + h2 * V(jv, :), h2]; %#ok<AGROW>
+                end
+            end
+            C2 = [C1(~sel, :); kids];
+            for jc = 1:size(kids, 1), cellVals(kids(jc, :)); end
+        end
+
+        function m = cellVals(cl)
+            m = zeros(size(V, 1), 1);
+            for jv = 1:size(V, 1)
+                m(jv) = latticeValue(cl(1:da) + cl(end) * V(jv, :));
+            end
+        end
+
+        function [f, ok] = latticeValue(kk)
+            key = sprintf('%d,', kk);
+            if isKey(vals, key)
+                f = vals(key); ok = okv(key); return
+            end
+            th = lo;
+            t = kk / K;
+            th(act) = lo(act) + (hi(act) - lo(act)) .* t;
+            th(act(kk == K)) = hi(act(kk == K));
+            th = min(max(th, lo), hi);
+            [f, ok] = evalPoint(th, 'grid');
+            nPts = nPts + 1;
+            vals(key) = f; okv(key) = ok;
+        end
+
+        function kb = bestVertex()
+            ks = keys(vals);
+            fv = cellfun(@(k) vals(k), ks);
+            fv(isnan(fv)) = Inf;
+            [~, jb] = min(fv);
+            kb = sscanf(ks{jb}, '%d,').';
+        end
+
+        function [LB, sl, bad, viol, nonok] = bounds(C1, Ls)
+            nc = size(C1, 1);
+            LB = NaN(nc, 1); sl = zeros(1, da); viol = false; nonok = false;
+            for jc = 1:nc
+                m = cellVals(C1(jc, :));
+                ok = arrayfun(@(jv) okv(sprintf('%d,', C1(jc, 1:da) + C1(jc, end) * V(jv, :))), 1:size(V, 1));
+                if any(m < opts.Reserve), viol = true; end
+                if ~all(ok), nonok = true; continue; end
+                dt = C1(jc, end) / K;
+                for ia = 1:da                            % edges along axis ia
+                    lowv = find(V(:, ia) == 0);
+                    for jv = lowv(:).'
+                        jw = find(all(V == [V(jv, 1:ia - 1), 1, V(jv, ia + 1:end)], 2));
+                        if isfinite(m(jv)) && isfinite(m(jw))
+                            sl(ia) = max(sl(ia), abs(m(jw) - m(jv)) / dt);
+                        end
+                    end
+                end
+                if nargin > 1 && all(isfinite(m))
+                    LB(jc) = min(m) - sum(Ls * dt / 2);
+                elseif any(m == -Inf)
+                    LB(jc) = -Inf;
+                end
+            end
+            bad = isnan(LB) | LB < opts.Reserve;
+        end
     end
 
     function o = runStart(x0, s)
@@ -389,6 +746,28 @@ bw = orderfields(bw);
 end
 
 % =========================================================================================
+function validateOptions(o)
+if ~any(strcmp(o.Method, {'sqp', 'hybrid', 'grid'}))
+    error('vital:badInput', 'Method must be ''sqp'', ''hybrid'' or ''grid'' (got ''%s'').', o.Method);
+end
+isInt = @(v, m) isfinite(v) && v >= m && v == round(v);
+if ~isInt(o.GridPoints, 2) || ~isInt(o.GridMaxRefine, 0) || ~isInt(o.GridLocalLevels, 0) || ~isInt(o.GridBudget, 1)
+    error('vital:badInput', 'GridPoints must be an integer >= 2; GridMaxRefine, GridLocalLevels >= 0; GridBudget >= 1.');
+end
+if ~(isfinite(o.LipschitzFactor) && o.LipschitzFactor >= 1)
+    error('vital:badInput', 'LipschitzFactor must be >= 1 (a safety factor on the measured slopes).');
+end
+if ~(o.DEPopulation == 0 || isInt(o.DEPopulation, 4)) || ~isInt(o.DEGenerations, 0)
+    error('vital:badInput', 'DEPopulation must be 0 (no global stage) or an integer >= 4; DEGenerations >= 0.');
+end
+if ~(o.DEF > 0 && o.DEF <= 2) || ~(o.DECR >= 0 && o.DECR <= 1)
+    error('vital:badInput', 'DEF must lie in (0, 2] and DECR in [0, 1].');
+end
+if ~(o.TolX > 0 && o.TolFun > 0)
+    error('vital:badInput', 'TolX and TolFun must be > 0.');
+end
+end
+
 function P = validateProblem(P)
 need = {'names', 'lo', 'hi', 'nominal', 'conditions', 'condLabels', 'pointFcn'};
 for k = 1:numel(need)

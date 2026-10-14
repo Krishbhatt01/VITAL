@@ -45,6 +45,25 @@ classdef F16Evaluator < handle
     %         is kept in the cached point summary.
     %   lbl = vital.uq.F16Evaluator.condLabel(c)   'h_ft=13000 mach=0.45 cg_pct_mac=30'
     %   Counters: nPointEvals (single-point assessments run), nCacheHits, nAssess.
+    %
+    %   BREAKPOINT BRACKETING (M8 amendment R4b, R4-7; option 'Bracket', default
+    %   true): a point whose linearization is NOT_CONVERGED with its trim alpha
+    %   or elevator within 0.01 deg of a NESC aero-table breakpoint is evaluated
+    %   at theta x (1 -/+ d) (vital.uq.bracket: d = 1e-3 up to 1e-2). If the two
+    %   sides trim on opposite sides of the breakpoint and both are OK, the
+    %   point's summary is the WORSE of the two (vital.uq.F16Evaluator.worseOf),
+    %   status 'OK', S.bracket.label 'BRACKETED', and the point is listed in
+    %   E.bracketed with both sides' group margins. Otherwise the point stays
+    %   exactly as it was. Physical failures (trim INFEASIBLE / NOT_CONVERGED,
+    %   DIVERGENT, non-classical modes) are never bracketed. Every summary has
+    %   S.alpha_deg, S.de_deg (the trim; NaN without a trim) and S.bracket (the
+    %   vital.uq.bracket result, or [] when the point is not a linearization
+    %   failure). The fresh assessment E.assessAt is NOT bracketed.
+    %   S = vital.uq.F16Evaluator.worseOf(SA, SB)  per group: pointClass OK only
+    %   if both are OK (else the first non-OK side's entry), level = max,
+    %   marginTo = min per Level (NaN if either is NaN), recordTo of the worse
+    %   side; spiralRe = max (NaN if either is NaN).
+    %   nPointEvals counts every single-point assessment, the sides included.
     %   Errors: vital:badInput (unknown AeroScale field, theta of the wrong size,
     %   unknown group).
 
@@ -56,10 +75,14 @@ classdef F16Evaluator < handle
         nPointEvals = 0
         nCacheHits = 0
         nAssess = 0
+        bracketOn = true
+        bracketed = struct('label', {}, 'theta', {}, 'cond', {}, 'variable', {}, 'breakpoint', {}, 'd', {}, ...
+            'alpha_deg', {}, 'de_deg', {}, 'sides', {}, 'reason', {})
     end
 
     properties (Access = private)
         cache
+        raw
     end
 
     methods
@@ -69,6 +92,7 @@ classdef F16Evaluator < handle
                 opts.Rules struct = struct([])
                 opts.Conditions struct = struct([])
                 opts.Controller = 'augmented'
+                opts.Bracket (1,1) logical = true
             end
             allowed = fieldnames(vital.aircraft.f16.config().aeroScale);
             if isempty(fields) || ~iscellstr(fields) || ~all(ismember(fields, allowed)) || numel(unique(fields)) < numel(fields)
@@ -87,6 +111,8 @@ classdef F16Evaluator < handle
             end
             E.builder = b;
             E.cache = containers.Map('KeyType', 'char', 'ValueType', 'any');
+            E.raw = containers.Map('KeyType', 'char', 'ValueType', 'any');
+            E.bracketOn = opts.Bracket;
         end
 
         function fac = factory(E, theta)
@@ -100,6 +126,34 @@ classdef F16Evaluator < handle
                 S = E.cache(k);
                 return
             end
+            S = E.rawSummary(theta, c);
+            S.bracket = [];
+            if E.bracketOn && strcmp(S.status, 'NOT_CONVERGED') && strcmp(S.stage, 'linearize')
+                b = vital.uq.bracket(S, theta, @(t) E.rawSummary(t, c));
+                S.bracket = rmfield(b, 'sides');
+                S.bracket.sides = arrayfun(@(x) rmfield(x, 'point'), b.sides);
+                if strcmp(b.status, 'BRACKETED')
+                    SA = b.sides(1).point; SB = b.sides(2).point;
+                    W = vital.uq.F16Evaluator.worseOf(SA, SB);
+                    S.status = 'OK'; S.stage = 'done'; S.reason = b.reason;
+                    S.spiralRe = W.spiralRe; S.groups = W.groups;
+                    sd = struct('factor', {b.sides.factor}, 'theta', {b.sides.theta}, 'alpha_deg', {b.sides.alpha_deg}, ...
+                        'de_deg', {b.sides.de_deg}, 'groups', {E.lightGroups(SA), E.lightGroups(SB)});
+                    E.bracketed(end+1) = struct('label', 'BRACKETED', 'theta', theta, ...
+                        'cond', vital.uq.F16Evaluator.condLabel(c), 'variable', b.variable, 'breakpoint', b.breakpoint, ...
+                        'd', b.d, 'alpha_deg', S.alpha_deg, 'de_deg', S.de_deg, 'sides', sd, 'reason', b.reason);
+                end
+            end
+            E.cache(k) = S;
+        end
+
+        function S = rawSummary(E, theta, c)
+            % one single-point assessment, never bracketed (cached separately)
+            k = E.key(theta, c);
+            if isKey(E.raw, k)
+                S = E.raw(k);
+                return
+            end
             C1 = E.conditions;
             for a = 1:numel(C1.axes)
                 C1.axes(a).values = c.(C1.axes(a).name);
@@ -109,6 +163,11 @@ classdef F16Evaluator < handle
             p = res.points(1);
             S.status = p.status; S.stage = p.stage; S.reason = p.reason;
             S.cond = p.cond;
+            S.alpha_deg = NaN; S.de_deg = NaN;
+            if isfield(p, 'info') && isstruct(p.info)
+                if isfield(p.info, 'alpha_deg'), S.alpha_deg = p.info.alpha_deg; end
+                if isfield(p.info, 'de_deg'), S.de_deg = p.info.de_deg; end
+            end
             S.spiralRe = vital.uq.F16Evaluator.spiralRe(p);
             G = res.groups;
             S.groups = struct('group', {}, 'pointClass', {}, 'why', {}, 'level', {}, 'marginTo', {}, 'recordTo', {});
@@ -132,7 +191,7 @@ classdef F16Evaluator < handle
                 end
                 S.groups(end+1) = e;
             end
-            E.cache(k) = S;
+            E.raw(k) = S;
         end
 
         function q = groupMargin(E, theta, c, group, L)
@@ -156,6 +215,8 @@ classdef F16Evaluator < handle
             if isnan(q.margin)
                 q.status = 'NO_RECORD';
                 q.reason = sprintf('group %s has no rated Level-%d record at the point', group, L);
+            elseif isstruct(S.bracket) && strcmp(S.bracket.status, 'BRACKETED')
+                q.reason = S.reason;                 % R4-7: an OK point labelled BRACKETED
             end
         end
 
@@ -188,6 +249,12 @@ classdef F16Evaluator < handle
     end
 
     methods (Access = private)
+        function G = lightGroups(~, S)
+            % per group of a side summary: pointClass, level, marginTo, recordTo (both
+            % values of a bracketed point are reported)
+            G = rmfield(S.groups, 'why');
+        end
+
         function k = key(E, theta, c)
             f = fieldnames(c);
             k = [sprintf('%.17g|', theta), '#', ...
@@ -273,6 +340,46 @@ classdef F16Evaluator < handle
                 md = p.info.modes;
                 k = strcmp({md.name}, 'spiral');
                 if sum(k) == 1, re = md(k).re; end
+            end
+        end
+
+        function S = worseOf(SA, SB)
+            % R4-7: the summary of a bracketed point = the WORSE of its two sides
+            S = SA;
+            S.status = 'OK';
+            for g = 1:numel(SA.groups)
+                a = SA.groups(g);
+                b = SB.groups(strcmp({SB.groups.group}, a.group));
+                if isempty(b)
+                    error('vital:badInput', 'group "%s" missing on one side.', a.group);
+                end
+                if ~strcmp(a.pointClass, 'OK')
+                    S.groups(g) = a;
+                    continue
+                end
+                if ~strcmp(b.pointClass, 'OK')
+                    S.groups(g) = b;
+                    continue
+                end
+                e = a;
+                e.level = max(a.level, b.level);
+                for L = 1:3
+                    ma = a.marginTo(L); mb = b.marginTo(L);
+                    if isnan(ma) || isnan(mb)
+                        e.marginTo(L) = NaN;
+                        if isnan(ma), e.recordTo{L} = a.recordTo{L}; else, e.recordTo{L} = b.recordTo{L}; end
+                    elseif mb < ma
+                        e.marginTo(L) = mb; e.recordTo{L} = b.recordTo{L};
+                    else
+                        e.marginTo(L) = ma; e.recordTo{L} = a.recordTo{L};
+                    end
+                end
+                S.groups(g) = e;
+            end
+            if isnan(SA.spiralRe) || isnan(SB.spiralRe)
+                S.spiralRe = NaN;
+            else
+                S.spiralRe = max(SA.spiralRe, SB.spiralRe);
             end
         end
 
