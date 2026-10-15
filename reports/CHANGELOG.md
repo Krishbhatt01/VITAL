@@ -471,3 +471,31 @@ Rough, single uncontended MATLAB, about 0.4-0.7 s per closed-loop single-point e
 - **Stage 2:** only groups whose bracket overlaps [0.8, 1.2] or are FC-901, at the full budget (about 40-60 min each); likely 0-4 groups: 0-4 h.
 - **Monte Carlo:** 200 x about 19 groups, at the critical conditions: under 1 h.
 - **Total:** about 10-20 h, dominated by the lattice. The longitudinal groups whose alpha* lies inside the cap will mostly end NOT_ASSESSABLE ('GRID'), with a bracket and, as for 3.2.2.1.1-CatA, possibly a confirmed CPV (then NOT_ROBUST). Resolving them to 0.01 would need either a larger LatticeMaxPoints (about 10k-20k per group, from the toys, i.e. hours more per group) or the geometric certificate (h/2), which is a coordinator decision.
+
+## Axis-check figures: right-handed display and explanations (2026-10-14, coordinator; user request)
+- **Finding (user):** in 04_combined, with North into the screen and Up up, East appeared on the left.
+  - Cause: the drawing map (forward, right, down) -> plot (x, y, -z) is diag(1, 1, -1), i.e. North-East-Up, which is LEFT-handed (det -1).
+  - 10 of the 13 figures were mirror images: yaw, pitch, roll, combined, level, climb, sideslip, gravity, control, path.
+  - cg, station and earth were drawn correctly.
+  - The 58 numeric checks were unaffected, because they are computed before drawing.
+- **Independent verification of the frames themselves** (scratch script, not in the tree), all agree:
+  - VITAL vs Aerospace Toolbox over 2,000 random attitudes:
+    - dcm321 exact;
+    - eul2quat equal up to the q / -q sign;
+    - quat2dcm 7.8e-16;
+    - dcm2eul 3.3e-15.
+  - Through the plant:
+    - +q gives +5 deg/s pitch rate;
+    - +p gives +5 deg/s bank rate (right wing down);
+    - heading 090 moves East at 172.4 m/s.
+- **Fix:**
+  - New `vital.viz.displayMap` (M = [0 1 0; 1 0 0; 0 0 -1], det +1: x = East / right, y = North / nose, z = Up), used by every 3-D figure. Labels updated.
+  - The two side views now say which wing they are seen from.
+  - New `vital.viz.axisNotes`: a per-case explanation and a per-check meaning, shown on each figure (an explanation panel plus a meaning line under each check).
+  - `run_axis_checks` writes `reports/axis_checks/README.md`. The console output is unchanged.
+- **Red-green:**
+  - New `tests/M5/tAxisChecksDisplay.m`: 5 tests, pre-registered.
+  - RED (`reports/work/axisdisplay/M5_red_axisdisplay.txt`): 5 RED_EXPECTED, 0 regressions.
+  - New sabotages S5AX-5 (restore the mirrored map) and S5AX-6 (drop the meanings) in `tests/M5/sabotages_axisdisplay.json`.
+  - New failure-catalogue row FC-519.
+  - The 13 figures were redrawn and inspected.
