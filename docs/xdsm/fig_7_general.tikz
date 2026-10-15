@@ -1,0 +1,343 @@
+
+%%% Preamble Requirements %%%
+% \usepackage{geometry}
+% \usepackage{amsfonts}
+% \usepackage{amsmath}
+% \usepackage{amssymb}
+% \usepackage{tikz}
+
+% Optional packages such as sfmath set through python interface
+% \usepackage{}
+
+% \usetikzlibrary{arrows,chains,positioning,scopes,shapes.geometric,shapes.misc,shadows}
+
+%%% End Preamble Requirements %%%
+
+\input{"C:/Users/krish/AppData/Local/Programs/Python/Python310/lib/site-packages/pyxdsm/diagram_styles"}
+\begin{tikzpicture}
+
+\matrix[MatrixSetup]{
+%Row 0
+\node [DataIO] (output_def) {$\begin{array}{c}\text{geometry, mass, aero and} \\ \text{propulsion data}\end{array}$};&
+&
+&
+\node [DataIO] (output_trim) {$\begin{array}{c}\text{mission conditions: V, h, config, CG} \\ \text{+ off-nominal cases: engine out [planned]}\end{array}$};&
+&
+\node [DataIO] (output_sim) {$\begin{array}{c}\text{pilot input,} \\ \text{flight controller}\end{array}$};&
+\node [DataIO] (output_rules) {$\begin{array}{c}\text{certification criteria,} \\ \text{traceable to source}\end{array}$};&
+&
+\node [DataIO] (output_fb) {$\begin{array}{c}\text{targets, gain /} \\ \text{design bounds}\end{array}$};&
+\node [DataIO] (output_unc) {$\begin{array}{c}\text{uncertainty model} \\ \text{(labelled judgment)}\end{array}$};&
+&
+\node [DataIO] (output_ver) {$\begin{array}{c}\text{tests, planted bugs,} \\ \text{reference data}\end{array}$};&
+&
+\\
+%Row 1
+\node [Function] (def) {$\begin{array}{c}\text{1: Aircraft definition} \\ \text{any aircraft: data in, not code}\end{array}$};&
+\node [DataInter] (def-build) {$\text{aircraft data}$};&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+\\
+%Row 2
+&
+\node [Function] (build) {$\begin{array}{c}\text{2: Model builder} \\ \text{compiles data into the aircraft struct AC}\end{array}$};&
+\node [DataInter] (build-plant) {$\text{AC: mass, inertia, loads}$};&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+\\
+%Row 3
+&
+&
+\node [Function] (plant) {$\begin{array}{c}\text{3: Plant: state, controls in; xdot out} \\ \text{one model feeds every analysis}\end{array}$};&
+\node [DataInter] (plant-trim) {$\text{accelerations}$};&
+\node [DataInter] (plant-lin) {$\text{xdot}$};&
+\node [DataInter] (plant-sim) {$\text{xdot, y}$};&
+&
+&
+&
+&
+&
+&
+&
+\\
+%Row 4
+&
+&
+\node [DataInter] (trim-plant) {$\text{guess of states, controls}$};&
+\node [MDA] (trim) {$\begin{array}{c}\text{4: Trim} \\ \text{solver; optimizer for redundant controls [planned]}\end{array}$};&
+\node [DataInter] (trim-lin) {$\begin{array}{c}\text{trim point} \\ \text{(only if OK)}\end{array}$};&
+\node [DataInter] (trim-sim) {$\text{start state}$};&
+&
+&
+&
+&
+&
+&
+&
+\node [DataIO] (right_output_trim) {$\begin{array}{c}\text{x*, u*} \\ \text{steady flight}\end{array}$};\\
+%Row 5
+&
+&
+\node [DataInter] (lin-plant) {$\text{perturbed x, u}$};&
+&
+\node [Function] (lin) {$\begin{array}{c}\text{5: Linearize + modes} \\ \text{natural motions: frequency, damping}\end{array}$};&
+&
+&
+\node [DataInter] (lin-crit) {$\text{modes, metrics}$};&
+&
+&
+&
+&
+&
+\node [DataIO] (right_output_lin) {$\begin{array}{c}\text{modes} \\ \text{}\end{array}$};\\
+%Row 6
+&
+&
+\node [DataInter] (sim-plant) {$\text{x(t), u(t)}$};&
+&
+&
+\node [MDA] (sim) {$\begin{array}{c}\text{6: Time simulation} \\ \text{with flight controller; hardware-in-loop [planned]}\end{array}$};&
+&
+\node [DataInter] (sim-crit) {$\text{time histories}$};&
+&
+&
+&
+&
+&
+\\
+%Row 7
+&
+&
+&
+&
+&
+&
+\node [Function] (rules) {$\begin{array}{c}\text{7: Rule sets (data records)} \\ \text{MIL-F-8785C now; FAA, eVTOL [planned]}\end{array}$};&
+\node [DataInter] (rules-crit) {$\text{criteria records}$};&
+&
+&
+&
+&
+&
+\\
+%Row 8
+&
+&
+&
+&
+&
+&
+&
+\node [Function] (crit) {$\begin{array}{c}\text{8: Criteria engine} \\ \text{metrics, margin, Level / pass-fail, critical case}\end{array}$};&
+\node [DataInter] (crit-fb) {$\begin{array}{c}\text{margins,} \\ \text{critical cases}\end{array}$};&
+\node [DataInter] (crit-unc) {$\begin{array}{c}\text{rules, nominal} \\ \text{margins}\end{array}$};&
+\node [DataInter] (crit-rep) {$\text{pass / fail, margin}$};&
+\node [DataInter] (crit-ver) {$\text{results to check}$};&
+&
+\node [DataIO] (right_output_crit) {$\begin{array}{c}\text{Level / pass-fail,} \\ \text{margin}\end{array}$};\\
+%Row 9
+&
+\node [DataInter] (fb-build) {$\begin{array}{c}\text{modified gains /} \\ \text{design}\end{array}$};&
+&
+&
+&
+&
+&
+&
+\node [MDA] (fb) {$\begin{array}{c}\text{9: Design feedback} \\ \text{suggested gains, confirmed by re-check}\end{array}$};&
+&
+\node [DataInter] (fb-rep) {$\text{suggested changes}$};&
+&
+&
+\node [DataIO] (right_output_fb) {$\begin{array}{c}\text{confirmed gains} \\ \text{}\end{array}$};\\
+%Row 10
+&
+\node [DataInter] (unc-build) {$\begin{array}{c}\text{perturbed} \\ \text{aircraft}\end{array}$};&
+&
+&
+&
+&
+&
+&
+&
+\node [MDA] (unc) {$\begin{array}{c}\text{10: Uncertainty + robustness} \\ \text{worst case, CSR, Monte Carlo}\end{array}$};&
+\node [DataInter] (unc-rep) {$\text{robustness}$};&
+&
+&
+\node [DataIO] (right_output_unc) {$\begin{array}{c}\text{ROBUST /} \\ \text{NOT ROBUST}\end{array}$};\\
+%Row 11
+&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+\node [Function] (rep) {$\begin{array}{c}\text{11: Report to the designer} \\ \text{what passes, what fails, by how much, where}\end{array}$};&
+&
+&
+\node [DataIO] (right_output_rep) {$\begin{array}{c}\text{feedback to} \\ \text{designer / OEM}\end{array}$};\\
+%Row 12
+&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+\node [MDA] (ver) {$\begin{array}{c}\text{12: Verification (referee)} \\ \text{tests first, planted bugs, independent review}\end{array}$};&
+&
+\node [DataIO] (right_output_ver) {$\begin{array}{c}\text{gateOK, DETECTED} \\ \text{or NOT DETECTED}\end{array}$};\\
+%Row 13
+&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+&
+\\
+};
+
+% XDSM process chains
+{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (def);
+\chainin (build) [join=by ProcessHVA];
+\chainin (plant) [join=by ProcessHVA];
+\chainin (trim) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (trim);
+\chainin (plant) [join=by ProcessHVA];
+\chainin (trim) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (trim);
+\chainin (lin) [join=by ProcessHVA];
+\chainin (plant) [join=by ProcessHVA];
+\chainin (lin) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (lin);
+\chainin (sim) [join=by ProcessHVA];
+\chainin (plant) [join=by ProcessHVA];
+\chainin (sim) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (sim);
+\chainin (crit) [join=by ProcessHVA];
+\chainin (fb) [join=by ProcessHVA];
+\chainin (build) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (crit);
+\chainin (unc) [join=by ProcessHVA];
+\chainin (build) [join=by ProcessHVA];
+\end{pgfonlayer}
+}{ [start chain=process]
+ \begin{pgfonlayer}{process} 
+\chainin (crit);
+\chainin (rep) [join=by ProcessHVA];
+\chainin (ver) [join=by ProcessHVA];
+\end{pgfonlayer}
+}
+
+\begin{pgfonlayer}{data}
+\path
+% Horizontal edges
+(def) edge [DataLine] (def-build)
+(build) edge [DataLine] (build-plant)
+(plant) edge [DataLine] (plant-trim)
+(trim) edge [DataLine] (trim-plant)
+(trim) edge [DataLine] (trim-lin)
+(plant) edge [DataLine] (plant-lin)
+(lin) edge [DataLine] (lin-plant)
+(trim) edge [DataLine] (trim-sim)
+(plant) edge [DataLine] (plant-sim)
+(sim) edge [DataLine] (sim-plant)
+(lin) edge [DataLine] (lin-crit)
+(sim) edge [DataLine] (sim-crit)
+(rules) edge [DataLine] (rules-crit)
+(crit) edge [DataLine] (crit-fb)
+(fb) edge [DataLine] (fb-build)
+(crit) edge [DataLine] (crit-unc)
+(unc) edge [DataLine] (unc-build)
+(crit) edge [DataLine] (crit-rep)
+(fb) edge [DataLine] (fb-rep)
+(unc) edge [DataLine] (unc-rep)
+(crit) edge [DataLine] (crit-ver)
+(trim) edge [DataLine] (right_output_trim)
+(lin) edge [DataLine] (right_output_lin)
+(crit) edge [DataLine] (right_output_crit)
+(fb) edge [DataLine] (right_output_fb)
+(unc) edge [DataLine] (right_output_unc)
+(rep) edge [DataLine] (right_output_rep)
+(ver) edge [DataLine] (right_output_ver)
+% Vertical edges
+(def-build) edge [DataLine] (build)
+(build-plant) edge [DataLine] (plant)
+(plant-trim) edge [DataLine] (trim)
+(trim-plant) edge [DataLine] (plant)
+(trim-lin) edge [DataLine] (lin)
+(plant-lin) edge [DataLine] (lin)
+(lin-plant) edge [DataLine] (plant)
+(trim-sim) edge [DataLine] (sim)
+(plant-sim) edge [DataLine] (sim)
+(sim-plant) edge [DataLine] (plant)
+(lin-crit) edge [DataLine] (crit)
+(sim-crit) edge [DataLine] (crit)
+(rules-crit) edge [DataLine] (crit)
+(crit-fb) edge [DataLine] (fb)
+(fb-build) edge [DataLine] (build)
+(crit-unc) edge [DataLine] (unc)
+(unc-build) edge [DataLine] (build)
+(crit-rep) edge [DataLine] (rep)
+(fb-rep) edge [DataLine] (rep)
+(unc-rep) edge [DataLine] (rep)
+(crit-ver) edge [DataLine] (ver)
+(def) edge [DataLine] (output_def)
+(trim) edge [DataLine] (output_trim)
+(sim) edge [DataLine] (output_sim)
+(rules) edge [DataLine] (output_rules)
+(fb) edge [DataLine] (output_fb)
+(unc) edge [DataLine] (output_unc)
+(ver) edge [DataLine] (output_ver);
+\end{pgfonlayer}
+
+\end{tikzpicture}

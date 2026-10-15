@@ -119,7 +119,7 @@ The **M** stands for **milestone**. Each milestone is one layer. A layer is only
 
 ![full system](xdsm/fig_6_full_system.png)
 
-This is the complete framework, M0 to M7, in one diagram. It is wide (about 7,600 pixels); open `docs/xdsm/fig_6_full_system.pdf`, which is vector and zooms without blurring. Figure 0 is the simplified version; Figures 1 to 5 zoom into one part each.
+This is the complete framework, M0 to M8 (M8 still under review), in one diagram. It is specific to the NASA F-16 and the NESC check cases. For the general, aircraft-agnostic layout, see Figure 7 below. It is wide (about 7,600 pixels); open `docs/xdsm/fig_6_full_system.pdf`, which is vector and zooms without blurring. Figure 0 is the simplified version; Figures 1 to 5 zoom into one part each.
 
 | Box | What it is | Milestone | Files |
 |---|---|---|---|
@@ -140,6 +140,29 @@ This is the complete framework, M0 to M7, in one diagram. It is wide (about 7,60
 | 15 | MIL-F-8785C grading | M6 | `+fq` |
 | 16 | stability augmentation and design feedback | M7 | `+ctrl` |
 | 17 | runs the tests and plants the bugs | M0 | `run_vital_tests`, `run_sabotage` |
+
+### The general layout: Figure 7
+
+![general layout](xdsm/fig_7_general.png)
+
+This is the layout of the framework for **any aircraft and any rule set**, not tied to the F-16. Open `docs/xdsm/fig_7_general.pdf` to zoom. Everything that is aircraft-specific enters as **data** at the top (the aircraft definition, the mission conditions, the certification criteria); the boxes themselves do not change.
+
+| Box | What it is | Status |
+|---|---|---|
+| 1 | aircraft definition: geometry, mass, aero and propulsion data | built (NASA DAVE-ML for the F-16) |
+| 2 | model builder: compiles the data into the aircraft struct AC | built |
+| 3 | the plant: one model feeds every analysis | built |
+| 4 | trim (a solver; an optimizer once an aircraft has more controls than equations) | solver built; optimizer trim planned |
+| 5 | linearization and flight modes | built |
+| 6 | time simulation, with a flight controller | built; hardware-in-the-loop planned |
+| 7 | rule sets as data records | MIL-F-8785C built; FAA and eVTOL criteria planned |
+| 8 | criteria engine: metrics, margin, Level or pass/fail, critical case | built |
+| 9 | design feedback: suggested gains, confirmed by re-check | built (gains); design changes planned |
+| 10 | uncertainty and robustness | built, under review (M8) |
+| 11 | report to the designer: what passes, what fails, by how much, and where | built as reports; a unified report is planned |
+| 12 | verification: tests first, planted bugs, independent review | built |
+
+Off-nominal cases (engine or propulsor out) enter at the trim box as extra scenarios; they are planned, not built.
 
 How to find the story in it:
 

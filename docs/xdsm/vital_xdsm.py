@@ -1,6 +1,6 @@
-"""pyXDSM diagrams of the VITAL framework, milestones M0 to M5.
+"""pyXDSM diagrams of the VITAL framework, milestones M0 to M8.
 
-Renders six linked XDSM figures.  Read them in order:
+Renders eight linked XDSM figures.  Read them in order:
 
     fig_0_overview       everything from NASA's files to the check against NASA
     fig_1_data_path      M2: NASA's DAVE-ML files become MATLAB functions
@@ -8,7 +8,9 @@ Renders six linked XDSM figures.  Read them in order:
     fig_3_analyses       M4 + M5-A/B/X: trim, linearize, modes, simulate
     fig_4_nesc           M5-C: NASA's recorded flights over a rotating Earth
     fig_5_test_machinery M0: how the tests prove themselves
-    fig_6_full_system    ALL of it on one page: M0 to M5, plus M6
+    fig_6_full_system    ALL of it on one page: M0 to M8 (F-16 / NESC specific)
+    fig_7_general        the GENERAL, aircraft-agnostic layout of the framework
+                         (any aircraft, any rule set; planned parts are tagged)
 
 How to read an XDSM (Lambe and Martins, 2012):
   * Each box is a computation (a function or a solver).  The number in the
@@ -313,7 +315,7 @@ def fig_test_machinery():
 
 
 # --------------------------------------------------------------------------
-# Figure 6 - the FULL system on one page: M0 to M7
+# Figure 6 - the FULL system on one page: M0 to M8 (F-16 / NESC specific)
 # --------------------------------------------------------------------------
 def fig_full_system():
     XDSM, SOLVER, FUNC, IFUNC, RIGHT = _api()
@@ -335,7 +337,8 @@ def fig_full_system():
     x.add_system("cmp", FUNC, (tx("14: Compare with NASA (M5-C)"), tt("+nesc/compare, envelopeCheck")))
     x.add_system("fq", FUNC, (tx("15: MIL-F-8785C grading (M6)"), tt("+fq/assess")))
     x.add_system("ctrl", SOLVER, (tx("16: SAS + design feedback (M7)"), tt("+ctrl: pitchSas yawDamper suggestGains")))
-    x.add_system("test", SOLVER, (tx("17: Tests and sabotage (M0)"), tt("run_vital_tests, run_sabotage")))
+    x.add_system("uq", SOLVER, (tx("17: Uncertainty + robustness (M8, in review)"), tt("+uq: csr lattice boundWorst")))
+    x.add_system("test", SOLVER, (tx("18: Tests and sabotage (M0)"), tt("run_vital_tests, run_sabotage")))
 
     x.add_input("cfg", (tx("CG % MAC, gravity g,"), tx("aero multipliers")))
     x.add_input("trim", (tx("speed V, altitude h,"), tx("climb angle")))
@@ -343,7 +346,8 @@ def fig_full_system():
     x.add_input("nesc", (tx("case id 1 to 16,"), tt("NESC_CASE_MATRIX.json")))
     x.add_input("fq", (tx("condition grid,"), tx("95 rule records")))
     x.add_input("ctrl", (tx("gains Kq, Ka, Kr,"), tx("target Levels")))
-    x.add_input("test", (tx("tests/M0 to M7,"), tt("sabotages.json")))
+    x.add_input("uq", (tx("uncertainty widths"), tx("(judgment)")))
+    x.add_input("test", (tx("tests/M0 to M8,"), tt("sabotages.json")))
 
     x.connect("data", "read", tx(".dml files"))
     x.connect("read", "mod", tx("generated MATLAB code"))
@@ -386,6 +390,10 @@ def fig_full_system():
     x.connect("ctrl", "lin", (tx("controller in"), tx("the loop")))
     x.connect("ctrl", "fq", tx("augmented aircraft"))
     x.connect("fq", "ctrl", (tx("Levels, margins,"), tx("critical points")))
+    x.connect("ctrl", "uq", tx("augmented aircraft"))
+    x.connect("fq", "uq", (tx("rules, in-envelope"), tx("margins")))
+    x.connect("uq", "fq", (tx("scaled aircraft"), tx("(AeroScale)")))
+    x.connect("uq", "test", (tx("CSR, verdicts,"), tx("worst case")))
     x.connect("fq", "test", tx("rule bounds"))
     x.connect("ctrl", "test", (tx("A + B K, Levels"), tx("confirmed by re-run")))
 
@@ -395,6 +403,7 @@ def fig_full_system():
     x.add_output("cmp", (tx("PASS / FAIL"), tx("per signal")), side=RIGHT)
     x.add_output("fq", (tx("Level and margin"), tx("per rule")), side=RIGHT)
     x.add_output("ctrl", (tx("suggested gains,"), tx("confirmed Levels")), side=RIGHT)
+    x.add_output("uq", (tx("CSR, ROBUST /"), tx("NOT ROBUST")), side=RIGHT)
     x.add_output("test", (tx("gateOK, DETECTED"), tx("or NOT DETECTED")), side=RIGHT)
 
     x.add_process(["data", "read", "mod", "cfg", "plant", "trim"], arrow=True)
@@ -404,6 +413,77 @@ def fig_full_system():
     x.add_process(["sim", "nesc", "rot", "sim", "nesc", "cmp"], arrow=True)
     x.add_process(["modes", "fq", "test"], arrow=True)
     x.add_process(["fq", "ctrl", "fq"], arrow=True)
+    x.add_process(["fq", "uq", "fq"], arrow=True)
+    return x
+
+
+# --------------------------------------------------------------------------
+# Figure 7 - the GENERAL layout: any aircraft, any rule set
+# --------------------------------------------------------------------------
+def fig_general():
+    """Aircraft-agnostic workflow of VITAL. Tags: nothing = built and verified
+    on the NASA F-16; [planned] = designed, not built yet."""
+    XDSM, SOLVER, FUNC, IFUNC, RIGHT = _api()
+    x = XDSM(use_sfmath=False)
+
+    x.add_system("def", FUNC, (tx("1: Aircraft definition"), tx("any aircraft: data in, not code")))
+    x.add_system("build", FUNC, (tx("2: Model builder"), tx("compiles data into the aircraft struct AC")))
+    x.add_system("plant", FUNC, (tx("3: Plant: state, controls in; xdot out"), tx("one model feeds every analysis")))
+    x.add_system("trim", SOLVER, (tx("4: Trim"), tx("solver; optimizer for redundant controls [planned]")))
+    x.add_system("lin", FUNC, (tx("5: Linearize + modes"), tx("natural motions: frequency, damping")))
+    x.add_system("sim", SOLVER, (tx("6: Time simulation"), tx("with flight controller; hardware-in-loop [planned]")))
+    x.add_system("rules", FUNC, (tx("7: Rule sets (data records)"), tx("MIL-F-8785C now; FAA, eVTOL [planned]")))
+    x.add_system("crit", FUNC, (tx("8: Criteria engine"), tx("metrics, margin, Level / pass-fail, critical case")))
+    x.add_system("fb", SOLVER, (tx("9: Design feedback"), tx("suggested gains, confirmed by re-check")))
+    x.add_system("unc", SOLVER, (tx("10: Uncertainty + robustness"), tx("worst case, CSR, Monte Carlo")))
+    x.add_system("rep", FUNC, (tx("11: Report to the designer"), tx("what passes, what fails, by how much, where")))
+    x.add_system("ver", SOLVER, (tx("12: Verification (referee)"), tx("tests first, planted bugs, independent review")))
+
+    x.add_input("def", (tx("geometry, mass, aero and"), tx("propulsion data")))
+    x.add_input("trim", (tx("mission conditions: V, h, config, CG"), tx("+ off-nominal cases: engine out [planned]")))
+    x.add_input("sim", (tx("pilot input,"), tx("flight controller")))
+    x.add_input("rules", (tx("certification criteria,"), tx("traceable to source")))
+    x.add_input("fb", (tx("targets, gain /"), tx("design bounds")))
+    x.add_input("unc", (tx("uncertainty model"), tx("(labelled judgment)")))
+    x.add_input("ver", (tx("tests, planted bugs,"), tx("reference data")))
+
+    x.connect("def", "build", tx("aircraft data"))
+    x.connect("build", "plant", tx("AC: mass, inertia, loads"))
+    x.connect("plant", "trim", tx("accelerations"))
+    x.connect("trim", "plant", tx("guess of states, controls"))
+    x.connect("trim", "lin", (tx("trim point"), tx("(only if OK)")))
+    x.connect("plant", "lin", tx("xdot"))
+    x.connect("lin", "plant", tx("perturbed x, u"))
+    x.connect("trim", "sim", tx("start state"))
+    x.connect("plant", "sim", tx("xdot, y"))
+    x.connect("sim", "plant", tx("x(t), u(t)"))
+    x.connect("lin", "crit", tx("modes, metrics"))
+    x.connect("sim", "crit", tx("time histories"))
+    x.connect("rules", "crit", tx("criteria records"))
+    x.connect("crit", "fb", (tx("margins,"), tx("critical cases")))
+    x.connect("fb", "build", (tx("modified gains /"), tx("design")))
+    x.connect("crit", "unc", (tx("rules, nominal"), tx("margins")))
+    x.connect("unc", "build", (tx("perturbed"), tx("aircraft")))
+    x.connect("crit", "rep", tx("pass / fail, margin"))
+    x.connect("fb", "rep", tx("suggested changes"))
+    x.connect("unc", "rep", tx("robustness"))
+    x.connect("crit", "ver", tx("results to check"))
+
+    x.add_output("trim", (tx("x*, u*"), tx("steady flight")), side=RIGHT)
+    x.add_output("lin", (tx("modes"), tx("")), side=RIGHT)
+    x.add_output("crit", (tx("Level / pass-fail,"), tx("margin")), side=RIGHT)
+    x.add_output("fb", (tx("confirmed gains"), tx("")), side=RIGHT)
+    x.add_output("unc", (tx("ROBUST /"), tx("NOT ROBUST")), side=RIGHT)
+    x.add_output("rep", (tx("feedback to"), tx("designer / OEM")), side=RIGHT)
+    x.add_output("ver", (tx("gateOK, DETECTED"), tx("or NOT DETECTED")), side=RIGHT)
+
+    x.add_process(["def", "build", "plant", "trim"], arrow=True)
+    x.add_process(["trim", "plant", "trim"], arrow=True)
+    x.add_process(["trim", "lin", "plant", "lin"], arrow=True)
+    x.add_process(["lin", "sim", "plant", "sim"], arrow=True)
+    x.add_process(["sim", "crit", "fb", "build"], arrow=True)
+    x.add_process(["crit", "unc", "build"], arrow=True)
+    x.add_process(["crit", "rep", "ver"], arrow=True)
     return x
 
 
@@ -415,6 +495,7 @@ DIAGRAMS = [
     ("fig_4_nesc", fig_nesc),
     ("fig_5_test_machinery", fig_test_machinery),
     ("fig_6_full_system", fig_full_system),
+    ("fig_7_general", fig_general),
 ]
 
 
