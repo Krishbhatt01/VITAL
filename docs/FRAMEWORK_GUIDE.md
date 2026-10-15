@@ -703,6 +703,8 @@ There are six planted bugs. Review R3 later found that two of those detections w
 
 Four planted bugs (`tests\M5\sabotages_axis.json`) prove the pictures' checks would turn red if the axes were wrong.
 
+**How the pictures are drawn, and what each one explains.** Every 3-D picture uses one right-handed display map (`vital.viz.displayMap`): x = East / right wing, y = North / nose, z = Up, so East always appears to the right of North. Until 2026-10-14 the pictures used North, East, Up, which is a left-handed frame, so 10 of the 13 figures were drawn as mirror images. The user spotted it on the combined-rotation figure. The numbers were never affected, because they are computed before drawing. Each figure now has a "what this shows and why it matters" panel and a plain-language meaning under every numeric check. `reportsxis_checks\README.md` collects the same text for all 13 cases. `tests\M5	AxisChecksDisplay.m` checks the display map, the labels and the explanations, and two more planted bugs (`sabotages_axisdisplay.json`) prove it would catch a mirrored map or missing explanations.
+
 ## 15. How every number is verified
 
 | Layer | Tests | Evidence |
