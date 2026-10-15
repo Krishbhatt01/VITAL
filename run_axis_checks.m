@@ -13,8 +13,12 @@ function R = run_axis_checks(varargin)
 %   Case ids: yaw, pitch, roll, combined, level, climb, sideslip, gravity, cg,
 %   station, control, path, earth. See vital.viz.axisChecks for what each
 %   one shows and checks. Colours: x red, y green, z blue; NED (ground) axes
-%   dashed grey; body axes solid. Every 3-D plot uses North, East, UP so the
-%   pictures look the right way up (z down is plotted as -Up).
+%   dashed grey; body axes solid. Every 3-D plot uses one RIGHT-HANDED display
+%   map (vital.viz.displayMap): plot x = East / right wing, y = North / nose,
+%   z = Up, so East is drawn to the right of North (never a mirror image).
+%   Each figure carries a "what this shows" panel and a plain-language meaning
+%   under every numeric check (vital.viz.axisNotes). With plotting and a
+%   SaveDir, README.md with the same explanations is written beside the PNGs.
 %   Works from any MATLAB session: it puts VITAL on the path itself.
 addpath(fileparts(mfilename('fullpath')));
 p = inputParser;
@@ -42,11 +46,39 @@ else
     fprintf('SOME AXIS CHECKS FAIL\n');
 end
 if o.Plot && ~isempty(o.SaveDir)
-    fprintf('figures saved to %s\n', o.SaveDir);
+    writeReadme(R, o.SaveDir);
+    fprintf('figures and README.md saved to %s\n', o.SaveDir);
 end
 if nargout == 0, clear R; end
 end
 
 function d = ifPlot(on, d)
 if ~on, d = ''; end
+end
+
+function writeReadme(R, d)
+% README.md beside the PNGs: every case's explanation and every check's meaning
+L = {'# VITAL visual axis checks', '', ...
+    'Written by `run_axis_checks`. Every plotted vector is computed by VITAL''s own functions; every numeric check compares it with a value built a different way: a hand-written formula (ANALYTIC) or MATLAB''s Aerospace Toolbox (INDEP).', '', ...
+    '3-D plots use one right-handed display map: plot x = East / right wing, plot y = North / nose, plot z = Up. Colours: x red, y green, z blue; ground axes dashed grey; body axes solid.', ''};
+ids = {R.cases.id};
+for k = 1:numel(R.cases)
+    c = R.cases(k);
+    if all([c.checks.pass]), v = 'PASS'; else, v = 'FAIL'; end
+    png = dir(fullfile(d, sprintf('*_%s.png', c.id)));
+    L{end+1} = sprintf('## %d. %s  (`%s`, %s)', k, c.title, c.id, v); %#ok<AGROW>
+    if ~isempty(png), L{end+1} = sprintf('![%s](%s)', c.id, png(1).name); end %#ok<AGROW>
+    L = [L, {'', ['**What this shows and why it matters.** ' c.explain], '', ...
+        '| result | check | what it means | reference |', '|---|---|---|---|'}]; %#ok<AGROW>
+    for j = 1:numel(c.checks)
+        ch = c.checks(j);
+        if ch.pass, r = 'PASS'; else, r = 'FAIL'; end
+        L{end+1} = sprintf('| %s | %s | %s | %s |', r, strrep(ch.what, '|', '/'), ch.meaning, ch.ref); %#ok<AGROW>
+    end
+    L{end+1} = ''; %#ok<AGROW>
+end
+L{end+1} = sprintf('Cases: %s.', strjoin(ids, ', '));
+fid = fopen(fullfile(d, 'README.md'), 'w');
+fprintf(fid, '%s\n', L{:});
+fclose(fid);
 end

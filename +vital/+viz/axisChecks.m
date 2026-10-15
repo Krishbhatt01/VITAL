@@ -33,10 +33,15 @@ function R = axisChecks(opts)
 %     earth     local NED axes on the WGS-84 Earth at 36 N, 75 W: Down along the
 %               geodetic normal, North towards the pole
 %
-%   R.cases(k): id, title, checks (struct array from vital.viz.checkItem),
-%   figure (handle, or [] without plotting). R.allPass.
-%   Colours: x red, y green, z blue. Ground NED axes dashed grey. 3-D plots use
-%   North, East, UP axes (NED z down is drawn as -Up) so pictures read naturally.
+%   R.cases(k): id, title, explain (what it shows and why it matters,
+%   vital.viz.axisNotes), checks (struct array from vital.viz.checkItem, each
+%   with a plain-language .meaning), figure (handle, or [] without plotting).
+%   R.allPass.
+%   Colours: x red, y green, z blue. Ground NED axes dashed grey. Every 3-D
+%   plot uses ONE right-handed display map (vital.viz.displayMap): plot x =
+%   East / right wing, plot y = North / nose, plot z = Up. (Until 2026-10-14
+%   the plots used North, East, Up, a LEFT-handed frame, so 10 figures were
+%   mirror images; tests/M5/tAxisChecksDisplay.m.)
 arguments
     opts.Cases = {}
     opts.Plot (1,1) logical = false
@@ -54,27 +59,37 @@ if ~isempty(opts.Cases)
     sel = ismember(catalog(:, 1), want);
 end
 if ~isempty(opts.SaveDir) && ~isfolder(opts.SaveDir), mkdir(opts.SaveDir); end
-cases = struct('id', {}, 'title', {}, 'checks', {}, 'figure', {});
+cases = struct('id', {}, 'title', {}, 'explain', {}, 'checks', {}, 'figure', {});
 for k = find(sel).'
     [title_, checks, draw] = catalog{k, 2}();
+    notes = vital.viz.axisNotes(catalog{k, 1});
+    if numel(notes.meaning) ~= numel(checks)
+        error('vital:badInput', 'axis case %s: %d checks but %d meanings in vital.viz.axisNotes.', ...
+            catalog{k, 1}, numel(checks), numel(notes.meaning));
+    end
+    [checks.meaning] = deal(notes.meaning{:});
     fig = [];
     if opts.Plot
-        fig = figure('Visible', onoff(opts.Visible), 'Color', 'w', 'Position', [100 100 1150 620], ...
+        fig = figure('Visible', onoff(opts.Visible), 'Color', 'w', 'Position', [100 100 1300 720], ...
             'Name', ['VITAL axis check: ' catalog{k, 1}]);
-        ax = axes(fig, 'Position', [0.05 0.08 0.55 0.82]);
+        ax = axes(fig, 'Position', [0.05 0.08 0.52 0.82]);
         hold(ax, 'on'); grid(ax, 'on');
         draw(ax);
         ok = all_([checks.pass]);
         if ok, verdict = 'PASS'; col = [0 0.5 0]; else, verdict = 'FAIL'; col = [0.8 0 0]; end
         title(ax, sprintf('%s   [%s]', title_, verdict), 'Color', col, 'FontSize', 12, 'Interpreter', 'none');
-        annotation(fig, 'textbox', [0.62 0.08 0.36 0.82], 'String', checkText(checks), ...
+        annotation(fig, 'textbox', [0.60 0.66 0.38 0.27], 'String', {'What this shows and why it matters:', '', notes.explain}, ...
+            'FontSize', 9, 'EdgeColor', [0.3 0.45 0.7], 'BackgroundColor', [0.95 0.97 1], 'Interpreter', 'none', ...
+            'VerticalAlignment', 'top', 'FitBoxToText', 'off');
+        annotation(fig, 'textbox', [0.60 0.04 0.38 0.60], 'String', checkText(checks), ...
             'FontName', 'Consolas', 'FontSize', 8, 'EdgeColor', [0.7 0.7 0.7], 'Interpreter', 'none', ...
             'VerticalAlignment', 'top');
         if ~isempty(opts.SaveDir)
             exportgraphics(fig, fullfile(opts.SaveDir, sprintf('%02d_%s.png', k, catalog{k, 1})), 'Resolution', 110);
         end
     end
-    cases(end+1) = struct('id', catalog{k, 1}, 'title', title_, 'checks', checks, 'figure', fig); %#ok<AGROW>
+    cases(end+1) = struct('id', catalog{k, 1}, 'title', title_, 'explain', notes.explain, ...
+        'checks', checks, 'figure', fig); %#ok<AGROW>
 end
 R.cases = cases;
 R.allPass = all_(arrayfun(@(c) all_([c.checks.pass]), cases));
@@ -290,10 +305,11 @@ draw = @(ax) drawEarth(ax, r, north, east, down);
 end
 
 % =========================================================================
-% Drawing helpers. Plot coordinates: [North East Up] = [n1 n2 -n3].
+% Drawing helpers. Plot coordinates: p = M v with M = vital.viz.displayMap(),
+% i.e. plot x = East / right, y = North / forward, z = Up (right-handed).
 % =========================================================================
 function p = P(vn)
-p = [vn(1, :); vn(2, :); -vn(3, :)];
+p = vital.viz.displayMap() * vn;
 end
 
 function triad(ax, o, Rcols, s, lbl, solid)
@@ -315,8 +331,8 @@ end
 
 function nedAxes(ax, s)
 triad(ax, [0 0 0], eye(3), s, {'North', 'East', 'Down'}, false);
-xlabel(ax, 'North'); ylabel(ax, 'East'); zlabel(ax, 'Up');
-axis(ax, 'equal'); view(ax, -50, 22);
+xlabel(ax, 'East'); ylabel(ax, 'North'); zlabel(ax, 'Up');
+axis(ax, 'equal'); view(ax, -35, 22);
 end
 
 function drawAttitude(ax, Cbn, note)
@@ -341,34 +357,35 @@ triad(ax, [0 0 0], Cbn', 1, {'x_b nose', 'y_b', 'z_b'}, true);
 vn = Cbn' * vb; d = P(vn / norm(vn)) * 1.3;
 quiver3(ax, 0, 0, 0, d(1), d(2), d(3), 0, 'k', 'LineWidth', 2.5, 'MaxHeadSize', 0.4);
 text(ax, d(1), d(2), d(3) + 0.08, 'velocity', 'FontWeight', 'bold');
-plot3(ax, [0 1.4], [0 0], [0 0], 'Color', [0.3 0.6 1], 'LineWidth', 1);
-text(ax, 1.4, 0, -0.06, 'horizon', 'Color', [0.3 0.6 1]);
+hz = P([1.4; 0; 0]);                                   % the horizon towards North
+plot3(ax, [0 hz(1)], [0 hz(2)], [0 hz(3)], 'Color', [0.3 0.6 1], 'LineWidth', 1);
+text(ax, hz(1), hz(2), hz(3) - 0.06, 'horizon', 'Color', [0.3 0.6 1]);
 subtitle(ax, note, 'Interpreter', 'none');
 end
 
 function drawSideslip(ax, vb)
-d = [vb(1); vb(2); -vb(3)] / norm(vb);
+d = P(vb / norm(vb));
 triad(ax, [0 0 0], diag([1 1 1]), 1, {'x_b nose', 'y_b right wing', 'z_b belly'}, true);
 quiver3(ax, 0, 0, 0, 1.3 * d(1), 1.3 * d(2), 1.3 * d(3), 0, 'k', 'LineWidth', 2.5, 'MaxHeadSize', 0.4);
 text(ax, 1.3 * d(1), 1.3 * d(2), 1.3 * d(3) + 0.06, 'air-relative velocity', 'FontWeight', 'bold');
 plot3(ax, [0 1.3 * d(1)], [0 1.3 * d(2)], [0 0], 'k:');
-xlabel(ax, 'x_b (nose)'); ylabel(ax, 'y_b (right)'); zlabel(ax, '-z_b (up)');
-axis(ax, 'equal'); view(ax, -60, 20);
+xlabel(ax, 'y_b (right wing)'); ylabel(ax, 'x_b (nose)'); zlabel(ax, '-z_b (up)');
+axis(ax, 'equal'); view(ax, -35, 20);
 subtitle(ax, 'beta: velocity towards the right wing; alpha: velocity below the nose (w > 0)', 'Interpreter', 'none');
 end
 
 function drawGravity(ax, Cs, names)
 g = 9.80665;
 for k = 1:3
-    o = [0; 3 * (k - 1); 0];
+    o = [3 * (k - 1); 0; 0];                             % cases side by side along the plot x axis
     gb = Cs{k} * [0; 0; g] / g;
     triad(ax, o, eye(3), 0.8, {'x_b', 'y_b', 'z_b'}, true);
-    d = [gb(1); gb(2); -gb(3)] * 1.2;
+    d = P(gb) * 1.2;
     quiver3(ax, o(1), o(2), o(3), d(1), d(2), d(3), 0, 'm', 'LineWidth', 2.5, 'MaxHeadSize', 0.4);
     text(ax, o(1), o(2), 1.2, names{k}, 'Interpreter', 'none');
 end
-xlabel(ax, 'x_b'); ylabel(ax, 'y_b (cases side by side)'); zlabel(ax, '-z_b');
-axis(ax, 'equal'); view(ax, -40, 15);
+xlabel(ax, 'y_b (right wing; cases side by side)'); ylabel(ax, 'x_b (nose)'); zlabel(ax, '-z_b (up)');
+axis(ax, 'equal'); view(ax, -35, 15);
 subtitle(ax, 'magenta = gravity in BODY axes (drawn in each aircraft''s own axes)', 'Interpreter', 'none');
 end
 
@@ -391,7 +408,7 @@ quiver(ax, xr(1), yr(1), xr(1) - xr(3), yr(1) - yr(3), 0, 'r', 'LineWidth', 1.5,
 text(ax, A25.r_cg(1) / ft + 2.4, 2.5, 'nose-down moment about the CG', 'Color', 'r');
 xlabel(ax, 'BFRP x (ft, forward)'); ylabel(ax, '-z (up)');
 axis(ax, 'equal'); xlim(ax, [-8 8]); ylim(ax, [-5 6]);
-subtitle(ax, 'side view; moving the BFRP origin changes coordinates, not the arm MRC - CG');
+subtitle(ax, 'side view seen from the right wing (nose to the right); moving the BFRP origin changes coordinates, not the arm MRC - CG');
 end
 
 function drawStation(ax, pts, datum, rb)
@@ -405,6 +422,7 @@ quiver(ax, datum(1), datum(3) - 15, 0, -15, 0, 'b', 'LineWidth', 2); text(ax, da
 quiver(ax, 40, 60, 30, 0, 0, 'Color', [0.5 0.5 0.5]); text(ax, 40, 64, 'station x (aft)', 'Color', [0.4 0.4 0.4]);
 quiver(ax, 40, 60, 0, 15, 0, 'Color', [0.5 0.5 0.5]); text(ax, 30, 78, 'station z (up)', 'Color', [0.4 0.4 0.4]);
 xlabel(ax, 'station x (in, aft)'); ylabel(ax, 'station z (in, up)'); axis(ax, 'equal'); grid(ax, 'on');
+subtitle(ax, 'side view seen from the left wing (nose to the left), in station coordinates');
 end
 
 function drawControl(ax, dM)
@@ -412,11 +430,11 @@ n = dM ./ max(abs(dM(:)));
 triad(ax, [0 0 0], eye(3), 1, {'x_b (roll axis)', 'y_b (pitch axis)', 'z_b (yaw axis)'}, true);
 names = {'+1 deg elevator', '+1 deg aileron', '+1 deg rudder'}; cols = {'m', [0.9 0.5 0], 'c'};
 for k = 1:3
-    d = [n(1, k); n(2, k); -n(3, k)] * 1.2;
+    d = P(n(:, k)) * 1.2;
     quiver3(ax, 0, 0, 0, d(1), d(2), d(3), 0, 'Color', cols{k}, 'LineWidth', 3, 'MaxHeadSize', 0.4);
     text(ax, d(1) * 1.1, d(2) * 1.1, d(3) * 1.1, names{k}, 'Color', cols{k}, 'FontWeight', 'bold');
 end
-xlabel(ax, 'x_b'); ylabel(ax, 'y_b'); zlabel(ax, '-z_b (up)'); axis(ax, 'equal'); view(ax, -50, 25);
+xlabel(ax, 'y_b (right wing)'); ylabel(ax, 'x_b (nose)'); zlabel(ax, '-z_b (up)'); axis(ax, 'equal'); view(ax, -35, 25);
 subtitle(ax, 'moment vectors (normalized); each points opposite its own axis', 'Interpreter', 'none');
 end
 
@@ -429,7 +447,7 @@ for k = round(linspace(1, numel(tt), 6))
     triad(ax, p(:, k), Cbn', s, {'', '', ''}, true);
     text(ax, p(1, k), p(2, k), p(3, k) + 1.4 * s, sprintf('t = %.1f s', tt(k)), 'FontSize', 8);
 end
-xlabel(ax, 'North (m)'); ylabel(ax, 'East (m)'); zlabel(ax, 'Up (m)'); axis(ax, 'equal'); view(ax, -30, 25);
+xlabel(ax, 'East (m)'); ylabel(ax, 'North (m)'); zlabel(ax, 'Up (m)'); axis(ax, 'equal'); view(ax, -35, 25);
 text(ax, p(1, 1), p(2, 1), p(3, 1) - 2 * s, 'red = nose, green = right wing, blue = belly', 'FontSize', 8);
 end
 
@@ -459,6 +477,7 @@ s = {'Numeric checks (VITAL value vs independent reference):', ''};
 for c = checks(:)'
     if c.pass, m = 'PASS'; else, m = 'FAIL'; end
     s{end+1} = sprintf('[%s] %s', m, c.what); %#ok<AGROW>
+    if isfield(c, 'meaning'), s{end+1} = ['       = ' c.meaning]; end %#ok<AGROW>
     if islogical(c.value)
         s{end+1} = sprintf('       ref %s', c.ref); %#ok<AGROW>
     else

@@ -1,0 +1,23 @@
+[
+ {
+  "id": "S5AX-5",
+  "file": "+vital/+viz/displayMap.m",
+  "pattern": "M = [0 1 0;\n     1 0 0;\n     0 0 -1];",
+  "replacement": "M = [1 0 0;\n     0 1 0;\n     0 0 -1];",
+  "targets": [
+   "tAxisChecksDisplay/displayMapIsProperRotation",
+   "tAxisChecksDisplay/figuresAreLabelledRightHanded"
+  ],
+  "rationale": "Restores the mirrored (North, East, Up) display map, det -1, that drew 10 of the 13 axis figures as mirror images until 2026-10-14."
+ },
+ {
+  "id": "S5AX-6",
+  "file": "+vital/+viz/axisChecks.m",
+  "pattern": "    if isfield(c, 'meaning'), s{end+1} = ['       = ' c.meaning]; end %#ok<AGROW>",
+  "replacement": "",
+  "targets": [
+   "tAxisChecksDisplay/figuresShowExplanationAndMeanings"
+  ],
+  "rationale": "Drops the plain-language meaning lines from the check panel, so a figure no longer explains its checks."
+ }
+]
