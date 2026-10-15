@@ -13,6 +13,7 @@ A self-contained test, separate from the VITAL MATLAB framework. Nothing here is
 | `N2_nz_nlbgs.html`, `N2_nz_nlbgs_aitken.html`, `N2_nz_newton.html`, `N2_nz_broyden.html` | the N2 diagrams of the nz loop (Broyden on the implicit controller, where `ctrlbal` holds de as a state) |
 | `results/nz_convergence_report.md`, `results/nz_residual_history.png`, `results/nz_gain_sweep.png`, `results/nz_results.json` | the nz-loop report, residual history at VITAL's gain, and iterations vs loop gain |
 | `fit_nz_loop.m`, `nz_loop_data.json` | the MATLAB script that takes the nz-loop numbers from VITAL (CZ0, CZde, qbar S/W, nz0) and VITAL's own answers (closed-loop gain Kref from `vital.linear.linearize`, and the full-plant solve of a +1 deg command step) |
+| `vital_trim_n2.py`, `N2_vital_trim_structure.html` | **N2 of VITAL's own trim** (`vital.trim.solve`): the 11 blocks, their data and the one loop, rebuilt as a structure-only OpenMDAO model (never run; the real trim runs in MATLAB) |
 | `OPENMDAO_REVIEW.md` | what OpenMDAO is, its building blocks, solvers and use cases |
 | `fit_f16_coefficients.m`, `f16_coefficients.json` | the MATLAB script that derives the 8 coefficients and the flight condition from VITAL's F-16, and its output (with VITAL's trim for comparison) |
 
