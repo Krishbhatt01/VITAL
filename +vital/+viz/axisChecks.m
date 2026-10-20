@@ -181,7 +181,7 @@ function [t, C, draw] = caseSideslip()
 t = 'Alpha 5, beta 10 deg; a 10 m/s headwind adds airspeed';
 V = 200; a = deg2rad(5); b = deg2rad(10);
 vb = V * [cos(a) * cos(b); sin(b); sin(a) * cos(b)];       % hand-built wind-to-body
-atm = vital.env.atmosphereUS76(3000); ref = struct('b', 9.144, 'cbar', 3.45);
+atm = vital.env.atmosphere(3000); ref = struct('b', 9.144, 'cbar', 3.45);
 ad = vital.airdata.airData(vb, [0; 0; 0], eye(3), [0; 0; 0], atm, ref);
 adw = vital.airdata.airData([200; 0; 0], [0; 0; 0], eye(3), [-10; 0; 0], atm, ref);   % heading North, wind blowing South
 C = [chk('alpha recovered (deg)', rad2deg(ad.alpha), 5, 1e-12, 'ANALYTIC')

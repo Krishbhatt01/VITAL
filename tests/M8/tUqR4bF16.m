@@ -163,7 +163,10 @@ classdef (TestTags = {'M8'}) tUqR4bF16 < vital.test.VitalTestCase
             tc.verifyEqual(S.status, 'OK', 'header 1b');
             b = S.bracket;
             tc.verifyEqual({b.status, b.variable, b.breakpoint, b.d}, {'BRACKETED', 'alpha', 5, 1e-3}, 'header 1b');
-            tc.verifyTol([b.sides.alpha_deg], [5.000692 4.999388], 1e-6, 'abs', 'REG', 'header 1b: coordinator', ...
+            % re-baselined 2026-10-19 for atmosisa (ADR-037), was [5.000692 4.999388], now
+            % [5.000695 4.999390] (measured 5.000694527, 4.999390015); user-approved.
+            % Tolerance unchanged. Header 1a (5.000036 -> 5.000038, within its 1e-4) holds.
+            tc.verifyTol([b.sides.alpha_deg], [5.000695 4.999390], 1e-6, 'abs', 'REG', 'header 1b: coordinator', ...
                 'Quantity', 'side trim alphas', 'Unit', 'deg');
             for gname = {'3.3.1.1-CatA-other', '3.2.2.1.1-CatA'}
                 q = E.groupMargin(th, c, gname{1}, 1);

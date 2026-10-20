@@ -21,7 +21,7 @@
  },
  {
   "id": "S1-3",
-  "file": "+vital/+env/atmosphereUS76.m",
+  "file": "+vital/+env/atmosphere.m",
   "pattern": "H = vital.env.geometricToGeopotential(h);",
   "replacement": "H = h;",
   "targets": [

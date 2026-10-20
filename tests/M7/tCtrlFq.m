@@ -68,12 +68,16 @@ classdef (TestTags = {'M7'}) tCtrlFq < vital.test.VitalTestCase
             c = base; c.h_ft = 13000; c.mach = 0.63; c.cg_pct_mac = 30;
             c = orderfields(c, {'h_ft', 'mach', 'cg_pct_mac', 'gamma_deg', 'g_ftps2'});
             P = vital.fq.evaluatePoint(f1(c), c);
-            tc.verifyTol(P.metrics.CAP.value, 0.2016412953889394, 1e-12, 'rel', 'REG', ...
-                'reports/fq/f16_fq_default_baseline.json, CAP L1 CatA in-envelope critical value', 'Quantity', 'CAP 13000/0.63/30');
+            % re-baselined 2026-10-19 for atmosisa (ADR-037), was CAP 0.2016412953889394 and
+            % zeta_d 0.10858768179438416 (US 1976 baseline), now 0.20164130858618839 and
+            % 0.10858770273864354 (reports/fq/f16_fq_default_baseline_atmosisa.json; Levels
+            % unchanged, reports/work/oop/levels_compare.md); user-approved. Tolerance unchanged.
+            tc.verifyTol(P.metrics.CAP.value, 0.20164130858618839, 1e-12, 'rel', 'REG', ...
+                'reports/fq/f16_fq_default_baseline_atmosisa.json, CAP L1 CatA in-envelope critical value', 'Quantity', 'CAP 13000/0.63/30');
             c.cg_pct_mac = 20;
             P = vital.fq.evaluatePoint(f1(c), c);
-            tc.verifyTol(P.metrics.zeta_d.value, 0.10858768179438416, 1e-12, 'rel', 'REG', ...
-                'reports/fq/f16_fq_default_baseline.json, zeta_d L1 CatA in-envelope critical value', 'Quantity', 'zeta_d 13000/0.63/20');
+            tc.verifyTol(P.metrics.zeta_d.value, 0.10858770273864354, 1e-12, 'rel', 'REG', ...
+                'reports/fq/f16_fq_default_baseline_atmosisa.json, zeta_d L1 CatA in-envelope critical value', 'Quantity', 'zeta_d 13000/0.63/20');
         end
 
         function augmentedPointMetrics(tc)

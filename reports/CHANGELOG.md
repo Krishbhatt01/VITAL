@@ -499,3 +499,71 @@ Rough, single uncontended MATLAB, about 0.4-0.7 s per closed-loop single-point e
   - New sabotages S5AX-5 (restore the mirrored map) and S5AX-6 (drop the meanings) in `tests/M5/sabotages_axisdisplay.json`.
   - New failure-catalogue row FC-519.
   - The 13 figures were redrawn and inspected.
+# CHANGELOG fragment (uq5, 2026-10-14/15): M8 amendment R5
+
+## Implemented (docs/PLAN_M5_M8.md, "Amendment R5")
+- R5-1 h/2 lattice certificate ('Certificate' 'half' default; 'full' = R4b form).
+- R5-2 verdict from R(1): `lowerCertified`/`lowerReason` on every CSR (lattice and csr.m), `vital.uq.lowerEnd`, new verdict rule; lattice refinement priority (decide R(1), resolve judged, then equal).
+- R5-3 piecewise certificate at the NESC alpha/el breakpoints (problem.switches, q.switchVals, discontinuity report).
+- R5-4 `vital.uq.stageBand`; measured errors: F-16 0 / 0, toys max 0.075 -> band stays [0.8, 1.2].
+- R5-5 M2 corner assessments of R(1) and R(alphaLo) (shared fresh assessments `F16Evaluator.assessShared`) and scope text; M4 tests + sabotages_R5.json (S8Q-1,2,3,5,6,7,8,9) + null control nullcontrol_R5.json; m1/m4/m6/m10 statements (`vital.uq.statements`, spec.judgments); m2 ERROR points / vital:uq:badPointResult; m3 all-+Inf cells; m5 global budget (LatticeTotalPoints 12000); m7 tUqLattice 86 -> 38 s; m8 tF16Uq pins the M7 values; m9 version 0.8.0-M8rc.
+- R5-6 reports/uq/f16_uq_default.* -> *_superseded_2026-10-09.* (banner in the .md).
+
+## Files
+- New: +vital/+uq/lowerEnd.m, stageBand.m, statements.m; tests/M8/tUqR5.m, tUqR5F16.m, sabotages_uq5.json, sabotages_R5.json, nullcontrol_R5.json.
+- Changed: +vital/+uq/lattice.m, csr.m, verdict.m, analyze.m, F16Evaluator.m, headline.m, writeReport.m, loadSpec.m; +vital/version.m; run_f16_uq.m; tests/M8/tUqLattice.m (header 4 superseded), tUqCsr.m (header 9 superseded), tF16Uq.m (m8).
+- Reports: reports/uq/f16_uq_default_superseded_2026-10-09.*, reports/uq/f16_uq_r5smoke.*; reports/work/uq5/*.
+
+## Gates
+- RED: reports/work/uq5/M8_red_uq5.txt: TOTAL 658, PASS 634, RED_EXPECTED 17, VACUOUS 7, RED_UNEXPECTED 0, RED_SUSPICIOUS 0, REGRESSION 0, EXCLUDED 0; GATE OK; 3303 s. The 7 VACUOUS are the M4 guards of existing behaviour written for review R5's sabotages (S8Q-1, 3, 5, 6, 7, 8, 9): they must pass on the as-built code by design and are proven non-vacuous by those sabotages.
+- GREEN: reports/work/uq5/M8_green_uq5.txt: TOTAL 663, PASS 663, FAIL 0, EXCLUDED 0; GATE OK; 3096 s (663 includes the coordinator's 5 new M5 axis-display tests).
+- After RED, before GREEN: tUqR5 header 12 got a pinned cap-branch reason (S8Q-2 was masked by the new R5-2 check); tUqR5F16.R54_ERRORS filled with the R5-4 measurement.
+
+## Sabotages
+- uq5 + R5 parts: reports/work/uq5/M8_sabotage_uq5_R5.txt: 14/14 DETECTED (S8Q-1,2,3,5,6,7,8,9; S8Y-1..6), tree unchanged 1.
+- All M8 parts: reports/work/uq5/M8_sabotage.txt: 48/48 DETECTED, tree unchanged 1, all detected 1.
+- Null control N-R5: NOT DETECTED (reports/work/uq5/nullcontrol_R5.txt), as required.
+
+## Smoke (reports/uq/f16_uq_r5smoke.json/.md)
+- run_f16_uq('Groups', {3.2.2.1.1-CatA, 3.2.2.1.2-CatA, 3.3.1.1-CatA-other, 3.3.1.3-CatA}, 'Label', 'r5smoke', NumLHS 8, NumStarts 1, MaxEvals 120, DE 8 x 4, N 60, LatticeMaxPoints 3000), staged (default). Runtime 10,156 s; 15,340 point evaluations; 40 fresh assessments (8 shared).
+- 3.2.2.1.1-CatA NOT_ROBUST (confirmed CPV at 0.4875, R(0.38) certified); 3.2.2.1.2-CatA ROBUST (R(1) certified, alpha* in [1.14, 1.20]; alpha = 5 and el = -12 discontinuities certified piecewise); 3.3.1.1-CatA-other ROBUST (2.75); 3.3.1.3-CatA ROBUST (1.80). No stage 2 needed.
+
+## 0.8.1-OOP: object layer, atmosisa (2026-10-19)
+
+**Result: GREEN 688/688, sabotages OOP 9/9 and M1 8/8 detected, 0 Level/status changes (reports/work/oop/levels_compare.md).**
+
+
+## Implemented
+- **Object layer** (ADR-037): vital.Aircraft, FlightCondition, TrimResult, LinearModel; vital.modes.Mode and subclasses ShortPeriod, Phugoid, DutchRoll, Roll, Spiral; vital.rules.Rule and RuleSet; vital.fq.Assessment; vital.atmos.Atmosphere and IsaAtmosphere; vital.ctrl.ControlLaw with PitchSasLaw, YawDamperLaw, NescLqrLaw, CombinedLaw; vital.uq.Study.
+- **Atmosphere:** vital.env.atmosphere (an atmosisa wrapper with geopotential conversion, a range error and an exact one-entry cache). Every core caller uses it. vital.env.atmosphereUS76 is a thin alias.
+- **Air data:** vital.airdata.tasToCasEas now uses the ISA sea-level constants (rho0 = 1.225, R = p0/(rho0 T0)), so CAS = EAS = TAS at sea level stays exact with atmosisa. tAirData was NOT edited.
+  - vital.nesc.equivalentAirspeed keeps its US 1976 rho0, because it reproduces the NESC TM KEAS (proposed ADR N6).
+- **Frames and geodesy:** NOT switched to the toolbox; each toolbox function measured 6-64x slower per call (ADR-037).
+- **Version:** 0.8.1-OOP.
+
+## User decisions 2026-10-19 and their execution
+1. **Level tables re-run with atmosisa:** the default and exploration grids (run_f16_fq) and the M7 SAS suggestion (run_f16_sas('Suggest', true)).
+   - Comparison: reports/work/oop/levels_compare.md. **0 Level or status changes.** This covers every group, record verdict, point status and envelope class, the SAS status, the rounded gains [0.02 0.14 0.82] and the confirmation Levels.
+   - Margins moved by <= 6e-6, except the near-neutral spiral group 3.3.1.3 on the default grid (up to 3.4e-3; still Level 1, same verdict).
+   - The regenerated reports are stored alongside the originals; nothing was overwritten: reports/fq/f16_fq_default_baseline_atmosisa.json/.md, f16_fq_exploration_baseline_atmosisa.json/.md, reports/ctrl/f16_sas_suggestion_atmosisa.json/.md.
+2. **Re-baselined tests.** Each has the comment "re-baselined 2026-10-19 for atmosisa (ADR-037), was X, now Y, user-approved". Source tags are kept.
+   - tests/M1/tAtmosphere.m:
+     - seaLevel: rho0 changed to the ISA defining value 1.225.
+     - deltaIsaShiftsTemperatureOnly: ISA's R.
+     - tropopauseAnalytic: ISA closed form with ISA's R.
+     - matchesAtmoscoesa: p and rho checked at 1e-6 below 10 km, 5e-6 over 0-32 km, and 1e-5 over 0-84.5 km. This tolerance was LOOSENED because atmosisa's R differs from US 1976 by 7e-7 and that enters the barometric exponent (measured 8.6e-6 at 84.5 km). T and a keep 1e-6.
+   - tests/M1/tAirData.m#seaLevelCasEqualsTas: not edited; fixed in the core (tasToCasEas, above).
+   - tests/M6/tF16FqR2.m#factoryMachUsesLocalSpeedOfSound: closed form with ISA's R.
+   - tests/M7/tCtrlFq.m#defaultPathBitIdentical: CAP and zeta_d re-pinned (cited to the _atmosisa report).
+   - tests/M7/tCtrlSuggest.m: now reads f16_fq_default_baseline_atmosisa.json. The pins work by reading this report file.
+   - tests/M8/tF16Uq.m#pinnedSas: achievedMargin re-pinned from f16_sas_suggestion_atmosisa.json.
+   - tests/M8/tUqR4bF16.m#bracketKnownCase: side alphas re-pinned to [5.000695 4.999390].
+   - tests/M5/tLinearizeR1.m#windAirAxisConverters: 1e-8 changed to 5e-8 abs. This tolerance was LOOSENED. The reason is the rounding of the central-difference reference: |V| eps/h = 3.9e-8 with h = 1e-6. The measured error was 1.42e-8 = 2^-26, one rounding step.
+3. **Atmosphere tolerance:** the revised tolerance (1e-6 below 10 km, 5e-6 over 0-32 km) was accepted. The original 1e-6 claim stays recorded as a failed hypothesis in tOopAtmosphere.
+4. **Cache test and sabotage:** tOopAtmosphere#scalarCacheNeverStale added (FC-977), with sabotage SOOP-3 (stale cache). The guide fragment counts (25 tests, 9 sabotages) are now correct.
+
+## Gates
+- **RED:** reports/work/oop/M8_red_oop.txt. 24 new tests, all RED_EXPECTED, 0 RED_UNEXPECTED. scalarCacheNeverStale was added after the user's decision and did not go through a RED run; its sabotage SOOP-3 shows that it can fail.
+- **First GREEN:** M8_green_oop.txt. 687 tests, 676 passed, 11 failed: the atmosisa value pins listed above.
+- **Final GREEN:** M8_green_oop_final.txt (counts in the final report).
+- **Sabotage:** M8_sabotage_oop.txt and M1_sabotage.txt.

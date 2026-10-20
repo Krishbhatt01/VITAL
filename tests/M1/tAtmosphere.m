@@ -43,18 +43,33 @@ classdef (TestTags = {'M1'}) tAtmosphere < vital.test.VitalTestCase
             [T, a, p, rho] = atmoscoesa(H, 'None');
             c = 'Aerospace Toolbox atmoscoesa (geopotential input)';
             tc.verifyTol(atm.T, T, 1e-6, 'rel', 'INDEP', c, 'Quantity', 'T 0-84.5 km', 'Unit', 'K');
-            tc.verifyTol(atm.p, p, 1e-6, 'rel', 'INDEP', c, 'Quantity', 'p 0-84.5 km', 'Unit', 'Pa');
-            tc.verifyTol(atm.rho, rho, 1e-6, 'rel', 'INDEP', c, 'Quantity', 'rho 0-84.5 km', 'Unit', 'kg/m3');
+            % re-baselined 2026-10-19 for atmosisa (ADR-037), was p and rho 1e-6 rel over
+            % 0-84.5 km, now 1e-6 below 10 km, 5e-6 over 0-32 km, 1e-5 over 0-84.5 km;
+            % user-approved. Physics: the core is now ISA (atmosisa), whose gas
+            % constant p0/(rho0 T0) = 287.0529 differs from COESA/US 1976 R*/M0 =
+            % 287.0531 by 7e-7; it enters the barometric exponent, so the p and rho
+            % difference grows like 7e-7 |ln(p/p0)| (measured 3.3e-6 at 32 km,
+            % 8.6e-6 at 84.5 km). T and a keep 1e-6.
+            lo = H <= 10000; mid = H <= 32000;
+            tc.verifyTol(atm.p(lo), p(lo), 1e-6, 'rel', 'INDEP', c, 'Quantity', 'p 0-10 km', 'Unit', 'Pa');
+            tc.verifyTol(atm.rho(lo), rho(lo), 1e-6, 'rel', 'INDEP', c, 'Quantity', 'rho 0-10 km', 'Unit', 'kg/m3');
+            tc.verifyTol(atm.p(mid), p(mid), 5e-6, 'rel', 'INDEP', c, 'Quantity', 'p 0-32 km', 'Unit', 'Pa');
+            tc.verifyTol(atm.rho(mid), rho(mid), 5e-6, 'rel', 'INDEP', c, 'Quantity', 'rho 0-32 km', 'Unit', 'kg/m3');
+            tc.verifyTol(atm.p, p, 1e-5, 'rel', 'INDEP', c, 'Quantity', 'p 0-84.5 km', 'Unit', 'Pa');
+            tc.verifyTol(atm.rho, rho, 1e-5, 'rel', 'INDEP', c, 'Quantity', 'rho 0-84.5 km', 'Unit', 'kg/m3');
             tc.verifyTol(atm.a, a, 1e-6, 'rel', 'INDEP', c, 'Quantity', 'a 0-84.5 km', 'Unit', 'm/s');
         end
 
         function tropopauseAnalytic(tc)
-            % US 1976: T = 216.65 K at H = 11 km; p = p0 (T/T0)^(g0 M0 / (R* L)).
-            g0 = 9.80665; Rs = 8.31432; M0 = 28.9644; L = 0.0065;
-            pExp = 101325 * (216.65/288.15)^(g0*M0/(Rs*L)*1e-3);
+            % re-baselined 2026-10-19 for atmosisa (ADR-037), was the US 1976 form
+            % p0 (T/T0)^(g0 M0/(R* L)) = 22632.0640 Pa, now the ISA form with
+            % R = p0/(rho0 T0) = 22632.0406 Pa; user-approved. Tolerance unchanged.
+            % ISA: T = 216.65 K at H = 11 km; p = p0 (T/T0)^(g0 / (R L)).
+            g0 = 9.80665; R = 101325 / (1.225 * 288.15); L = 0.0065;
+            pExp = 101325 * (216.65/288.15)^(g0/(R*L));
             H = 11000; h = 6356766*H/(6356766 - H);
             atm = vital.env.atmosphereUS76(h);
-            c = 'US Standard Atmosphere 1976 defining equations (NASA-TM-X-74335)';
+            c = 'ISA defining equations (ICAO Doc 7488; rho0 = 1.225 kg/m3), = US 1976 below 32 km';
             tc.verifyTol(atm.T, 216.65, 1e-9, 'abs', 'ANALYTIC', c, 'Quantity', 'T(11 km)', 'Unit', 'K');
             tc.verifyTol(atm.p, pExp, 1e-9, 'rel', 'ANALYTIC', c, 'Quantity', 'p(11 km)', 'Unit', 'Pa');
             tc.verifyTol(atm.H, 11000, 1e-6, 'abs', 'ANALYTIC', 'geopotential of the geometric height', 'Quantity', 'H', 'Unit', 'm');
@@ -62,10 +77,13 @@ classdef (TestTags = {'M1'}) tAtmosphere < vital.test.VitalTestCase
 
         function seaLevel(tc)
             atm = vital.env.atmosphereUS76(0);
-            c = 'US 1976 sea-level values';
+            % re-baselined 2026-10-19 for atmosisa (ADR-037), was rho0 = p0/(R*/M0 T0)
+            % = 1.2249991559, now the ISA defining value 1.225 kg/m3; user-approved.
+            % Tolerance unchanged.
+            c = 'ISA sea-level defining values (ICAO Doc 7488)';
             tc.verifyTol(atm.T, 288.15, 0, 'abs', 'ANALYTIC', c, 'Quantity', 'T0', 'Unit', 'K');
             tc.verifyTol(atm.p, 101325, 0, 'abs', 'ANALYTIC', c, 'Quantity', 'p0', 'Unit', 'Pa');
-            tc.verifyTol(atm.rho, 101325/(8314.32/28.9644*288.15), 1e-12, 'rel', 'ANALYTIC', c, 'Quantity', 'rho0', 'Unit', 'kg/m3');
+            tc.verifyTol(atm.rho, 1.225, 1e-12, 'rel', 'ANALYTIC', c, 'Quantity', 'rho0', 'Unit', 'kg/m3');
         end
 
         function geopotentialConversion(tc)
@@ -79,7 +97,10 @@ classdef (TestTags = {'M1'}) tAtmosphere < vital.test.VitalTestCase
         function deltaIsaShiftsTemperatureOnly(tc)
             std = vital.env.atmosphereUS76(3000);
             hot = vital.env.atmosphereUS76(3000, 'DeltaT', 15);
-            R = 8314.32/28.9644;
+            % re-baselined 2026-10-19 for atmosisa (ADR-037), was R = R*/M0 =
+            % 287.05307, now ISA's R = p0/(rho0 T0) = 287.05287; user-approved.
+            % Tolerances unchanged.
+            R = 101325 / (1.225 * 288.15);
             tc.verifyTol(hot.T, std.T + 15, 1e-12, 'abs', 'ANALYTIC', 'ISA+dT: T = T_std + dT', 'Quantity', 'T', 'Unit', 'K');
             tc.verifyTol(hot.p, std.p, 0, 'abs', 'ANALYTIC', 'ISA+dT: pressure at a given pressure altitude unchanged', 'Quantity', 'p', 'Unit', 'Pa');
             tc.verifyTol(hot.rho, hot.p/(R*hot.T), 1e-12, 'rel', 'ANALYTIC', 'ISA+dT: rho = p/(R T), consistent with T', 'Quantity', 'rho');

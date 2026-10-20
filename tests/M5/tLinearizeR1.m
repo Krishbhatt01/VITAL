@@ -236,7 +236,13 @@ classdef (TestTags = {'M5'}) tLinearizeR1 < vital.test.VitalTestCase
                 G(:, j) = (ang(lin.x0 + d) - ang(lin.x0 - d)) / (2 * h);
             end
             lon = [1 3 5 8]; lat = [2 4 6 7];
-            tc.verifyTol(lin.lon.air.T(1:2, :), G(1:2, lon), 1e-8, 'abs', 'ANALYTIC', ...
+            % re-baselined 2026-10-19 for atmosisa (ADR-037), was 1e-8 abs, now 5e-8 abs;
+            % user-approved. Loosened because of the reference, not the code: G is a
+            % central difference with h = 1e-6, whose rounding error is about
+            % |V| eps / h = 176 x 2.2e-16 / 1e-6 = 3.9e-8 for the V row. The old 1e-8
+            % passed by the luck of the rounding at the US 1976 trim; with atmosisa the
+            % trim moves by ~1e-7 and the error was 1.42e-8 (= 2^-26, one rounding step).
+            tc.verifyTol(lin.lon.air.T(1:2, :), G(1:2, lon), 5e-8, 'abs', 'ANALYTIC', ...
                 'd[V alpha]/d[u w q theta] with the wind-attitude term (MINOR 7)', 'Quantity', 'T_lon with wind');
             tc.verifyTol(lin.lat.air.T(1, :), G(3, lat), 1e-8, 'abs', 'ANALYTIC', ...
                 'd beta/d[v p r phi] with the wind-attitude term (MINOR 7)', 'Quantity', 'T_lat with wind');

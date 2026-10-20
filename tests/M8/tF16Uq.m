@@ -97,6 +97,12 @@ classdef (TestTags = {'M8'}) tF16Uq < vital.test.VitalTestCase
 %   pins the R3 plan of 3.3.1.1-CatA-other (all six parameters), so the
 %   analyze call adds 'LatDropCmq' false (the R3 design). Expectations
 %   UNCHANGED. R4-9 is tested in tests/M8/tUqStaged.m and tUqR4bF16.m.
+%
+%   AMENDMENT R5 (agent uq5, 2026-10-14; review R5 m8): hypothesis 1's REG
+%   values (the confirmed gains and achieved margins of
+%   reports/ctrl/f16_sas_suggestion.json) are pinned in tF16Uq.pinnedSas
+%   (copied at full precision) instead of read from reports/ at run time.
+%   Expectations UNCHANGED.
 
     properties
         R
@@ -117,11 +123,25 @@ classdef (TestTags = {'M8'}) tF16Uq < vital.test.VitalTestCase
             tc.r = vital.uq.analyze('Groups', tc.GROUPS, 'WidthScales', tc.W, 'Rules', tc.R, 'Conditions', tc.C, ...
                 'NumLHS', 8, 'NumStarts', 1, 'MaxEvals', 20, 'NumCandidates', 2, 'N', 20, ...
                 'Spec', tF16Uq.legacySpec(), 'Method', 'sqp', 'CSR', false, 'LatDropCmq', false);   % R4/R4b: the R3 design
-            tc.sas = jsondecode(fileread(fullfile(vital.paths('reports'), 'ctrl', 'f16_sas_suggestion.json')));
+            tc.sas = tF16Uq.pinnedSas();     % review R5 m8: no longer read from reports/ (a mutable file)
         end
     end
 
     methods (Static)
+        function s = pinnedSas()
+            % Review R5 m8 (amendment R5, agent uq5, 2026-10-14): the M7 confirmation of
+            % reports/ctrl/f16_sas_suggestion.json, pinned here (values copied with
+            % %.17g on 2026-10-14) so that this class no longer reads a mutable file;
+            % the gains are also pinned in tests/M7 (tCtrlR3). Hypothesis 1 unchanged.
+            s.confirmation.gains = [0.02; 0.14; 0.82];
+            s.targets = struct('group', {'3.2.2.1.1-CatA', '3.3.1.1-CatA-other', '3.3.1.1-CatA-COGA'}, ...
+                'achievedMargin', {0.05124873901822099, 1.2184511483328353, 0.05376429545809677});
+            % re-baselined 2026-10-19 for atmosisa (ADR-037), was achievedMargin
+            % {0.051248706528012049, 1.2184514345798501, 0.053764431425428749} (US 1976), now
+            % the values of reports/ctrl/f16_sas_suggestion_atmosisa.json (same status, gains
+            % and Levels, reports/work/oop/levels_compare.md); user-approved. Tolerance unchanged.
+        end
+
         function spec = legacySpec()
             % The R3 uncertainty specification (f16_uncertainty_v1: Cm_table one
             % parameter of pitchStatic), embedded so that this class keeps pinning

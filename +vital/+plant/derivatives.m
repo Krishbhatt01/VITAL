@@ -6,7 +6,7 @@ function [xdot, y] = derivatives(x, u, AC, env)
 %     AC   aircraft configuration (e.g. vital.aircraft.f16.config) with loadsFcn
 %     env  struct: g (m/s^2, flat-earth gravity), wind_n (3x1 NED m/s), deltaT (K)
 %   Pipeline (docs/CONVENTIONS.md):
-%     atmosphere (US 1976 at h = -p_n(3)) -> air data -> AC.loadsFcn (loads about
+%     atmosphere (ISA via atmosisa, vital.env.atmosphere, at h = -p_n(3)) -> air data -> AC.loadsFcn (loads about
 %     the BFRP) -> sum at the CG with gravity -> rigid-body equations.
 %   y   diagnostics: V, alpha, beta, mach, qbar, h, loads, F_b, M_cg, outOfEnvelope
 %       Added in M5-B for time simulation (vital.sim.run guards and logs):
@@ -39,7 +39,7 @@ nq = norm(q);
 if nq == 0, error('vital:badInput', 'zero quaternion in the state.'); end
 C = vital.frames.quat2dcm(q / nq);
 h = -x(13);
-atm = vital.env.atmosphereUS76(h, 'DeltaT', env.deltaT);
+atm = vital.env.atmosphere(h, 'DeltaT', env.deltaT);
 ad = vital.airdata.airData(v, w, C, env.wind_n, atm, struct('b', AC.b, 'cbar', AC.cbar));
 [F_R, M_R, info] = AC.loadsFcn(ad, u, h, atm, AC);
 if any(~isfinite(F_R(:))) || any(~isfinite(M_R(:)))

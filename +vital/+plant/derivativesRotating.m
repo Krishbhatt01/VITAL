@@ -34,7 +34,7 @@ function [xdot, y] = derivativesRotating(x, u, AC, env)
 %     windGradient_n  d(wind)/dh (1/s): wind(h) = wind_n + windGradient_n h
 %     deltaT          ISA temperature offset (K)
 %
-%   PIPELINE: ECEF -> geodetic (vital.geo.ecef2lla) -> US 1976 at the geometric
+%   PIPELINE: ECEF -> geodetic (vital.geo.ecef2lla) -> ISA (atmosisa via vital.env.atmosphere) at the geometric
 %   height -> air data with the airmass-relative velocity C_bn (v_n - wind) and
 %   the Earth-relative body rate w_be = w_bi - C_be w_ie (the atmosphere turns
 %   with the Earth; ADR N3) -> AC.loadsFcn -> sum at the CM (no gravity) ->
@@ -52,7 +52,7 @@ function [xdot, y] = derivativesRotating(x, u, AC, env)
 %     w_bi (= p, q, r)  body rates w.r.t. inertial space; w_be w.r.t. the Earth;
 %                       w_bn w.r.t. local NED (rad/s)
 %     localGravity      |gravitation| (m/s^2): NESC localGravity (CONVENTIONS 4)
-%     rho, pressure, temperature, a   US 1976 (SI)
+%     rho, pressure, temperature, a   ISA = US 1976 below 32 km (SI)
 %     F_aero, M_aero_cg aero force (body, N) and aero moment about the CM (N m)
 %     F_b, M_cg         total applied force and moment about the CM
 %     specificForce_b   F_b / m (m/s^2); wind_n (m/s); outOfEnvelope
@@ -74,7 +74,7 @@ C_be = vital.frames.quat2dcm(q / nq);
 C_ne = vital.geo.dcmEcefToNed(lat, lon);
 C_bn = C_be * C_ne.';
 v_ned = C_ne * v_e;
-atm = vital.env.atmosphereUS76(h, 'DeltaT', env.deltaT);
+atm = vital.env.atmosphere(h, 'DeltaT', env.deltaT);
 wind = env.wind_n(:) + env.windGradient_n(:) * h;
 w_be = w_bi - C_be * [0; 0; omega];
 v_b = C_bn * v_ned;

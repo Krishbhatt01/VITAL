@@ -1,0 +1,94 @@
+[
+    {
+        "id":  "SOOP-1",
+        "file":  "+vital/+env/atmosphere.m",
+        "pattern":  "H = vital.env.geometricToGeopotential(h);",
+        "replacement":  "H = h;",
+        "targets":  [
+                        "tOopAtmosphere/geometricConvertedToGeopotential",
+                        "tOopAtmosphere/nescAtmosBandHolds"
+                    ],
+        "rationale":  "Geometric height fed to atmosisa as if it were geopotential (atmosisa\u0027s input is geopotential): a ~13 m shift at 30,000 ft that the exact atmosisa(H) comparison and the published NESC atmosphere must catch."
+    },
+    {
+        "id":  "SOOP-2",
+        "file":  "+vital/+env/atmosphere.m",
+        "pattern":  "if any(H(:) \u003c -5000 | H(:) \u003e 84852)",
+        "replacement":  "if false",
+        "targets":  [
+                        "tOopAtmosphere/outOfRangeIsError"
+                    ],
+        "rationale":  "The range pre-check removed: atmosisa (called with \u0027action\u0027,\u0027None\u0027) silently holds the boundary value, the clamp VITAL fixed in M1 (FC-106)."
+    },
+    {
+        "id":  "SOOP-3",
+        "file":  "+vital/+env/atmosphere.m",
+        "pattern":  "if isscalar(H) \u0026\u0026 ~isempty(lastH) \u0026\u0026 H == lastH",
+        "replacement":  "if isscalar(H) \u0026\u0026 ~isempty(lastH)",
+        "targets":  [
+                        "tOopAtmosphere/scalarCacheNeverStale"
+                    ],
+        "rationale":  "The speed cache ignores the altitude key and returns a stale atmosphere for a new altitude."
+    },
+    {
+        "id":  "SOOP-4",
+        "file":  "+vital/Aircraft.m",
+        "pattern":  "AC = obj.Runtime;",
+        "replacement":  "AC = rmfield(obj.Runtime, \u0027controlNames\u0027);",
+        "targets":  [
+                        "tOopAircraft/toRuntimeIsTheConfigStruct"
+                    ],
+        "rationale":  "Aircraft.toRuntime drops a field of the runtime struct, so the object layer no longer hands the core the exact vital.aircraft.f16.config struct."
+    },
+    {
+        "id":  "SOOP-5",
+        "file":  "+vital/FlightCondition.m",
+        "pattern":  "e = vital.frames.dcm2eul(vital.frames.quat2dcm(x(7:10)));",
+        "replacement":  "e = vital.frames.dcm2eul(vital.frames.quat2dcm(x(7:10)).\u0027);",
+        "targets":  [
+                        "tOopAircraft/fixedWingStateConsistent"
+                    ],
+        "rationale":  "Wrong DCM convention at the toolbox boundary: C_nb used where Aero.FixedWing.State expects the N-\u003eB Euler angles (C_bn, CONVENTIONS 3); the toolbox InertialToBodyMatrix must disagree with VITAL\u0027s C_bn."
+    },
+    {
+        "id":  "SOOP-6",
+        "file":  "+vital/FlightCondition.m",
+        "pattern":  "env = aircraftEnvironment(fw, \u0027ISA\u0027, atm.H);",
+        "replacement":  "env = aircraftEnvironment(fw, \u0027ISA\u0027, atm.h);",
+        "targets":  [
+                        "tOopAircraft/fixedWingStateConsistent"
+                    ],
+        "rationale":  "The toolbox environment built at the geometric height (aircraftEnvironment passes its height to atmosisa, which expects geopotential)."
+    },
+    {
+        "id":  "SOOP-7",
+        "file":  "+vital/+rules/Rule.m",
+        "pattern":  "if isfinite(lo), mLo = (y - lo) / obj.Scale; end",
+        "replacement":  "if isfinite(lo), mLo = (lo - y) / obj.Scale; end",
+        "targets":  [
+                        "tOopRules/ruleEvaluateMatchesEngine",
+                        "tOopRules/groupLevelsMatchEngine"
+                    ],
+        "rationale":  "Sign flip of the lower-bound margin in Rule.evaluate: passes become failures and vice versa, which the M6 engine comparison must catch."
+    },
+    {
+        "id":  "SOOP-8",
+        "file":  "+vital/+ctrl/PitchSasLaw.m",
+        "pattern":  "c = vital.ctrl.pitchSas(AC, env, tr, \u0027Kq\u0027, obj.Kq, \u0027Ka\u0027, obj.Ka, \u0027Rate\u0027, obj.Rate);",
+        "replacement":  "c = vital.ctrl.pitchSas(AC, env, tr, \u0027Kq\u0027, obj.Ka, \u0027Ka\u0027, obj.Kq, \u0027Rate\u0027, obj.Rate);",
+        "targets":  [
+                        "tOopCtrlUq/lawsEqualFunctional"
+                    ],
+        "rationale":  "The object law passes swapped gains to the functional law (Kq \u003c-\u003e Ka)."
+    },
+    {
+        "id":  "SOOP-9",
+        "file":  "+vital/+uq/Study.m",
+        "pattern":  "r = obj.EntryPoint(obj.Args{:});",
+        "replacement":  "r = obj.EntryPoint(obj.Args{1:end-2});",
+        "targets":  [
+                        "tOopCtrlUq/studyForwardsOptions"
+                    ],
+        "rationale":  "Study.run drops the last option before calling run_f16_uq, silently running with a default."
+    }
+]

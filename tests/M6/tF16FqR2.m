@@ -257,7 +257,10 @@ classdef (TestTags = {'M6'}) tF16FqR2 < vital.test.VitalTestCase
             % T = 218.81 K). Replaced by an independent closed form of the US 1976
             % troposphere (T = 288.15 - 0.0065 H, H geopotential, a = sqrt(1.4 R T)).
             H = 6356766 * (35000 * tc.Ft) / (6356766 + 35000 * tc.Ft);
-            aT = sqrt(1.4 * 8314.32 / 28.9644 * (288.15 - 0.0065 * H));
+            % re-baselined 2026-10-19 for atmosisa (ADR-037), was the US 1976 R = R*/M0
+            % (V = 177.968536557 m/s), now ISA's R = p0/(rho0 T0) (V = 177.96847524 m/s);
+            % user-approved. Tolerance unchanged.
+            aT = sqrt(1.4 * 101325 / (1.225 * 288.15) * (288.15 - 0.0065 * H));
             tc.verifyTol(ac.trimCond.V, 0.6 * aT, 1e-12, 'rel', 'ANALYTIC', ...
                 'US 1976 troposphere closed form (corrects the failed 177.4 m/s hypothesis)', 'Quantity', 'V', 'Unit', 'm/s');
             tc.assertTrue(isfield(ac, 'keas'), 'factory gives KEAS');

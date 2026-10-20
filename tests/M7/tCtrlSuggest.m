@@ -81,7 +81,11 @@ classdef (TestTags = {'M7'}) tCtrlSuggest < vital.test.VitalTestCase
             tc.C = vital.ctrl.inEnvelopeConditions();
             tc.bare = vital.fq.assess(tc.R, vital.fq.f16Factory(), tc.C);
             tc.s = vital.ctrl.suggestGains('Bare', tc.bare, 'Rules', tc.R, 'Conditions', tc.C);
-            tc.report = jsondecode(fileread(fullfile(vital.paths('reports'), 'fq', 'f16_fq_default_baseline.json')));
+            % re-baselined 2026-10-19 for atmosisa (ADR-037), was f16_fq_default_baseline.json
+            % (US 1976), now f16_fq_default_baseline_atmosisa.json (regenerated with
+            % run_f16_fq; every Level and status unchanged, reports/work/oop/levels_compare.md);
+            % user-approved. Tolerances unchanged.
+            tc.report = jsondecode(fileread(fullfile(vital.paths('reports'), 'fq', 'f16_fq_default_baseline_atmosisa.json')));
         end
     end
 

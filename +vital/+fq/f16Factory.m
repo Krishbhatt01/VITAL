@@ -17,14 +17,14 @@ function fac = f16Factory(opts)
 %
 %   c (a condition point of vital.fq.gridPoints) must have
 %     h_ft          geometric altitude, ft
-%     mach  or  V_ftps   Mach number (V = M a(h), US 1976 standard day) or true
+%     mach  or  V_ftps   Mach number (V = M a(h), ISA standard day, vital.env.atmosphere) or true
 %                   airspeed, ft/s (exactly one of the two)
 %     cg_pct_mac    CG, % MAC
 %   and may have g_ftps2 (default 32.174, the NESC README value) and gamma_deg
 %   (default 0; the n/alpha metric needs level flight).
 %   ac fields: AC (vital.aircraft.f16.config), env (flat Earth, zero wind,
 %   standard day), trimCond (vital.trim.solve condition), V_ftps, mach_nominal,
-%   keas (equivalent airspeed, kt: V sqrt(rho/rho0), US 1976; used by the
+%   keas (equivalent airspeed, kt: V sqrt(rho/rho0), ISA; used by the
 %   validity envelope, review R2 M8), and controllerFcn (the builder b; only
 %   with 'Controller').
 %   Errors: vital:fq:badConditions (missing or ambiguous axis); vital:badInput
@@ -53,7 +53,7 @@ end
 g = 32.174; if isfield(c, 'g_ftps2'), g = c.g_ftps2; end
 gam = 0; if isfield(c, 'gamma_deg'), gam = c.gamma_deg; end
 h = c.h_ft * ft;
-atm = vital.env.atmosphereUS76(h);
+atm = vital.env.atmosphere(h);
 if hasM
     V = c.mach * atm.a;
     mach = c.mach;
@@ -61,7 +61,7 @@ else
     V = c.V_ftps * ft;
     mach = V / atm.a;
 end
-atm0 = vital.env.atmosphereUS76(0);
+atm0 = vital.env.atmosphere(0);
 ac.AC = vital.aircraft.f16.config('CG_PCT_MAC', c.cg_pct_mac, 'AeroScale', s);
 ac.env = struct('g', g * ft, 'wind_n', [0; 0; 0], 'deltaT', 0);
 if gam == 0, type = 'level'; else, type = 'climb'; end

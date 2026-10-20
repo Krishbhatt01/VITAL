@@ -33,7 +33,7 @@ a0 = r.alpha_deg; e0 = r.elevator_deg;
 
 % flight condition exactly as VITAL uses it
 AC = vital.aircraft.f16.config('CG_PCT_MAC', CG);
-atm = vital.env.atmosphereUS76(h * u.ft);
+atm = vital.env.atmosphere(h * u.ft);
 rho = atm.rho / u.slugft3;                         % slug/ft^3
 ine = vital.models.f16.inertia(struct('CG_PCT_MAC', CG));
 W = AC.mass / u.slug * g;                          % lbf

@@ -30,7 +30,7 @@ aeroIn = struct('vt', V_ftps, 'alpha', trim.alpha_deg, 'beta', 0, ...
 aeroOut = vital.models.f16.aero(aeroIn);
 
 % ---- propulsion (F16_prop.dml) -----------------------------------------------
-atm = vital.env.atmosphereUS76(h_ft * 0.3048);
+atm = vital.env.atmosphere(h_ft * 0.3048);
 propIn = struct('PWR', trim.throttle_pct, 'ALT', h_ft, 'RMACH', V_ftps * 0.3048 / atm.a);
 propOut = vital.models.f16.prop(propIn);
 
@@ -39,7 +39,7 @@ inertiaIn = struct('CG_PCT_MAC', cg);
 inertiaOut = vital.models.f16.inertia(inertiaIn);
 
 % ---- control law and GNC (F16_control.dml, F16_gnc.dml) ----------------------
-keas = V_ftps * 0.3048 * sqrt(atm.rho / vital.env.atmosphereUS76(0).rho) / (1852 / 3600);
+keas = V_ftps * 0.3048 * sqrt(atm.rho / vital.env.atmosphere(0).rho) / (1852 / 3600);
 controlIn = struct('Vequiv', keas, 'alpha', trim.alpha_deg, 'beta', 0, ...
     'theta', trim.theta_deg, 'phi', 0, 'psi', 0, 'pb', 0, 'qb', 0, 'rb', 0, ...
     'altMsl', h_ft, 'altCmd', h_ft, 'keasCmd', keas, 'baseChiCmd', 0, 'latOffset', 0, ...

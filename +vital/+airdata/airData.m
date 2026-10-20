@@ -4,7 +4,7 @@ function ad = airData(v_b, w_b, C_bn, wind_n, atm, ref)
 %   w_b    body angular rate (rad/s)
 %   C_bn   NED -> body DCM
 %   wind_n steady wind, NED, Earth-fixed (m/s)
-%   atm    struct with rho and a (vital.env.atmosphereUS76)
+%   atm    struct with rho and a (vital.env.atmosphere)
 %   ref    struct with b (span) and cbar (mean chord), m
 %   ad fields: v_air, w_air, V, alpha, beta, qbar, mach, phat, qhat, rhat
 %   V = 0 raises vital:airdata:zeroAirspeed (FC-107); alpha and beta are
