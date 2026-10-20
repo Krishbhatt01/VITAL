@@ -269,6 +269,26 @@ Basis:
   - Cm_q acts only through the pitch rate, which is zero at the wings-level trim, so it cannot change lateral metrics.
   - This is gated by a test (lateral metrics unchanged within 1e-9 relative when Cm_q varies) and falls back to the full set if the gate fails.
 
+**Amendment R5** (coordinator, 2026-10-14; the user approved all five recommendations from review R5, reports/review/R5_REVIEW.md). It supersedes earlier M8 text where they differ.
+
+- **R5-1, lattice certificate uses h/2.** A cell's certified lower bound is (cell minimum - L * h/2), with L = 2 x the measured local slopes (own edges plus the 3^d base neighbourhood, as built). The half-edge geometric bound is valid under the same Lipschitz assumption and about 3x cheaper. Expectations pre-registered on the full-h form are kept and marked superseded (e.g. tUqLattice header 4: bound 0.08 becomes 0.14).
+- **R5-2, the verdict comes from the judged box R(1).** ROBUST needs every lattice cell (longitudinal groups) or the box search (other groups) meeting R(1) to be certified >= 0, plus the Clopper-Pearson condition. alpha* is reported as a bracket [alphaLo, alphaHi]. The 0.01 resolution is required for the judged shape only; the equal-percentage shape is reported as a bracket at whatever resolution its budget allows. NOT_ROBUST still requires a confirmed CPV with ||.|| <= 1.
+- **R5-3, piecewise certificate at table breakpoints.** Cells are split, or certified separately, on each side of an aero-table breakpoint crossed by the trim alpha (or elevator) of their vertices, using the breakpoint lists of R4-7. A cell is certified only if each one-sided piece is certified from vertices on its own side, and the report states that the margin is discontinuous there. Expected (R5 M1): 3.2.2.1.2-CatA/B are decided instead of exhausting the cap.
+- **R5-4, the stage-1 band is measured.** Measure the stage-1 vs stage-2 CSR error on the smoke groups and on toy problems, and set the re-run band to cover the largest measured error x 2, never narrower than [0.8, 1.2]. Record the measurement in the ADR.
+- **R5-5, the remaining findings are fixed:**
+  - **M2:** state the candidate-condition scope in the report. Add fresh full in-envelope assessments at the corners of R(1) and R(alphaLo); a lower margin there overrides the lattice and is reported as a moving limit.
+  - **M4:** add tests so that S8Q-1, 2, 3, 5, 6, 7, 8 and 9 (reports/work/R5/proposed_sabotages.json) are detected, and register them.
+  - **Minors m1-m10:**
+    - report text, including the narrow-feature limit;
+    - a vital:badInput deep in the chain becomes an ERROR point, never an abort;
+    - an all-+Inf cell is not certified;
+    - a global lattice budget;
+    - test runtimes;
+    - tF16Uq no longer reads reports/;
+    - the version string;
+    - explicit judgment statements (Cm_basic and Cm_de independent; wings-level trims only).
+- **R5-6, the default deliverable (R5 B1).** Rename the stale reports/uq/f16_uq_default.* (pre-R3) to *_superseded_2026-10-09. After the coordinator's gate, the staged default run_f16_uq is run on the final code, and a test pins its headline verdicts.
+
 ## Exit criteria for "done to M8"
 1. `run_vital_tests('M8')` is GREEN from a fresh MATLAB session (`restoredefaultpath`, no `startup_vital`), with 0 excluded.
 2. `run_sabotage('M5')` … `('M8')` detect every sabotage, with the tree unchanged.

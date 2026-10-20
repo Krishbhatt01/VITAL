@@ -26,6 +26,9 @@ classdef F16Evaluator < handle
     %         Level-L boundary), q.level, q.record, q.reason
     %   res = E.assessAt(theta)        a FRESH vital.fq.assess over the
     %         conditions (never cached; the confirmation of vital.uq.boundWorst)
+    %   res = E.assessShared(theta)    the same fresh assessment, kept per theta so
+    %         that the groups confirming at one theta share it (amendment R5-5 M2:
+    %         the corners of R(1)); counters nAssess (run) and nAssessHits
     %   [m, cr] = vital.uq.F16Evaluator.levelMargin(res, group, L)
     %         in-envelope margin to the Level-L boundary (the M7 definition,
     %         ADR ctrl-5): min over the group's Level-L records of their
@@ -75,6 +78,7 @@ classdef F16Evaluator < handle
         nPointEvals = 0
         nCacheHits = 0
         nAssess = 0
+        nAssessHits = 0
         bracketOn = true
         bracketed = struct('label', {}, 'theta', {}, 'cond', {}, 'variable', {}, 'breakpoint', {}, 'd', {}, ...
             'alpha_deg', {}, 'de_deg', {}, 'sides', {}, 'reason', {})
@@ -83,6 +87,7 @@ classdef F16Evaluator < handle
     properties (Access = private)
         cache
         raw
+        fresh
     end
 
     methods
@@ -112,6 +117,7 @@ classdef F16Evaluator < handle
             E.builder = b;
             E.cache = containers.Map('KeyType', 'char', 'ValueType', 'any');
             E.raw = containers.Map('KeyType', 'char', 'ValueType', 'any');
+            E.fresh = containers.Map('KeyType', 'char', 'ValueType', 'any');
             E.bracketOn = opts.Bracket;
         end
 
@@ -238,6 +244,20 @@ classdef F16Evaluator < handle
         function res = assessAt(E, theta)
             res = vital.fq.assess(E.rules, E.factory(theta), E.conditions);
             E.nAssess = E.nAssess + 1;
+        end
+
+        function res = assessShared(E, theta)
+            % a fresh assessment, shared by every group that confirms at the same theta
+            % (amendment R5-5 M2: the corners of R(1) are the same for every lattice group);
+            % deterministic, so sharing changes no value; counted in nAssess once
+            k = sprintf('%.17g|', theta);
+            if isKey(E.fresh, k)
+                E.nAssessHits = E.nAssessHits + 1;
+                res = E.fresh(k);
+                return
+            end
+            res = E.assessAt(theta);
+            E.fresh(k) = res;
         end
 
         function s = scaleStruct(E, theta)

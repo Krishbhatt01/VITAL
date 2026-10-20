@@ -51,6 +51,15 @@ function r = run_f16_uq(opts)
 %                                   failures (R4-7) and lateral groups without
 %                                   Cm_q (R4-9, gated); 'Staged' false runs one
 %                                   stage at the given budget
+%   run_f16_uq(..., 'LatticeCorners', true, 'LatticeTotalPoints', 12000, 'Piecewise', true)
+%                                   amendment R5 (2026-10-14; defaults on): h/2
+%                                   lattice certificate, verdict from the judged
+%                                   box R(1) (alpha* reported as a bracket),
+%                                   piecewise certificate at the aero-table
+%                                   breakpoints, fresh assessments at the
+%                                   corners of R(1) and R(alphaLo), a global
+%                                   lattice budget, the stage-2 band from the
+%                                   measured stage-1 error (vital.uq.stageBand)
 %   run_f16_uq(..., 'Label', 'x', 'ReportDir', d, 'Overwrite', true, 'Quiet', true)
 %
 %   Writes <ReportDir>\f16_uq_<Label>.json/.md (default reports\uq,
@@ -93,12 +102,15 @@ arguments
     opts.GridPoints (1,1) double = 11
     opts.Staged (1,1) logical = true
     opts.Stage1 struct = struct([])
-    opts.Stage2Band (1,2) double = [0.8 1.2]
+    opts.Stage2Band (1,2) double = [0.8 1.2]   % R5-4: = vital.uq.stageBand(measured errors, max 0.075): the floor (ADR-036 uq5-4)
     opts.Lattice (1,1) logical = true
     opts.LatticeMaxLevel (1,1) double = 10
     opts.LatticeMaxPoints (1,1) double = 6000
     opts.LatDropCmq (1,1) logical = true
     opts.Bracket (1,1) logical = true
+    opts.LatticeCorners (1,1) logical = true
+    opts.LatticeTotalPoints (1,1) double = 12000
+    opts.Piecewise (1,1) logical = true
 end
 addpath(fileparts(mfilename('fullpath')));
 rdir = opts.ReportDir;
@@ -111,7 +123,8 @@ r = vital.uq.analyze('Groups', opts.Groups, 'WidthScales', opts.WidthScales, 'Co
     'EqualPct', opts.EqualPct, 'DEPopulation', opts.DEPopulation, 'DEGenerations', opts.DEGenerations, ...
     'GridPoints', opts.GridPoints, 'Staged', opts.Staged, 'Stage1', opts.Stage1, 'Stage2Band', opts.Stage2Band, ...
     'Lattice', opts.Lattice, 'LatDropCmq', opts.LatDropCmq, 'Bracket', opts.Bracket, ...
-    'LatticeMaxLevel', opts.LatticeMaxLevel, 'LatticeMaxPoints', opts.LatticeMaxPoints);
+    'LatticeMaxLevel', opts.LatticeMaxLevel, 'LatticeMaxPoints', opts.LatticeMaxPoints, ...
+    'LatticeCorners', opts.LatticeCorners, 'LatticeTotalPoints', opts.LatticeTotalPoints, 'Piecewise', opts.Piecewise);
 name = ['f16_uq_' opts.Label];
 kept = '';
 if ~opts.Overwrite && (isfile(fullfile(rdir, [name '.json'])) || isfile(fullfile(rdir, [name '.md'])))

@@ -93,6 +93,44 @@ function res = lattice(problem, opts)
 %   is repeated: at most MaxRounds rounds; a confirmation still moving after
 %   the last round makes its item NOT_ASSESSABLE ('MOVING_LIMIT').
 %
+%   AMENDMENT R5 (docs/PLAN_M5_M8.md "Amendment R5", coordinator 2026-10-14;
+%   it supersedes the text above where they differ):
+%   R5-1 'Certificate' 'half' (default): bound = min(vertex margins) - sum_i
+%     L_i h_i / 2 (every point of a cell lies within h_i/2 of a vertex along
+%     each axis); 'full' keeps the R4b form.
+%   R5-2 refinement priority per group: (1) the cells deciding R(DecideAt) of the
+%     first (judged) shape, (2) the judged shape to the Resolution, (3) the other
+%     shapes at what the caps leave (reported as brackets). Every csr result has
+%     lowerCertified / lowerReason: R(alphaLo) is certified over the final
+%     candidates (its cells certified by construction; no confirmation item of
+%     the final round moved; no corner, box or cap check inside R(alphaLo) whose
+%     point evaluation or fresh confirmation fails or is not OK). A status 'OK'
+%     or 'ROBUST_TO_CAP' whose lower end is not certified becomes NOT_ASSESSABLE.
+%   R5-3 problem.switches (optional; struct array name, breakpoints) and
+%     q.switchVals (1 x numel(switches)): the side of a point at a condition =
+%     the number of breakpoints below each switching value. Slopes are never
+%     measured over an edge whose ends lie on different sides (own edges and the
+%     3^d base neighbourhood). A cell whose vertices lie on different sides at a
+%     condition (it STRADDLES) is certified piecewise: per condition and side,
+%     min(margins of the vertices of that side) - sum_i L_i h_i with the FULL
+%     edge h (a planar cut leaves each side a vertex within one edge), L = factor
+%     x the slopes at that condition (own edges and neighbourhood that do not
+%     cross); its bound is the minimum over the conditions and sides.
+%     res.groups(g).discontinuity: present, nCells, nCertified, variables,
+%     breakpoints, maxJump, crossings (variable, breakpoint, maxJump, nEdges),
+%     text.
+%   R5-5 M2 'CornerChecks' (default true): each round also confirms the group at
+%     the 2^d corners of R(DecideAt) and R(alphaLo) of the judged shape (extra
+%     check points, evaluated by pointFcn at the group's conditions but never
+%     vertices of a cell; res.lattice.nExtra), with the moving-limit rule of the
+%     other items (item.kind 'corner'). res.groups(g).scope states what the
+%     certificate covers.
+%   m2: any exception inside pointFcn is an ERROR point; a malformed result is
+%     vital:uq:badPointResult. m3: a cell whose vertices are all +Inf is not
+%     certified and not refined. m5: 'MaxTotalPoints' (default Inf) caps the
+%     lattice points of all groups together (res.lattice.budgetExhausted; the
+%     capped groups' reasons say 'global').
+%
 %   res fields: groups (name, conds, condLabels, conditions, csr (1 x nS, the
 %     fields of vital.uq.csr plus method 'lattice', label, lattice), boxes
 %     (bound-worst compatible: status, reason, value, theta, cond, condition,
@@ -110,7 +148,8 @@ function res = lattice(problem, opts)
 %   Errors: vital:badInput (problem fields, d > 3, GridPoints not odd >= 3,
 %   MaxLevel / MaxPoints / MaxRounds not positive integers, LipschitzFactor <
 %   1, AlphaMax or Resolution not > 0, a group condition index out of range, a
-%   shape cap box outside the lattice box, a malformed pointFcn result);
+%   shape cap box outside the lattice box, switches without strictly increasing
+%   breakpoints); vital:uq:badPointResult (a malformed pointFcn result, R5 m2);
 %   vital:uq:negativeMultiplier (nominal - AlphaMax m < 0).
 arguments
     problem (1,1) struct
@@ -124,10 +163,16 @@ arguments
     opts.MaxRounds (1,1) double = 3
     opts.DecideAt (1,:) double = 1
     opts.Boxes struct = struct('name', {}, 'alpha', {})
+    opts.Certificate (1,:) char {mustBeMember(opts.Certificate, {'half', 'full'})} = 'half'
+    opts.CornerChecks (1,1) logical = true
+    opts.MaxTotalPoints (1,1) double = Inf
 end
 P = validate(problem, opts);
 d = numel(P.nominal); nG = numel(P.groups); nS = numel(P.shapes);
 nom = P.nominal; Amax = opts.AlphaMax; Res = opts.Resolution; Rsv = opts.Reserve; fac = opts.LipschitzFactor;
+if strcmp(opts.Certificate, 'full'), hf = 1; else, hf = 0.5; end   % R5-1: h/2 (the geometric bound)
+SW = P.switches; nSw = numel(SW);                 % R5-3: switching variables (aero-table breakpoints)
+budgetHit = false;
 LO = nom - Amax * P.m; HI = nom + Amax * P.m;
 ng = opts.GridPoints; s0 = 2^opts.MaxLevel; K = (ng - 1) * s0; nb = ng - 1;
 tolA = 1e-12;
@@ -153,10 +198,13 @@ capN = 4096; nP = 0;
 PK = zeros(capN, d); PT = zeros(capN, d);
 pmap = containers.Map('KeyType', 'double', 'ValueType', 'double');
 strT = {'', 'OK'}; smap = containers.Map(strT, {1, 2});
-evDone = {}; evM = {}; evOK = {}; evRec = {}; evSt = {}; evWhy = {};
+evDone = {}; evM = {}; evOK = {}; evRec = {}; evSt = {}; evWhy = {}; evSw = {}; evCode = {};
 for c_p = 1:numel(conds), newCondStore(); end
 nCalls = 0; nConf = 0;
-GR = struct('conds', {}, 'C', {}, 'H', {}, 'V', {}, 'X', {}, 'rounds', {}, 'mem', {}, 'nPts', {}, 'capped', {});
+isX = false(capN, 1); nX = 0;                     % extra (non-lattice) check points: corners of R(alpha)
+xmap = containers.Map('KeyType', 'char', 'ValueType', 'double');
+GR = struct('conds', {}, 'C', {}, 'H', {}, 'V', {}, 'X', {}, 'rounds', {}, 'mem', {}, 'nPts', {}, 'capped', {}, ...
+    'cappedGlobal', {});
 confCache = containers.Map('KeyType', 'char', 'ValueType', 'any');
 
 % ---- base lattice ---------------------------------------------------------------------------
@@ -179,7 +227,7 @@ for g_p = 1:nG
     GR(g_p).C = BC; GR(g_p).H = s0 * ones(nBC, d); GR(g_p).V = BV; GR(g_p).X = false(nBC, 1);
     GR(g_p).rounds = struct('round', {}, 'candidates', {}, 'moved', {}, 'confirmations', {});
     GR(g_p).mem = false(capN, 1); GR(g_p).mem(unique(BV(:))) = true;
-    GR(g_p).nPts = numel(unique(BV(:))); GR(g_p).capped = false;
+    GR(g_p).nPts = numel(unique(BV(:))); GR(g_p).capped = false; GR(g_p).cappedGlobal = false;
 end
 nomIdx = ensurePoint((K / 2) * ones(1, d));
 
@@ -203,11 +251,12 @@ end
 % ---- results -----------------------------------------------------------------------------------
 FS = cell(nG, 1);
 for g_p = 1:nG, FS{g_p} = cellStats(g_p); end
-res.lattice = struct('lo', LO, 'hi', HI, 'K', K, 'nPoints', nP, 'nBase', nBase, ...
+res.lattice = struct('lo', LO, 'hi', HI, 'K', K, 'nPoints', nP - nX, 'nBase', nBase, ...
     'nEvaluations', cellfun(@(z) sum(z(1:nP)), evDone), 'nCells', arrayfun(@(z) size(z.C, 1), GR), ...
-    'capped', any([GR.capped]), 'cappedGroups', {{P.groups([GR.capped]).name}}, 'finestStep', finest());
+    'capped', any([GR.capped]), 'cappedGroups', {{P.groups([GR.capped]).name}}, 'finestStep', finest(), ...
+    'nExtra', nX, 'budgetExhausted', budgetHit, 'maxTotalPoints', opts.MaxTotalPoints);
 G_p = struct('name', {}, 'conds', {}, 'condLabels', {}, 'conditions', {}, 'csr', {}, 'boxes', {}, ...
-    'certificate', {}, 'rounds', {});
+    'certificate', {}, 'rounds', {}, 'discontinuity', {}, 'scope', {});
 for g_p = 1:nG
     e_p = struct();
     e_p.name = P.groups(g_p).name;
@@ -229,6 +278,10 @@ for g_p = 1:nG
     e_p.boxes = bx_p;
     e_p.certificate = certOf(g_p);
     e_p.rounds = GR(g_p).rounds;
+    e_p.discontinuity = discOf(g_p);
+    e_p.scope = sprintf(['certified over the candidate condition(s) %s only; the other conditions are checked by ' ...
+        'fresh assessments (confirmFcn) at the CPV, the cap-box and box arg-mins%s'], ...
+        strjoin(labels(GR(g_p).conds), '; '), ifs(opts.CornerChecks, ' and the 2^d corners of R(1) and R(alphaLo)', ''));
     if isempty(G_p), G_p = e_p; else, G_p(g_p) = e_p; end %#ok<AGROW>
 end
 res.groups = G_p;
@@ -246,6 +299,8 @@ res.options = opts;
         evRec{end+1} = ones(capN, nG);
         evSt{end+1} = ones(capN, nG);
         evWhy{end+1} = ones(capN, nG);
+        evSw{end+1} = NaN(capN, max(nSw, 1));
+        evCode{end+1} = NaN(capN, 1);
     end
 
     function k = sidx(s)
@@ -262,7 +317,10 @@ res.options = opts;
             evRec{cc}(capN + 1:n2, :) = 1;
             evSt{cc}(capN + 1:n2, :) = 1;
             evWhy{cc}(capN + 1:n2, :) = 1;
+            evSw{cc}(capN + 1:n2, :) = NaN;
+            evCode{cc}(capN + 1:n2, 1) = NaN;
         end
+        isX(n2, 1) = false;
         for gg = 1:numel(GR), GR(gg).mem(n2, 1) = false; end
         capN = n2;
     end
@@ -278,6 +336,32 @@ res.options = opts;
         th(kk == K / 2) = nom(kk == K / 2);
         PK(idx, :) = kk; PT(idx, :) = th;
         pmap(key) = idx;
+    end
+
+    function idx = ensureCheck(th)
+        % R5-5 M2: a check point (a corner of R(alpha)): the lattice point when theta lies on
+        % the lattice, else an EXTRA point (evaluated at the group's conditions like a lattice
+        % point, never a vertex of a cell, not counted in nPoints)
+        kk = (th - LO) ./ (HI - LO) * K;
+        kr = round(kk);
+        if all(abs(kk - kr) <= 1e-7) && all(kr >= 0 & kr <= K) && (isKey(pmap, kr * W.') || nP - nX < opts.MaxTotalPoints)
+            idx = ensurePoint(kr);                   % a lattice point (within the global budget)
+            return
+        end
+        key = sprintf('%.17g,', th);
+        if isKey(xmap, key), idx = xmap(key); return; end
+        if nP == capN, grow(); end
+        nP = nP + 1; idx = nP; nX = nX + 1;
+        PK(idx, :) = NaN; PT(idx, :) = th; isX(idx) = true;
+        xmap(key) = idx;
+    end
+
+    function n = missingGlobal(kk)
+        % lattice points of kk not yet in the lattice (the global budget, R5 m5)
+        n = 0;
+        for r2 = 1:size(kk, 1)
+            if ~isKey(pmap, kk(r2, :) * W.'), n = n + 1; end
+        end
     end
 
     function n = missingPoints(g, kk)
@@ -296,12 +380,15 @@ res.options = opts;
             th = PT(ii, :);
             try
                 q = P.pointFcn(th, conds{c});
-                q = checkQ(q);
+                failed = false;
             catch err
-                if strcmp(err.identifier, 'vital:badInput'), rethrow(err); end
+                % R5 m2: ANY exception inside the point evaluation (vital:badInput deep in the
+                % chain included) is an ERROR point, never an abort of a multi-hour run
                 q = struct('status', {repmat({'ERROR'}, 1, nG)}, 'margin', NaN(1, nG), ...
                     'record', {repmat({''}, 1, nG)}, 'reason', {repmat({sprintf('%s: %s', err.identifier, err.message)}, 1, nG)});
+                failed = true;
             end
+            if ~failed, q = checkQ(q); end           % a malformed result is a programming error: vital:uq:badPointResult
             nCalls = nCalls + 1;
             evDone{c}(ii) = true;
             ok = strcmp(q.status, 'OK');
@@ -313,13 +400,33 @@ res.options = opts;
                 evSt{c}(ii, gg) = sidx(q.status{gg});
                 evWhy{c}(ii, gg) = sidx(q.reason{gg});
             end
+            if nSw > 0 && isfield(q, 'switchVals')
+                sv = double(q.switchVals(:).');
+                evSw{c}(ii, 1:nSw) = sv;
+                evCode{c}(ii) = sideCode(sv);
+            end
+        end
+    end
+
+    function k = sideCode(sv)
+        % R5-3: the side of a point = the number of breakpoints below each switching
+        % variable, combined into one integer (NaN when a variable is unknown)
+        k = 0; base = 1;
+        for jw = 1:nSw
+            if ~isfinite(sv(jw)), k = NaN; return; end
+            bpw = SW(jw).breakpoints;
+            k = k + base * sum(sv(jw) > bpw);
+            base = base * (numel(bpw) + 1);
         end
     end
 
     function q = checkQ(q)
         if ~isstruct(q) || ~all(isfield(q, {'status', 'margin'})) || ~iscell(q.status) || numel(q.status) ~= nG ...
                 || ~isnumeric(q.margin) || numel(q.margin) ~= nG
-            error('vital:badInput', 'pointFcn must return q.status (1 x %d cellstr) and q.margin (1 x %d).', nG, nG);
+            error('vital:uq:badPointResult', 'pointFcn must return q.status (1 x %d cellstr) and q.margin (1 x %d).', nG, nG);
+        end
+        if nSw > 0 && isfield(q, 'switchVals') && (~isnumeric(q.switchVals) || numel(q.switchVals) ~= nSw)
+            error('vital:uq:badPointResult', 'q.switchVals must have %d numeric entries (one per switch).', nSw);
         end
         if ~isfield(q, 'record'), q.record = repmat({''}, 1, nG); end
         if ~isfield(q, 'reason'), q.reason = repmat({''}, 1, nG); end
@@ -342,6 +449,10 @@ res.options = opts;
         V.fail = any(OK & M < Rsv, 2);
         V.cond = cs(jm).';
         V.M = M;
+        V.code = NaN(n, nc);
+        for jc = 1:nc
+            V.code(:, jc) = evCode{cs(jc)}(idx);
+        end
         V.idx = idx;
         V.rec = zeros(n, 1);
         for jc = 1:nc
@@ -368,12 +479,21 @@ res.options = opts;
         Vok = reshape(Vp.ok(loc(Vx)), n, nv);
         Vf = reshape(Vp.fail(loc(Vx)), n, nv);
         hT = (H / K) .* (HI - LO);
-        Ms = Vm; Ms(~Vok) = NaN;
-        own = slopes(Ms, hT);
-        % base neighbourhood slopes
+        nc = numel(GR(g).conds);
         Bv = groupVals(g, BV(:));
+        CodeC = {}; BCode = {};                   % R5-3: per-condition sides of the vertices
+        if nSw > 0
+            CodeC = cell(1, nc); BCode = cell(1, nc);
+            for jc = 1:nc
+                CodeC{jc} = reshape(Vp.code(loc(Vx), jc), n, nv);
+                BCode{jc} = reshape(Bv.code(:, jc), nBC, nv);
+            end
+        end
+        Ms = Vm; Ms(~Vok) = NaN;
+        own = slopes(Ms, hT, CodeC);
+        % base neighbourhood slopes (edges across a breakpoint excluded, R5-3)
         Bm = reshape(Bv.m, nBC, nv); Bm(~reshape(Bv.ok, nBC, nv)) = NaN;
-        BS = slopes(Bm, repmat(hT0, nBC, 1));
+        BS = slopes(Bm, repmat(hT0, nBC, 1), BCode);
         NB = zeros(nBC, d);
         for ia = 1:d, NB(:, ia) = maxFilter(BS(:, ia)); end
         bsub = floor(C / s0);
@@ -384,25 +504,75 @@ res.options = opts;
         L = fac * sl;
         allOK = all(Vok, 2);
         mn = min(Vm, [], 2);
-        bound = mn - sum(L .* hT, 2);
+        bound = mn - sum(L .* (hT * hf), 2);      % R5-1: cell minimum - sum L_i h_i / 2
+        % R5-3: a cell whose vertices trim on both sides of a breakpoint at some condition
+        % is certified PIECEWISE: per condition and side, the minimum over the vertices of
+        % that side minus sum L_i h_i with the FULL edge (a planar cut leaves each side a
+        % vertex within one edge), L from the edges that do not cross the breakpoint
+        strad = false(n, 1);
+        for jc = 1:numel(CodeC), strad = strad | rowStrad(CodeC{jc}); end
+        js = find(strad & allOK);
+        if ~isempty(js)
+            NBc = cell(1, nc);
+            for jc = 1:nc
+                Bc = reshape(Bv.M(:, jc), nBC, nv);
+                BSc = slopes(Bc, repmat(hT0, nBC, 1), BCode(jc));
+                NBc{jc} = zeros(nBC, d);
+                for ia = 1:d, NBc{jc}(:, ia) = maxFilter(BSc(:, ia)); end
+            end
+            for j = js(:).'
+                vj = loc(Vx(j, :));
+                bj = Inf; Lj = zeros(1, d);
+                for jc = 1:nc
+                    mc = Vp.M(vj, jc).';
+                    cd = CodeC{jc}(j, :);
+                    slp = max(slopes(mc, hT(j, :), {cd}), NBc{jc}(bl(j), :));
+                    slp(isnan(slp)) = 0;
+                    Lp = fac * slp;
+                    u = unique(cd(~isnan(cd)));
+                    if numel(u) <= 1
+                        b = min(mc) - sum(Lp .* (hT(j, :) * hf));
+                    else
+                        b = Inf;
+                        for uu = u
+                            on = cd == uu | isnan(cd);
+                            b = min(b, min(mc(on)) - sum(Lp .* hT(j, :)));
+                        end
+                    end
+                    bj = min(bj, b); Lj = max(Lj, Lp);
+                end
+                bound(j) = bj; L(j, :) = Lj; sl(j, :) = Lj / fac;
+            end
+        end
         bound(~allOK) = NaN;
         bound(allOK & any(Vm == -Inf, 2)) = -Inf;
+        infCell = allOK & all(Vm == Inf, 2);      % R5 m3: +Inf at every vertex bounds nothing between them
+        bound(infCell) = NaN;
         S.n = n; S.C = C; S.H = H; S.V = Vx; S.hT = hT; S.L = L; S.slope = sl;
         S.allOK = allOK; S.anyFail = any(Vf, 2); S.bound = bound;
+        S.strad = strad; S.infCell = infCell;
         S.certified = allOK & bound >= Rsv;
         S.cl = LO + (HI - LO) .* (C / K);
         S.ch = LO + (HI - LO) .* ((C + H) / K);
         S.pts = pts; S.P = Vp;
     end
 
-    function s = slopes(Mv, hT)
+    function s = slopes(Mv, hT, Codes)
         n = size(Mv, 1);
         s = zeros(n, d);
         for ia = 1:d
             D = abs(Mv(:, EP{ia}(:, 2)) - Mv(:, EP{ia}(:, 1)));
             D(~isfinite(D)) = NaN;
+            for jw = 1:numel(Codes)              % R5-3: no slope is measured across a breakpoint
+                Ca = Codes{jw}(:, EP{ia}(:, 1)); Cb = Codes{jw}(:, EP{ia}(:, 2));
+                D(Ca ~= Cb & ~isnan(Ca) & ~isnan(Cb)) = NaN;
+            end
             s(:, ia) = max(D, [], 2) ./ hT(:, ia);
         end
+    end
+
+    function t = rowStrad(Cd)
+        t = max(Cd, [], 2) > min(Cd, [], 2);
     end
 
     function out = maxFilter(v)
@@ -453,23 +623,41 @@ res.options = opts;
         A.unc = unc;
     end
 
-    function sel = selectRefine(S, s, X)
+    function sel = selectRefine(S, s, X, what)
+        % what 'decide': the DecideAt cells of the first (judged) shape only (R5-2: the
+        % verdict needs R(1) decided); 'resolve': the cells that can still move alpha*
+        % of shape s to the Resolution
         A = shapeState(S, s);
         refinable = S.allOK & any(S.H > 1, 2) & ~X;
+        refinable = refinable & ~S.infCell;        % R5 m3: refining an all-+Inf cell cannot certify it
         sel = false(S.n, 1);
-        if isfinite(A.hi)
-            if A.hi - A.lo > Res + tolA
-                sel = A.unc & refinable & A.e < min(A.hi - Res, A.block) - tolA;
+        if strcmp(what, 'resolve')
+            if isfinite(A.hi)
+                if A.hi - A.lo > Res + tolA
+                    sel = A.unc & refinable & A.e < min(A.hi - Res, A.block) - tolA;
+                end
+            else
+                sel = A.unc & refinable & A.e <= Amax + tolA & A.e < A.block;
             end
-        else
-            sel = A.unc & refinable & A.e <= Amax + tolA & A.e < A.block;
-        end
-        if s == 1
+        elseif s == 1
             for a = opts.DecideAt
                 if A.lo < a - tolA && A.hi > a + tolA
                     sel = sel | (A.unc & refinable & A.e <= a + tolA & A.e < A.block);
                 end
             end
+        end
+    end
+
+    function sel = selectPhase(S, X)
+        % R5-2 priority: (1) decide R(DecideAt) of the judged shape, (2) resolve the judged
+        % shape to the Resolution, (3) the other shapes at whatever resolution the budget
+        % leaves (they are reported as brackets)
+        sel = selectRefine(S, 1, X, 'decide');
+        if any(sel), return; end
+        sel = selectRefine(S, 1, X, 'resolve');
+        if any(sel), return; end
+        for s = 2:nS
+            sel = sel | selectRefine(S, s, X, 'resolve');
         end
     end
 
@@ -479,10 +667,7 @@ res.options = opts;
             for g = 1:nG
                 if GR(g).capped, continue; end
                 S = cellStats(g);
-                sel = false(S.n, 1);
-                for s = 1:nS
-                    sel = sel | selectRefine(S, s, GR(g).X);
-                end
+                sel = selectPhase(S, GR(g).X);
                 if any(sel)
                     any1 = split(g, S, find(sel)) || any1;
                 end
@@ -532,6 +717,10 @@ res.options = opts;
                 GR(g).capped = true;
                 break
             end
+            if nP - nX + missingGlobal(unique(allV, 'rows')) > opts.MaxTotalPoints   % R5 m5: the global budget
+                GR(g).capped = true; GR(g).cappedGlobal = true; budgetHit = true;
+                break
+            end
             Vk = zeros(size(kids, 1), nv);
             for jk = 1:size(kids, 1)
                 for jv = 1:nv
@@ -560,7 +749,8 @@ res.options = opts;
         % confirm the CPV / cap arg-min of every shape and the arg-min of every box
         S = cellStats(g);
         items = struct('what', {}, 'point', {}, 'theta', {}, 'latticeMargin', {}, 'evaluated', {}, 'status', {}, ...
-            'margin', {}, 'cond', {}, 'condition', {}, 'record', {}, 'moved', {}, 'reason', {});
+            'margin', {}, 'cond', {}, 'condition', {}, 'record', {}, 'moved', {}, 'reason', {}, 'kind', {}, ...
+            'alpha', {}, 'pointStatus', {});
         moved = false; newC = [];
         for s = 1:nS
             A = shapeState(S, s);
@@ -577,6 +767,25 @@ res.options = opts;
             k = argminIn(S, nom - opts.Boxes(b).alpha * P.m, nom + opts.Boxes(b).alpha * P.m);
             if k > 0
                 items(end+1) = confirmPoint(g, S, k, sprintf('box %s arg-min', opts.Boxes(b).name)); %#ok<AGROW>
+                items(end).kind = 'box'; items(end).alpha = opts.Boxes(b).alpha;
+            end
+        end
+        if opts.CornerChecks
+            % R5-5 M2: fresh assessments at the 2^d corners of R(DecideAt) and R(alphaLo) of the
+            % judged (first) shape; a smaller margin at a non-candidate condition is a moving
+            % limit (the same rule as the CPV and arg-min items)
+            A1 = shapeState(S, 1);
+            m1 = P.shapes(1).m;
+            als = unique([opts.DecideAt(opts.DecideAt > tolA & opts.DecideAt <= Amax + tolA), min(A1.lo, Amax)]);
+            als = als(als > tolA);
+            for a = als
+                for jv = 1:nv
+                    th = nom + (2 * VO(jv, :) - 1) .* (a * m1);
+                    k = ensureCheck(th);
+                    Sx = struct('pts', k, 'P', groupVals(g, k));
+                    items(end+1) = confirmPoint(g, Sx, k, sprintf('corner R(%.4g) %d', a, jv)); %#ok<AGROW>
+                    items(end).kind = 'corner'; items(end).alpha = a;
+                end
             end
         end
         for it = 1:numel(items)
@@ -599,7 +808,10 @@ res.options = opts;
         jp = find(S.pts == k, 1);
         x = struct('what', what, 'point', k, 'theta', PT(k, :), 'latticeMargin', S.P.m(jp), 'evaluated', false, ...
             'status', 'OK', 'margin', S.P.m(jp), 'cond', labels{S.P.cond(jp)}, 'condition', [], 'record', strT{S.P.rec(jp)}, ...
-            'moved', false, 'reason', 'no confirmation function: confirmed by the point function only');
+            'moved', false, 'reason', 'no confirmation function: confirmed by the point function only', ...
+            'kind', 'shape', 'alpha', NaN, 'pointStatus', 'OK');
+        if S.P.fail(jp), x.pointStatus = 'FAIL'; elseif ~S.P.ok(jp), x.pointStatus = 'NOT_OK'; end
+        if startsWith(what, 'CPV'), x.kind = 'cpv'; elseif startsWith(what, 'cap'), x.kind = 'cap'; end
         cf = P.groups(g).confirmFcn;
         if isempty(cf), return; end
         key = sprintf('%d|%d', g, k);
@@ -701,11 +913,15 @@ res.options = opts;
         c.nominalMargin = S.P.m(jn);
         conf = findConf(g, s);
         if ~isempty(conf)
-            c.confirmation = rmfield(conf, {'what', 'point', 'theta', 'latticeMargin', 'condition'});
+            c.confirmation = rmfield(conf, {'what', 'point', 'theta', 'latticeMargin', 'condition', 'kind', 'alpha', ...
+                'pointStatus'});
         end
+        c.lowerCertified = false;
+        c.lowerReason = '';
         if ~S.P.ok(jn) && ~S.P.fail(jn)
             c.status = 'NOT_ASSESSABLE';
             c.reason = sprintf('the nominal point is not OK (%s: %s)', strT{S.P.st(jn)}, strT{S.P.why(jn)});
+            c.lowerReason = c.reason;
             c = orderfields(c);
             return
         end
@@ -764,8 +980,72 @@ res.options = opts;
         end
         c.alphaLo = min(c.alphaLo, Amax);
         if strcmp(c.status, 'ROBUST_TO_CAP'), c.alphaLo = Amax; end
+        % R5-2: is R(alphaLo) certified? (every cell meeting it certified by construction of
+        % alphaLo; the final round's fresh confirmations must agree)
+        [c.lowerCertified, c.lowerReason] = lowerOf(g, s, S, c.alphaLo);
+        if ~c.lowerCertified && any(strcmp(c.status, {'OK', 'ROBUST_TO_CAP'})) && c.alphaLo > 0
+            c.status = 'NOT_ASSESSABLE';
+            c.reason = sprintf('%s; but R(alphaLo) is not confirmed: %s', c.reason, c.lowerReason);
+            c.alphaStar = NaN;
+            if isinf(c.alphaHi), c.alphaLo = A.lo; end
+        end
         c.psm = c.alphaStar * m;
         c = orderfields(c);
+    end
+
+    function [ok, why] = lowerOf(g, s, S, lo)
+        % R(lo) of shape s: certified clean over the final candidates (R5-2)
+        jn = find(S.pts == nomIdx, 1);
+        if ~(S.P.ok(jn) && ~S.P.fail(jn))
+            ok = false; why = 'the nominal point fails or is not OK';
+            return
+        end
+        items = CF{g};
+        ok = true; why = sprintf('every lattice cell meeting R(%.4g) is certified (%s)', lo, ...
+            'grid-certified (Lipschitz estimate)');
+        if isempty(items), return; end
+        mv = items([items.moved]);
+        if ~isempty(mv)
+            ok = false;
+            why = sprintf(['MOVING_LIMIT: the final round''s confirmation "%s" still moves (%s): the candidate ' ...
+                'conditions are incomplete'], mv(1).what, mv(1).reason);
+            return
+        end
+        % fresh confirmations inside R(lo): the corners (judged shape) and the box arg-mins
+        % with alpha <= lo, and the cap arg-min of this shape when lo is the cap
+        isIn = false(size(items));
+        for it = 1:numel(items)
+            x = items(it);
+            switch x.kind
+                case 'corner', isIn(it) = s == 1 && x.alpha <= lo + tolA;
+                case 'box', isIn(it) = s == 1 && x.alpha <= lo + tolA;
+                case 'cap', isIn(it) = strcmp(x.what, ['cap arg-min ' P.shapes(s).name]) && lo >= Amax - tolA;
+            end
+        end
+        for x = items(isIn)
+            if ~strcmp(x.pointStatus, 'OK')
+                ok = false;
+                why = sprintf(['the point evaluation at the check point "%s" inside R(%.4g) is %s although every ' ...
+                    'cell is certified: the certificate is contradicted'], x.what, lo, x.pointStatus);
+                return
+            end
+            if x.evaluated && ~strcmp(x.status, 'OK')
+                ok = false;
+                why = sprintf('the fresh confirmation "%s" inside R(%.4g) is not OK: %s (%s)', x.what, lo, x.status, ...
+                    x.reason);
+                return
+            end
+            if x.evaluated && x.margin < Rsv
+                ok = false;
+                why = sprintf(['the fresh confirmation "%s" inside R(%.4g) fails (margin %.6g at %s) although the ' ...
+                    'lattice does not: the point evaluation and the confirmation disagree'], x.what, lo, x.margin, x.cond);
+                return
+            end
+        end
+        nc = sum(isIn & strcmp({items.kind}, 'corner'));
+        if nc > 0
+            why = sprintf('%s; the fresh assessments at %d corner(s) inside it agree', why, nc);
+        end
     end
 
     function t = limitText(g, S, A)
@@ -783,9 +1063,20 @@ res.options = opts;
                 return
             end
         end
+        j = find(unc & S.infCell, 1);
+        if ~isempty(j)
+            t = sprintf(['GRID: a lattice cell at scaled distance %.4g has the margin +Inf at every vertex (no record ' ...
+                'applies there): the Lipschitz estimate bounds nothing between its vertices, so it is not certified ' ...
+                '(review R5 m3)'], A.lo);
+            return
+        end
             t = sprintf(['GRID: the lattice caps are reached (MaxLevel %d, MaxPoints %d per group, %d points of the group, capped %d) with %d ' ...
             'uncertified cell(s) at entry alpha %.4g (grid-certified (Lipschitz estimate))'], opts.MaxLevel, ...
             opts.MaxPoints, GR(g).nPts, GR(g).capped, sum(unc), A.lo);
+        if GR(g).cappedGlobal
+            t = sprintf('%s; the global lattice budget (MaxTotalPoints %d over all groups) is exhausted', t, ...
+                opts.MaxTotalPoints);
+        end
         if ~startsWith(t, 'GRID'), t = ['GRID: ' t]; end
     end
 
@@ -881,9 +1172,68 @@ res.options = opts;
 
     function ce = certOf(g)
         S = FS{g};
+        t = sprintf('%d of %d cells certified (bound: minimum vertex margin - sum L_i h_i%s, L = %g x the measured slopes)', ...
+            sum(S.certified), S.n, ifs(hf == 0.5, '/2', ''), fac);
+        if any(S.strad)
+            t = sprintf('%s; %d cell(s) straddle a breakpoint and are certified piecewise (%d certified)', t, ...
+                sum(S.strad), sum(S.strad & S.certified));
+        end
+        if any(S.infCell), t = sprintf('%s; %d all-+Inf cell(s) not certified', t, sum(S.infCell)); end
         ce = struct('certified', all(S.certified), 'lowerBound', min(S.bound), 'L', max(S.L, [], 1), ...
             'maxSlope', max(S.slope, [], 1), 'factor', fac, 'nCells', S.n, 'nPoints', numel(S.pts), ...
-            'finestStep', finest(), 'reason', sprintf('%d of %d cells certified', sum(S.certified), S.n));
+            'finestStep', finest(), 'reason', t, 'certificate', opts.Certificate);
+    end
+
+    function D = discOf(g)
+        % R5-3: the margin discontinuities met by the group's cells (breakpoint crossings)
+        S = FS{g}; cs = GR(g).conds;
+        D = struct('present', false, 'nCells', 0, 'nCertified', 0, 'variables', {{}}, 'breakpoints', zeros(1, 0), ...
+            'maxJump', 0, 'crossings', struct('variable', {}, 'breakpoint', {}, 'maxJump', {}, 'nEdges', {}), 'text', '');
+        if nSw == 0
+            D.text = 'no switching variables given: discontinuities are not detected';
+            return
+        end
+        js = find(S.strad);
+        D.nCells = numel(js); D.nCertified = sum(S.certified(js)); D.present = ~isempty(js);
+        X = zeros(0, 3);                              % rows: switch, breakpoint, |jump|
+        for j = js(:).'
+            vi = S.V(j, :);
+            for c = cs
+                mm = evM{c}(vi, g).'; sv = evSw{c}(vi, 1:nSw); cd = evCode{c}(vi).';
+                for ia = 1:d
+                    for e = 1:size(EP{ia}, 1)
+                        a = EP{ia}(e, 1); b = EP{ia}(e, 2);
+                        if isnan(cd(a)) || isnan(cd(b)) || cd(a) == cd(b), continue; end
+                        jv = abs(mm(b) - mm(a));
+                        if ~isfinite(jv), jv = NaN; end
+                        for w = 1:nSw
+                            l2 = min(sv(a, w), sv(b, w)); h2 = max(sv(a, w), sv(b, w));
+                            bw = SW(w).breakpoints;
+                            for bv = bw(bw >= l2 & bw < h2)
+                                X(end+1, :) = [w, bv, jv]; %#ok<AGROW>
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        if isempty(X)
+            D.text = 'the margin is continuous over the group''s cells as far as the vertices show (no cell straddles a breakpoint)';
+            return
+        end
+        U = unique(X(:, 1:2), 'rows', 'stable');
+        for k = 1:size(U, 1)
+            sel = X(:, 1) == U(k, 1) & X(:, 2) == U(k, 2);
+            D.crossings(end+1) = struct('variable', SW(U(k, 1)).name, 'breakpoint', U(k, 2), ...
+                'maxJump', max([X(sel, 3); 0], [], 'omitnan'), 'nEdges', sum(sel)); %#ok<AGROW>
+        end
+        D.variables = unique({D.crossings.variable}, 'stable');
+        D.breakpoints = unique([D.crossings.breakpoint]);
+        D.maxJump = max([D.crossings.maxJump]);
+        D.text = sprintf(['the margin is DISCONTINUOUS at %s: %d cell(s) straddle a breakpoint (%d certified ' ...
+            'piecewise, each side from its own vertices); largest jump over a straddling edge %.4g'], ...
+            strjoin(arrayfun(@(x) sprintf('%s = %g (jump up to %.4g, %d edges)', x.variable, x.breakpoint, ...
+            x.maxJump, x.nEdges), D.crossings, 'UniformOutput', false), '; '), D.nCells, D.nCertified, D.maxJump);
     end
 
     function f = finest()
@@ -958,6 +1308,20 @@ for g = 1:numel(P.groups)
     if ~isempty(P.groups(g).confirmFcn) && ~isa(P.groups(g).confirmFcn, 'function_handle')
         error('vital:badInput', 'group %s: confirmFcn must be a function handle or [].', P.groups(g).name);
     end
+end
+if ~isfield(P, 'switches') || isempty(P.switches)
+    P.switches = struct('name', {}, 'breakpoints', {});
+elseif ~isstruct(P.switches) || ~all(isfield(P.switches, {'name', 'breakpoints'}))
+    error('vital:badInput', 'switches must be a struct array with fields name, breakpoints.');
+else
+    for k = 1:numel(P.switches)
+        b = double(P.switches(k).breakpoints(:).');
+        if isempty(b) || any(~isfinite(b)) || any(diff(b) <= 0)
+            error('vital:badInput', 'switch %s: breakpoints must be finite and strictly increasing.', P.switches(k).name);
+        end
+        P.switches(k).breakpoints = b;
+    end
+    P.switches = struct('name', {P.switches.name}, 'breakpoints', {P.switches.breakpoints});
 end
 if ~isstruct(P.shapes) || isempty(P.shapes) || ~all(isfield(P.shapes, {'name', 'm'}))
     error('vital:badInput', 'shapes must be a non-empty struct array with fields name, m.');

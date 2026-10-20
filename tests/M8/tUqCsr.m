@@ -73,6 +73,10 @@ classdef (TestTags = {'M8'}) tUqCsr < vital.test.VitalTestCase
 %      'NOT_ASSESSABLE', reason mentions 'INFEASIBLE', alphaStar NaN, alphaLo
 %      = 1 (exact), alphaHi = Inf, cpvConfirmed false. R4 verdict with
 %      cpLower 0.99: 'NOT_ASSESSABLE'.
+%      SUPERSEDED BY R5 (amendment R5-2, agent uq5, 2026-10-14; text above kept):
+%      the verdict comes from the judged box R(1), which was searched clean
+%      (csr.lowerCertified true, alphaLo 1), so the verdict is 'ROBUST'
+%      (pre-registered in tests/M8/tUqR5.m header 20).
 %   10. R4 VERDICT TRUTH TABLE (R4-2; Required 0.95), csr (status, alphaStar,
 %      alphaHi, cpvConfirmed) with mc.cpLower:
 %        OK 1.20 1.21 true, 0.96              -> ROBUST
@@ -287,7 +291,8 @@ classdef (TestTags = {'M8'}) tUqCsr < vital.test.VitalTestCase
             tc.verifyEqual(c.alphaHi, Inf);
             tc.verifyFalse(c.cpvConfirmed);
             v = vital.uq.verdict(c, struct('cpLower', 0.99));
-            tc.verifyEqual(v.verdict, 'NOT_ASSESSABLE');
+            % header 9 "R4 verdict NOT_ASSESSABLE": SUPERSEDED BY R5-2 (R(1) searched clean): ROBUST
+            tc.verifyEqual(v.verdict, 'ROBUST', ['header 9 (R5-2): ' v.reason]);
         end
 
         function verdictTruthTableR4(tc)

@@ -1,0 +1,66 @@
+[
+ {
+  "id": "S8Q-1",
+  "file": "+vital/+uq/lattice.m",
+  "pattern": "V.fail = any(OK & M < Rsv, 2);",
+  "replacement": "V.fail = all(OK, 2) & any(M < Rsv, 2);",
+  "targets": ["tUqR5/failingCandidateDecides", "tUqLattice/movingLimit"],
+  "rationale": "Review R5 S8Q-1 (registered by uq5, amendment R5-5 M4): a lattice point that FAILS at one candidate condition but is not OK at another is no longer a counterexample (it only blocks as non-OK)."
+ },
+ {
+  "id": "S8Q-2",
+  "file": "+vital/+uq/lattice.m",
+  "pattern": "elseif cf.evaluated && cf.margin < Rsv",
+  "replacement": "elseif false && cf.evaluated && cf.margin < Rsv",
+  "targets": ["tUqR5/confirmationDisagrees"],
+  "rationale": "Review R5 S8Q-2: ROBUST_TO_CAP is reported although the fresh confirmation at the cap-box arg-min FAILS at a candidate condition (point evaluation and confirmation disagree)."
+ },
+ {
+  "id": "S8Q-3",
+  "file": "+vital/+uq/lattice.m",
+  "pattern": "s(:, ia) = max(D, [], 2) ./ hT(:, ia);",
+  "replacement": "s(:, ia) = mean(D, 2, 'omitnan') ./ hT(:, ia);",
+  "targets": ["tUqR5/maxNotMeanSlope"],
+  "rationale": "Review R5 S8Q-3: the measured slope of a cell along an axis is the MEAN over its parallel edges instead of the maximum."
+ },
+ {
+  "id": "S8Q-5",
+  "file": "+vital/+uq/F16Evaluator.m",
+  "pattern": "if isnan(ma) || isnan(mb)",
+  "replacement": "if isnan(ma) && isnan(mb)",
+  "targets": ["tUqR5/worseOfSideBNaN", "tUqBracket/worseOfTwoSides"],
+  "rationale": "Review R5 S8Q-5: worseOf keeps a finite margin when ONE side (B) is NaN, so a bracketed point reports the rated side's margin although the other one-sided linearization could not rate the record."
+ },
+ {
+  "id": "S8Q-6",
+  "file": "+vital/+uq/F16Evaluator.m",
+  "pattern": "if isfield(p.info, 'de_deg'), S.de_deg = p.info.de_deg; end",
+  "replacement": "if isfield(p.info, 'de_deg'), S.de_deg = p.info.alpha_deg; end",
+  "targets": ["tUqR5F16/trimElevatorPinned"],
+  "rationale": "Review R5 S8Q-6: copy-paste bug, the evaluator reports the trim alpha as the elevator (elevator-breakpoint bracketing and the R5-3 switch values are wrong)."
+ },
+ {
+  "id": "S8Q-7",
+  "file": "+vital/+uq/verdict.m",
+  "pattern": "robustCsr = cert && lo >= 1;",
+  "replacement": "robustCsr = cert && lo >= 1; lowP = mc.cpLower < opts.Required;",
+  "targets": ["tUqR5/verdictTruthTableR5", "tUqR5/verdictNaNMonteCarloLegacy"],
+  "rationale": "Review R5 S8Q-7 (pattern adapted by uq5: the robustCsr line was rewritten by amendment R5-2; same defect, same placement after the lowP line): a NaN Clopper-Pearson bound counts as adequate, so a ROBUST CSR becomes a ROBUST verdict without a Monte Carlo."
+ },
+ {
+  "id": "S8Q-8",
+  "file": "+vital/+uq/analyze.m",
+  "pattern": "chk = vital.uq.invarianceCheck(qf, ones(1, d), ths, 'RelTol', 1e-9);",
+  "replacement": "chk = vital.uq.invarianceCheck(qf, ones(1, d), ths, 'RelTol', 1e-2);",
+  "targets": ["tUqR5F16/latGateAtCallSite"],
+  "rationale": "Review R5 S8Q-8: the R4-9 runtime gate in analyze is loosened from 1e-9 to 1e-2 relative, so a lateral group whose margin depends on Cm_q still drops it."
+ },
+ {
+  "id": "S8Q-9",
+  "file": "+vital/+uq/lattice.m",
+  "pattern": "if strcmp(c.status, 'OK') && c.margin < S.P.m(jp) && isfield(c, 'cond') ...",
+  "replacement": "if strcmp(c.status, 'OK') && c.margin < min(S.P.m(jp), Rsv) && isfield(c, 'cond') ...",
+  "targets": ["tUqR5/movingLimitPositive", "tUqLattice/movingLimit"],
+  "rationale": "Review R5 S8Q-9: a moving limit is only recognized when the confirmation already FAILS, so a non-candidate condition with a smaller but positive margin is never added."
+ }
+]

@@ -1,0 +1,50 @@
+[
+ {
+  "id": "S8Y-1",
+  "file": "+vital/+uq/lattice.m",
+  "pattern": "if strcmp(opts.Certificate, 'full'), hf = 1; else, hf = 0.5; end",
+  "replacement": "if strcmp(opts.Certificate, 'full'), hf = 1; else, hf = 1; end",
+  "targets": ["tUqR5/halfEdgeCertificate", "tUqLattice/lipschitzCertificate"],
+  "rationale": "The default lattice certificate keeps the full edge h instead of h/2 (amendment R5-1: cell minimum - L h/2), so it is twice as conservative as the contract and the R5 cost lever is lost."
+ },
+ {
+  "id": "S8Y-2",
+  "file": "+vital/+uq/lattice.m",
+  "pattern": "evCode{c}(ii) = sideCode(sv);",
+  "replacement": "evCode{c}(ii) = 0;",
+  "targets": ["tUqR5/jumpCertifiedPiecewise", "tUqR5F16/lineCertifiedPiecewise"],
+  "rationale": "The piecewise split is ignored: every lattice point is put on one side of every breakpoint, so a cell straddling the alpha = 5 deg breakpoint is certified across the jump (slopes include the jump) and can never be certified (amendment R5-3; review R5 M1)."
+ },
+ {
+  "id": "S8Y-3",
+  "file": "+vital/+uq/verdict.m",
+  "pattern": "robustCsr = cert && lo >= 1;",
+  "replacement": "robustCsr = lo >= 1;",
+  "targets": ["tUqR5/verdictTruthTableR5", "tUqR5/confirmationDisagrees"],
+  "rationale": "The R5-2 verdict ignores whether R(alphaLo) is certified: an uncertified lower end (a moving limit left, a disagreeing fresh confirmation) with alphaLo >= 1 becomes ROBUST."
+ },
+ {
+  "id": "S8Y-4",
+  "file": "+vital/+uq/lattice.m",
+  "pattern": "if opts.CornerChecks",
+  "replacement": "if false && opts.CornerChecks",
+  "targets": ["tUqR5/cornerCatchesCandidateGap", "tUqR5/cornerCatchesCapGap", "tUqR5F16/endToEndR5"],
+  "rationale": "The fresh in-envelope assessments at the corners of R(1) and R(alphaLo) are skipped, so a non-candidate condition that fails inside the judged box is never added (amendment R5-5, review R5 M2: the lattice reports ROBUST where the truth is NOT_ROBUST)."
+ },
+ {
+  "id": "S8Y-5",
+  "file": "+vital/+uq/stageBand.m",
+  "pattern": "band = [min(F(1), 1 - 2 * e), max(F(2), 1 + 2 * e)];",
+  "replacement": "band = F;",
+  "targets": ["tUqR5/stageBandRule"],
+  "rationale": "The stage-2 band is never widened by the measured stage-1 error: a stage-1 decision closer to alpha* = 1 than twice the measured error is final (amendment R5-4, review R5 M5)."
+ },
+ {
+  "id": "S8Y-6",
+  "file": "+vital/+uq/lattice.m",
+  "pattern": "slp = max(slopes(mc, hT(j, :), {cd}), NBc{jc}(bl(j), :));",
+  "replacement": "slp = slopes(mc, hT(j, :), {cd});",
+  "targets": ["tUqR5/jumpHidesFailure"],
+  "rationale": "A one-sided piece of a straddling cell takes its slopes from its own edges only: a side with a single vertex along an axis has no slope there, so a failure between the jump and that vertex is certified away (amendment R5-3: slopes from the edges that do not cross the breakpoint, own and 3^d neighbourhood)."
+ }
+]

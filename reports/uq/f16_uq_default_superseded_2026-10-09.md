@@ -1,3 +1,5 @@
+> **SUPERSEDED (amendment R5-6, agent uq5, 2026-10-14).** This report was produced on 2026-10-09 by the pre-R3 design (spec v1 with Cm_table, sqp, x0.5/x1.5 boxes, no CSR). It does not answer the M8 question for the final design; the staged default run_f16_uq on the final code (reports/uq/f16_uq_default.*) replaces it.
+
 # M8 uncertainty: does the augmented F-16's in-envelope MIL-F-8785C Level hold?
 
 **The 1-sigma widths are JUDGMENT (engineering judgment, docs/PLAN_M5_M8.md M8), not published values.** Every Level is a REG result of the VITAL chain; only in-envelope points count.

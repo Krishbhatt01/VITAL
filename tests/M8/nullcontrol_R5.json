@@ -1,0 +1,10 @@
+[
+ {
+  "id": "N-R5",
+  "file": "+vital/+uq/lattice.m",
+  "pattern": "% ---- stores ----",
+  "replacement": "%  ---- stores ----",
+  "targets": ["tUqLattice/cornerFirstLinear", "tUqLattice/robustToCap"],
+  "rationale": "NULL CONTROL of review R5 (kept by uq5, amendment R5-5 M4): whitespace inside a comment. It must stay NOT DETECTED, which shows the harness is not vacuous for tUqLattice. It is deliberately NOT in a sabotages*.json file (run_sabotage requires every registered entry to be DETECTED); run it with vital.test.runSabotageCase (agent uq5: reports/work/uq5/nullcontrol_R5.txt)."
+ }
+]

@@ -128,9 +128,11 @@ c = struct('status', '', 'reason', '', 'shape', opts.Shape, 'alphaStar', NaN, 'a
     'searches', struct('alpha', {}, 'origin', {}, 'lo', {}, 'hi', {}, 'status', {}, 'value', {}, 'theta', {}, ...
     'cond', {}, 'nEvaluated', {}, 'label', {}, 'reason', {}), 'nSearches', 0, ...
     'rays', struct('from', {}, 'theta', {}, 'tPass', {}, 'tFail', {}, 'alpha', {}, 'margin', {}, 'cond', {}, 'nEval', {}), ...
-    'conditions', {conds}, 'condLabels', {labels}, 'options', opts);
+    'conditions', {conds}, 'condLabels', {labels}, 'options', opts, 'lowerCertified', false, 'lowerReason', '');
 c.options.Search = func2str(Search);
 lo = 0; hi = Inf;
+loValid = true;                                  % R5-2: R(lo) was searched clean over the current candidates
+loWhy = '';
 clean = 0;                                       % alphas of boxes found clean (0: the nominal)
 cpv = NaN(1, d); cpvM = NaN; cpvC = ''; cpvR = '';
 why = '';
@@ -182,6 +184,7 @@ while true
         switch bw.status
             case 'OK'
                 lo = Amax; clean(end+1) = Amax; %#ok<AGROW>
+                loValid = true; loWhy = '';
                 finish('ROBUST_TO_CAP', sprintf(['no failure up to AlphaMax: the cap box R(%g) was searched clean ' ...
                     '(%s; %s)'], Amax, bw.label, bw.reason));
                 return
@@ -193,6 +196,7 @@ while true
                     b2 = boxSearch(a, 'decide');
                     if strcmp(b2.status, 'OK')
                         lo = max(lo, a); clean(end+1) = a; %#ok<AGROW>
+                        loValid = true; loWhy = '';
                         break
                     elseif strcmp(b2.status, 'VIOLATED')
                         ray(b2.theta(:).', b2.value, 'decide');
@@ -223,6 +227,7 @@ while true
         switch bw.status
             case 'OK'
                 lo = max(lo, a); clean(end+1) = a; nOptFail = 0; %#ok<AGROW>   a clean box raises the lower end
+                loValid = true; loWhy = '';
             case 'VIOLATED'
                 ray(bw.theta(:).', bw.value, org);
                 nOptFail = strcmp(org, 'optimistic') * (nOptFail + 1);
@@ -238,6 +243,7 @@ while true
             bw = boxSearch(a, 'decide');
             if strcmp(bw.status, 'OK')
                 lo = a; clean(end+1) = a; %#ok<AGROW>
+                loValid = true; loWhy = '';
             elseif strcmp(bw.status, 'VIOLATED')
                 ray(bw.theta(:).', bw.value, 'decide');
             else
@@ -265,7 +271,9 @@ while true
     end
     if lo > 0                                    % re-search the largest clean box with the new candidate
         bw = boxSearch(lo, 'recheck');
-        if strcmp(bw.status, 'VIOLATED')
+        if strcmp(bw.status, 'OK')
+            loValid = true; loWhy = '';
+        elseif strcmp(bw.status, 'VIOLATED')
             ray(bw.theta(:).', bw.value, 'recheck');
         elseif ~strcmp(bw.status, 'OK')
             finish('NOT_ASSESSABLE', sprintf('the re-search of R(%.4g) after a moving limit is not decided: %s', lo, bw.reason));
@@ -400,6 +408,8 @@ finish('OK', sprintf(['alpha* in [%.4g, %.4g] (resolution %g): the box R(%.4g) w
         ok = true;
         if allowMove && cf.margin < cpvM && ~any(strcmp(labels, cl)) && isfield(cf, 'cond')
             moved = true;
+            loValid = false;                     % the candidates change: R(lo) must be searched again
+            loWhy = sprintf('a moving limit added %s after R(%.4g) was searched clean', cl, lo);
             c.confirmation.moved = true;
             c.confirmation.reason = sprintf(['moving limit: the confirmation found margin %.6g at %s, not a candidate ' ...
                 '(the point evaluation gave %.6g at %s); the condition is added'], cf.margin, cl, cpvM, cpvC);
@@ -428,6 +438,25 @@ finish('OK', sprintf(['alpha* in [%.4g, %.4g] (resolution %g): the box R(%.4g) w
         end
         c.psm = c.alphaStar * m;
         c.psmHi = c.alphaHi * m;
+        % R5-2: is R(alphaLo) certified (searched clean over the final candidates)?
+        nomOK = strcmp(q0.status, 'OK') && q0.margin >= Rsv;
+        if ~nomOK
+            c.lowerCertified = false;
+            c.lowerReason = sprintf('the nominal point is not OK or fails (%s, margin %.6g)', q0.status, q0.margin);
+        elseif strcmp(st, 'ROBUST_TO_CAP')
+            c.lowerCertified = true;
+            c.lowerReason = sprintf('the cap box R(%g) is clean (%s)', Amax, reason);
+        elseif ~loValid
+            c.lowerCertified = false;
+            c.lowerReason = sprintf('R(%.4g) is not certified over the final candidates: %s', lo, loWhy);
+        else
+            c.lowerCertified = true;
+            if lo > 0
+                c.lowerReason = sprintf('the box R(%.4g) was searched clean over the final candidates', lo);
+            else
+                c.lowerReason = 'only the nominal point (R(0)) is known clean';
+            end
+        end
         c = orderfields(c);
     end
 end

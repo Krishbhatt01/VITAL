@@ -79,6 +79,10 @@ classdef (TestTags = {'M8'}) tUqLattice < vital.test.VitalTestCase
 %      (0.4 x 0.06 + 0.5 x 0.12 + 0.4 x 0.09) = 0.08 (1e-12 abs; h = 0.6 m_j),
 %      'ROBUST_TO_CAP' (sabotage S8X-2: factor dropped -> L = [0.2 0.25 0.2],
 %      bound 0.14).
+%      SUPERSEDED BY R5 (amendment R5-1, agent uq5, 2026-10-14; text above kept):
+%      the certificate uses h/2, so the default lowerBound = 0.2 - 0.12/2 = 0.14
+%      (1e-12, ANALYTIC; pre-registered in tests/M8/tUqR5.m header 1); the full-h
+%      value 0.08 is kept as the option 'Certificate' 'full'.
 %   5. NOMINAL FAILS (NOM): m = -0.05 + 0.1 s1: both shapes 'OK', alphaStar =
 %      alphaHi = 0 (exact), CPV = the nominal (exact), cpvConfirmed true.
 %   6. MOVING LIMIT (ML; R3-M4 inside the lattice): conditions c1, c2; the
@@ -277,8 +281,12 @@ classdef (TestTags = {'M8'}) tUqLattice < vital.test.VitalTestCase
             tc.verifyTol(ce.L, [0.4 0.5 0.4], 1e-12, 'abs', 'ANALYTIC', 'header 4: L = 2 x measured slope', ...
                 'Quantity', 'lattice Lipschitz estimate');
             tc.verifyEqual(ce.factor, 2);
-            tc.verifyTol(ce.lowerBound, 0.08, 1e-12, 'abs', 'ANALYTIC', 'header 4: min vertex - sum L_i h_i', ...
+            % header 4 "bound 0.08": SUPERSEDED BY R5 (h/2): 0.14; the full-h form keeps 0.08
+            tc.verifyTol(ce.lowerBound, 0.14, 1e-12, 'abs', 'ANALYTIC', 'header 4 (R5-1): min vertex - sum L_i h_i / 2', ...
                 'Quantity', 'lattice certified lower bound');
+            rf = tc.run1(@(s, k) tUqLattice.lip(s), 'Certificate', 'full');
+            tc.verifyTol(rf.groups(1).certificate.lowerBound, 0.08, 1e-12, 'abs', 'ANALYTIC', ...
+                'header 4 (superseded form, option full): min vertex - sum L_i h_i', 'Quantity', 'lattice certified lower bound (full h)');
             tc.verifyEqual(res.groups(1).csr(1).status, 'ROBUST_TO_CAP', res.groups(1).csr(1).reason);
         end
 

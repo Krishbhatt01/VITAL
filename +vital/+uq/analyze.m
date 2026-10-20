@@ -16,7 +16,8 @@ function r = analyze(opts)
 %         'CSR', true, 'AlphaMax', 3, 'Resolution', 0.01, 'EqualPct', 0.10,
 %         'MaxSearches', 15, 'Lattice', true, 'LatticeMaxLevel', 10,
 %         'LatticeMaxPoints', 6000, 'LatDropCmq', true, 'Bracket', true,
-%         'Staged', false, 'Stage1', struct(...), 'Stage2Band', [0.8 1.2])
+%         'Staged', false, 'Stage1', struct(...), 'Stage2Band', [0.8 1.2],
+%         'LatticeCorners', true, 'LatticeTotalPoints', 12000, 'Piecewise', true)
 %
 %   Defaults (docs/PLAN_M5_M8.md, M8, its amendment after review R3 and
 %   amendment R4): spec vital.uq.loadSpec() (JUDGMENT widths), conditions
@@ -71,6 +72,26 @@ function r = analyze(opts)
 %     searched must equal the nominal one within 1e-9 relative
 %     (vital.uq.invarianceCheck); if it does not, vital.uq.gatePlan falls back
 %     to the full set of parameters (plan.latCheck).
+%
+%   AMENDMENT R5 (docs/PLAN_M5_M8.md "Amendment R5", coordinator 2026-10-14):
+%   R5-1 the lattice certificate uses h/2 (vital.uq.lattice 'Certificate'
+%     'half'); R5-2 the verdict comes from the judged box R(1) (vital.uq.verdict
+%     with vital.uq.lowerEnd: csr.judged.lowerCertified and alphaLo >= 1), the
+%     lattice decides R(1) first and resolves only the judged shape to 0.01;
+%   R5-3 ('Piecewise' true): the lattice points carry their trim alpha and
+%     elevator (q.switchVals) against the NESC breakpoints (vital.uq.breakpoints)
+%     and cells straddling a breakpoint are certified piecewise
+%     (plan.lattice.discontinuity reports the jumps);
+%   R5-4 'Stage2Band' = vital.uq.stageBand of the measured stage-1 error;
+%   R5-5 M2 ('LatticeCorners' true): fresh in-envelope assessments at the 2^d
+%     corners of R(1) and R(alphaLo) of every lattice group (shared between the
+%     groups by F16Evaluator.assessShared); a smaller margin at a non-candidate
+%     condition is a moving limit; plan.lattice.scope states what the
+%     certificate covers and plan.lattice.confirmations lists the final round's
+%     confirmations; m5 'LatticeTotalPoints' (12000): a GLOBAL cap on the
+%     lattice points of all longitudinal groups (the per-group cap
+%     LatticeMaxPoints stays); m2: an exception inside a lattice point is an
+%     ERROR point.
 %
 %   Per group g (nominal in-envelope headline Level L0, margin m0 to the L0
 %   boundary, vital.uq.F16Evaluator.levelMargin):
@@ -177,8 +198,11 @@ arguments
     opts.LatDropCmq (1,1) logical = true
     opts.Staged (1,1) logical = false
     opts.Stage1 struct = struct([])
-    opts.Stage2Band (1,2) double = [0.8 1.2]
+    opts.Stage2Band (1,2) double = [0.8 1.2]   % R5-4: = vital.uq.stageBand(measured errors, max 0.075): the floor (ADR-036 uq5-4)
     opts.Bracket (1,1) logical = true
+    opts.LatticeCorners (1,1) logical = true
+    opts.LatticeTotalPoints (1,1) double = 12000
+    opts.Piecewise (1,1) logical = true
 end
 t0 = tic;
 spec = opts.Spec; if isempty(spec), spec = vital.uq.loadSpec(); end
@@ -282,7 +306,7 @@ r.groups = Gr;
 r.lattice = lat;
 r.bracketed = E.bracketed;
 r.counts = struct('pointEvals', E.nPointEvals, 'cacheHits', E.nCacheHits, 'assess', E.nAssess, ...
-    'bracketed', numel(E.bracketed));
+    'bracketed', numel(E.bracketed), 'assessShared', E.nAssessHits);
 r.runtime_s = toc(t0);
 end
 
@@ -398,6 +422,10 @@ if any(iL)
     LP = struct('names', {B1.names(ixL)}, 'nominal', B1.nominal(ixL), 'm', B1.halfWidth(ixL), ...
         'conditions', {cnd}, 'condLabels', {lbl}, ...
         'pointFcn', @(th, c) latticePoint(E, exL(th), c, gnames, L0s));
+    if opts.Piecewise                    % R5-3: the trim alpha and elevator against the NESC breakpoints
+        bpl = vital.uq.breakpoints();
+        LP.switches = struct('name', {'alpha_deg', 'de_deg'}, 'breakpoints', {bpl.alpha_deg, bpl.el_deg});
+    end
     LP.groups = struct('name', gnames, 'conds', gconds, ...
         'confirmFcn', arrayfun(@(j) @(th) confirm(E, exL(th), gnames{j}, L0s(j)), 1:numel(pl), 'UniformOutput', false));
     LP.shapes = struct('name', {'judged', 'equal'}, 'm', {B1.halfWidth(ixL), opts.EqualPct * ones(1, numel(ixL))});
@@ -408,11 +436,14 @@ if any(iL)
         numel(pl), strjoin(gnames, ', '), strjoin(B1.names(ixL), ', '), numel(lbl));
     LR = vital.uq.lattice(LP, 'GridPoints', opts.GridPoints, 'MaxLevel', opts.LatticeMaxLevel, ...
         'MaxPoints', opts.LatticeMaxPoints, 'AlphaMax', opts.AlphaMax, 'Resolution', opts.Resolution, ...
-        'Reserve', opts.Reserve, 'MaxRounds', opts.MaxRounds, 'DecideAt', 1, 'Boxes', boxes);
+        'Reserve', opts.Reserve, 'MaxRounds', opts.MaxRounds, 'DecideAt', 1, 'Boxes', boxes, ...
+        'CornerChecks', opts.LatticeCorners, 'MaxTotalPoints', opts.LatticeTotalPoints);
     lat = struct('used', true, 'groups', {gnames}, 'conditions', {LR.condLabels}, 'nPoints', LR.lattice.nPoints, ...
         'nBase', LR.lattice.nBase, 'nEvaluations', LR.lattice.nEvaluations, 'capped', LR.lattice.capped, ...
         'cappedGroups', {LR.lattice.cappedGroups}, 'pointEvals', E.nPointEvals - n0, ...
-        'confirmations', LR.counts.confirmations, 'runtime_s', toc(t1), 'options', rmfield(LR.options, 'Boxes'));
+        'confirmations', LR.counts.confirmations, 'runtime_s', toc(t1), 'options', rmfield(LR.options, 'Boxes'), ...
+        'nExtra', LR.lattice.nExtra, 'budgetExhausted', LR.lattice.budgetExhausted, ...
+        'piecewise', isfield(LP, 'switches'));
     say(opts, '  shared lattice: %d lattice points, %d point evaluations, %d confirmations (%.0f s)\n', ...
         LR.lattice.nPoints, E.nPointEvals - n0, LR.counts.confirmations, toc(t1));
 end
@@ -428,9 +459,17 @@ for ip = 1:numel(prep)
     if isLat
         jL = find(latIdx == ip, 1);
         lg = LR.groups(jL);
+        cfl = lg.rounds(end).confirmations;
+        cfl = arrayfun(@(x) struct('what', x.what, 'kind', x.kind, 'theta', expandTheta(x.theta, ix, B1.nominal), ...
+            'evaluated', x.evaluated, 'status', x.status, 'margin', x.margin, 'cond', x.cond, 'latticeMargin', ...
+            x.latticeMargin, 'moved', x.moved, 'reason', x.reason), cfl);
+        if isempty(cfl)
+            cfl = struct('what', {}, 'kind', {}, 'theta', {}, 'evaluated', {}, 'status', {}, 'margin', {}, 'cond', {}, ...
+                'latticeMargin', {}, 'moved', {}, 'reason', {});
+        end
         plan.lattice = struct('conditions', {lg.condLabels}, 'certificate', lg.certificate, 'rounds', numel(lg.rounds), ...
             'nPoints', lg.csr(1).lattice.nPoints, 'nCells', lg.csr(1).lattice.nCells, 'capped', lg.csr(1).lattice.capped, ...
-            'shared', {lat.groups});
+            'shared', {lat.groups}, 'discontinuity', lg.discontinuity, 'scope', lg.scope, 'confirmations', cfl);
     end
     so = {'NumLHS', opts.NumLHS, 'Seed', opts.Seed, 'NumStarts', opts.NumStarts, 'MaxEvals', opts.MaxEvals, ...
         'MaxRounds', opts.MaxRounds, 'Reserve', opts.Reserve};
@@ -534,6 +573,8 @@ for j = 1:n
     g = E.groupMargin(th, c, gnames{j}, L0s(j));
     q.status{j} = g.status; q.margin(j) = g.margin; q.record{j} = g.record; q.reason{j} = g.reason;
 end
+S = E.pointSummary(th, c);                      % cached: the trim of the point (R5-3 sides)
+q.switchVals = [S.alpha_deg S.de_deg];
 end
 
 function chk = latGate(E, pf, t1, plan, B1, opts)
@@ -671,7 +712,7 @@ end
 end
 
 function c = confirm(E, th, group, L0)
-res = E.assessAt(th);
+res = E.assessShared(th);                       % fresh; shared across groups at the same theta (R5-5 M2)
 [m, cr] = vital.uq.F16Evaluator.levelMargin(res, group, L0);
 c = struct('status', 'OK', 'margin', m, 'condLabel', cr.condLabel, 'record', cr.record, 'reason', '', 'cond', cr.cond);
 if isnan(m)

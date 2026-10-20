@@ -13,7 +13,10 @@ function spec = loadSpec(file)
 %     groups (struct array: name, d (number of parameters), kg =
 %     sqrt(chi2inv(coverage, d)), parameters (name, aeroScale, term, sigma)),
 %     parameters (flat struct array in group order: name, aeroScale, term,
-%     sigma, group, kg).
+%     sigma, group, kg), judgments (amendment R5, review R5 m10: the explicit
+%     judgment statements of vital.uq.statements('judgments'): Cm_basic and
+%     Cm_de independent although from one table, the wings-level trim
+%     precondition, the independent normal priors).
 %   Errors: vital:uq:badSpec (missing file or field, label not JUDGMENT, sigma
 %   not finite > 0, coverage outside (0, 1), unknown or repeated AeroScale field).
 arguments
@@ -87,6 +90,7 @@ end
 if numel(unique({spec.parameters.name})) < numel(spec.parameters)
     error('vital:uq:badSpec', 'a parameter name appears twice.');
 end
+spec.judgments = vital.uq.statements('judgments');   % amendment R5 (review R5 m10): stated explicitly
 end
 
 function need(s, f, what)
