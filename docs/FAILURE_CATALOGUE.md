@@ -222,3 +222,17 @@ The rule, enforced by `tSpecDocs/catalogueTestsExistOrPlanned`: once a milestone
 | FC-984 | M8 | An object control law builds a different controller than the M7 function | step output and info compared (isequal) | verification failure | `tests/M8/oop/tOopCtrlUq.m#lawsEqualFunctional` |
 | FC-985 | M8 | vital.uq.Study drops or invents run_f16_uq options | injected entry point receives the exact list; unknown option rejected | `vital:badInput` | `tests/M8/oop/tOopCtrlUq.m#studyForwardsOptions` |
 | FC-986 | M8 | The plant becomes materially slower (more than 10 % at a fixed altitude) | same-run timing against the frozen 0.8.0 plant | verification failure | `tests/M8/oop/tOopPerformance.m#plantWithinTenPercent` |
+| FC-1001 | M9 | Committed VitalPlant.slx hand-edited or stale against the builder | structure hash of the committed file vs a fresh build | verification failure | `tests/M9/tSlxBuild.m#committedArtifactIsUnedited` |
+| FC-1002 | M9 | Builder not reproducible | two builds, same hash and text | verification failure | `tests/M9/tSlxBuild.m#buildIsReproducible` |
+| FC-1003 | M9 | Builder drops or rewires a block | registered block list and links | verification failure | `tests/M9/tSlxBuild.m#blockListAsRegistered` |
+| FC-1004 | M9 | Wrong solver (not ode4 / not fixed-step / wrong step) | solver settings of the model | verification failure | `tests/M9/tSlxBuild.m#solverConfiguration` |
+| FC-1005 | M9 | Simulink open-loop result differs from vital.sim.run (integrator, hold, input timing) | E <= 1e-9 (INDEP) | verification failure | `tests/M9/tSlxEquivalence.m#e1OpenLoopDoublet` |
+| FC-1006 | M9 | Controller sampled at the wrong rate in Simulink | 50 Hz SAS equivalence and sample count | verification failure | `tests/M9/tSlxEquivalence.m#e3SasFiftyHz` |
+| FC-1007 | M9 | Moment / attitude sign wrong in the Simulink path | CONVENTIONS 7 signs (ANALYTIC) | verification failure | `tests/M9/tSlxAttitude.m#elevatorPitchesNoseDown` |
+| FC-1008 | M9 | Non-unit quaternion not stopped in the Simulink path | post-run quaternion-norm guard, log truncated | `vital:sim:quatNorm` | `tests/M9/tSlxGuards.m#quatNormGuardStops` |
+| FC-1009 | M9 | Non-finite controller output in the Simulink path | kernel stop record, STOPPED at t_k | `vital:sim:nanState` | `tests/M9/tSlxGuards.m#nanControllerStops` |
+| FC-1010 | M9 | Controller raises in the Simulink path | kernel stop record | `vital:sim:controllerError` | `tests/M9/tSlxGuards.m#controllerErrorStops` |
+| FC-1011 | M9 | Model run outside vital.slx.simulate (no plant context) | kernel check | `vital:slx:noContext` | `tests/M9/tSlxGuards.m#kernelWithoutContextIsError` |
+| FC-1012 | M9 | Smooth input given to the Simulink path (stage-time semantics differ) | option check | `vital:slx:unsupportedInput` | `tests/M9/tSlxGuards.m#smoothInputUnsupported` |
+| FC-1013 | M9 | Model file missing | file check | `vital:slx:modelMissing` | `tests/M9/tSlxGuards.m#missingModelIsError` |
+| FC-1014 | M9 | Bad dt / tFinal / controller rate in the Simulink path | same checks as vital.sim.run | `vital:sim:badStep` | `tests/M9/tSlxGuards.m#badStepIsError` |

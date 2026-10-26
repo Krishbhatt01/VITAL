@@ -34,3 +34,11 @@ Verification ("built right") and validation ("right model") are listed separatel
 | Simulink equivalence, visualization | M9 | Simulink vs MATLAB RK4; packet decode; attitude tests | INDEP, ANALYTIC | — |
 
 **Validation (not only verification):** VITAL's F-16 is validated only to the extent the NESC multi-simulator results allow. They show that VITAL implements the same published model the way NASA's tools do. That is not a validation against F-16 flight data, and no report may present it as one.
+| Simulink VitalPlant equals vital.sim.run, open loop (E <= 1e-9; measured 0) | ode4 + ZOH independent implementation | INDEP | tests/M9/tSlxEquivalence.m#e1OpenLoopDoublet |
+| ... closed loop M7 SAS 100 Hz, 10 s (measured 0) | | INDEP | #e2ClosedLoopSas |
+| ... M7 SAS 50 Hz multi-rate (measured 0) | | INDEP | #e3SasFiftyHz |
+| ... NESC LQR 200 Hz (measured 0) | | INDEP | #e4NescLqr |
+| Trimmed start stays trimmed through Simulink (tF16Sim bounds) | | REG | #e5TrimHold |
+| Pitch/roll/yaw signs through Simulink | CONVENTIONS 7 | ANALYTIC | tests/M9/tSlxAttitude.m |
+| Generated model reproducible and unedited | structure hash | REG | tests/M9/tSlxBuild.m |
+| Guards and identifiers | | INDEP / exact ids | tests/M9/tSlxGuards.m |
