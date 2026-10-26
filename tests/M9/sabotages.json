@@ -1,0 +1,50 @@
+[
+ {
+  "id": "S9-1",
+  "file": "+vital/+slx/build.m",
+  "pattern": "set_param(m, 'SolverType', 'Fixed-step', 'Solver', 'ode4', 'FixedStep', 'dt', ...",
+  "replacement": "set_param(m, 'SolverType', 'Fixed-step', 'Solver', 'ode1', 'FixedStep', 'dt', ...",
+  "targets": ["tSlxEquivalence/e1OpenLoopDoublet", "tSlxBuild/solverConfiguration", "tSlxBuild/committedArtifactIsUnedited"],
+  "rationale": "ode4 replaced by ode1 (Euler): first-order error O(dt), far above the 1e-9 equivalence bound; the solver assertion and the artifact hash also catch it."
+ },
+ {
+  "id": "S9-2",
+  "file": "+vital/+slx/simulate.m",
+  "pattern": "if ~isempty(qtol) && ~isempty(T)",
+  "replacement": "if false && ~isempty(qtol) && ~isempty(T)",
+  "targets": ["tSlxGuards/quatNormGuardStops"],
+  "rationale": "Quaternion-norm guard (FC-601) removed from the Simulink path: a non-unit quaternion runs on silently instead of stopping as vital.sim.run does."
+ },
+ {
+  "id": "S9-3",
+  "file": "+vital/+slx/simulate.m",
+  "pattern": "if ctrl.present, Ts = ctrl.nHold * dt; else, Ts = dt; end",
+  "replacement": "Ts = dt;",
+  "targets": ["tSlxEquivalence/e3SasFiftyHz"],
+  "rationale": "Controller sample time changed (forced to the base step): a 50 Hz law runs at 100 Hz, so the hold and the sample count differ from vital.sim.run."
+ },
+ {
+  "id": "S9-4",
+  "file": "+vital/+slx/build.m",
+  "pattern": "'xdot = vital.slx.kernel(''plant'', x, u);\\n']);",
+  "replacement": "'xdot = vital.slx.kernel(''plant'', x, u); xdot(4:6) = -xdot(4:6);\\n']);",
+  "targets": ["tSlxEquivalence/e1OpenLoopDoublet", "tSlxAttitude/elevatorPitchesNoseDown", "tSlxBuild/committedArtifactIsUnedited"],
+  "rationale": "Sign flip of the angular-acceleration (moment) rows of xdot between the plant and the Integrator."
+ },
+ {
+  "id": "S9-5",
+  "file": "+vital/+slx/build.m",
+  "pattern": "add_line(m, 'FCS/1', 'u/1', 'autorouting', 'on');",
+  "replacement": "delete_block([m '/u']);",
+  "targets": ["tSlxBuild/blockListAsRegistered", "tSlxBuild/committedArtifactIsUnedited"],
+  "rationale": "The builder silently drops a block (the u Outport): the registered block list and the committed-artifact hash must catch it."
+ },
+ {
+  "id": "S9-6",
+  "file": "+vital/+slx/kernel.m",
+  "pattern": "tm = tk + c.dt / 2;",
+  "replacement": "tm = tk + c.dt;",
+  "targets": ["tSlxEquivalence/e1OpenLoopDoublet"],
+  "rationale": "The FCS samples the input of the NEXT step (one-step hold misalignment): every switch of the doublet comes one step early."
+ }
+]
