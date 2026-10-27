@@ -1,6 +1,10 @@
-function [F_R, M_R, info] = loads(ad, u, h, atm, AC) %#ok<INUSD>
+function [F_R, M_R, info] = loads(ad, u, h, atm, AC, part) %#ok<INUSD>
 %LOADS  F-16 aerodynamic and propulsive loads about the BFRP, body axes (SI).
 %   [F_R, M_R, info] = vital.aircraft.f16.loads(ad, u, h, atm, AC)
+%   [F_R, M_R, info] = vital.aircraft.f16.loads(..., 'aero')   aero column only
+%     (0.9.1-CORE, for the AeroTableComponent of vital.aircraft.f16.model; the
+%     engine model is not evaluated, u(4) unused; info has F_aero, M_aero, coeff
+%     and the aero table outOfEnvelope only). Without 'part' nothing changes.
 %     ad  air data (vital.airdata.airData); u = [de da dr throttle] (rad, 0..1)
 %     h   geometric altitude (m)
 %   Unit conversion happens only here, at the boundary of the NASA models:
@@ -53,6 +57,16 @@ end
 qS = ad.qbar * AC.S;
 F_aero = qS * [a.cx; a.cy; a.cz];
 M_aero = qS * [AC.b * a.cl; AC.cbar * a.cm; AC.b * a.cn];
+if nargin >= 6 && strcmp(part, 'aero')
+    % 0.9.1-CORE (ADR-040): aero only, for vital.aircraft.f16.aeroCoefficients; the
+    % engine is its own component there, so the engine model is not evaluated here
+    F_R = F_aero;
+    M_R = M_aero + cross(AC.r_mrc, F_aero);
+    info.F_aero = F_aero; info.M_aero = M_aero;
+    info.coeff = [a.cx a.cy a.cz a.cl a.cm a.cn];
+    info.outOfEnvelope = a.outOfEnvelope;
+    return
+end
 p = vital.models.f16.prop(struct('PWR', 100 * u(4), 'ALT', h / k.ft, 'RMACH', ad.mach));
 F_prop = [p.FEX; p.FEY; p.FEZ] * k.lbf;
 M_prop = [p.TEL; p.TEM; p.TEN] * k.lbf * k.ft;

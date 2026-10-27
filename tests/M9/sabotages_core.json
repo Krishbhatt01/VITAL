@@ -1,0 +1,66 @@
+[
+ {
+  "id": "SC-1",
+  "file": "+vital/Axis.m",
+  "pattern": "C = C * p.C;",
+  "replacement": "C = C * p.C.';",
+  "targets": ["tCoreAxis/chainsResolveBothWays", "tCoreAxis/compositionMatchesSe3", "tCoreAxis/compositionMatchesTransformTree"],
+  "rationale": "Passive/active convention swapped in Axis: the chain composes the parent's ACTIVE rotation (C') instead of its passive DCM C_parent_grandparent. Chains of depth >= 2 then disagree with the product of passive DCMs, se3 and transformTree."
+ },
+ {
+  "id": "SC-2",
+  "file": "+vital/Point.m",
+  "pattern": "p = vital.Point(o + C * obj.R, b);",
+  "replacement": "p = vital.Point(C * obj.R, b);",
+  "targets": ["tCorePointVector/pointTranslatesVectorDoesNot", "tCoreAxis/stationFrameIsBodyRotatedAboutY"],
+  "rationale": "Point transform drops the translation (treats a position as a free vector): a point in an axis 5 m forward no longer moves by 5 m; station points no longer match vital.frames.stationToBody."
+ },
+ {
+  "id": "SC-3",
+  "file": "+vital/Vector.m",
+  "pattern": "w = vital.Vector(obj.Axis.dcmTo(b) * obj.V, b, 'Quantity', obj.Quantity);",
+  "replacement": "[Cx, ox] = obj.Axis.poseIn(b); w = vital.Vector(ox + Cx * obj.V, b, 'Quantity', obj.Quantity);",
+  "targets": ["tCorePointVector/pointTranslatesVectorDoesNot", "tCorePointVector/lengthsAreInvariant"],
+  "rationale": "Vector transform adds a translation (treats a free vector as a point): a force changes with the axis offset and its length is no longer invariant."
+ },
+ {
+  "id": "SC-4",
+  "file": "+vital/Loads.m",
+  "pattern": "L = vital.Loads(C * F, C * (obj.M - cross(repmat(r, 1, n), F, 1)), b);",
+  "replacement": "L = vital.Loads(C * F, C * (obj.M + cross(repmat(r, 1, n), F, 1)), b);",
+  "targets": ["tCoreLoads/transformEqualsTransferLoad", "tCoreLoads/powerIsInvariant", "tCoreModel/compiledEqualsObjectPath"],
+  "rationale": "The r x F sign flipped in Loads.transform: moments move to the wrong point; differs from vital.loads.transferLoad, breaks power invariance and the object path of the model."
+ },
+ {
+  "id": "SC-5",
+  "file": "+vital/MassProperties.m",
+  "pattern": "d = r(:, k) - rcg;",
+  "replacement": "d = r(:, k);",
+  "targets": ["tCoreMass/parallelAxisThroughCgOnly", "tCoreMass/combineReproducesBox"],
+  "rationale": "Parallel axis applied about a non-CG point (the reference origin) instead of through the composite CG: the inertia of an off-origin body is too large."
+ },
+ {
+  "id": "SC-6",
+  "file": "+vital/AircraftModel.m",
+  "pattern": "parts{end+1} = obj.MassProps.weightLoads(fl.C_bn, fl.Env.g);",
+  "replacement": "parts{end+1} = obj.MassProps.weightLoads(fl.C_bn, fl.Env.g); parts{end+1} = obj.MassProps.dAlembertLoads(zeros(3, 1), fl.X(4:6), zeros(3, 1));",
+  "targets": ["tCoreModel/dAlembertNeverInTotal", "tCoreModel/compiledEqualsObjectPath"],
+  "rationale": "The d'Alembert moment -(w x J w) is added to the load total, so it is counted twice (the EOM already contains it; CONVENTIONS 6)."
+ },
+ {
+  "id": "SC-7",
+  "file": "+vital/PropulsorComponent.m",
+  "pattern": "th = flight.U.(obj.Channels{1});",
+  "replacement": "th = flight.UVector(end);",
+  "targets": ["tCoreModel/twinEngineOut"],
+  "rationale": "A component reads the wrong control channel (the last control instead of its own): the twin's left engine follows the right throttle; the asymmetric-throttle yaw moment changes sign. Invisible on the single-engine F-16, whose only throttle is the last control."
+ },
+ {
+  "id": "SC-8",
+  "file": "+vital/AircraftModel.m",
+  "pattern": "[C, r] = ax.poseIn(root);",
+  "replacement": "persistent cache; if isempty(cache), cache = struct(); end; key = matlab.lang.makeValidName(ax.Name); if isfield(cache, key), C = cache.(key).C; r = cache.(key).r; else, [C, r] = ax.poseIn(root); cache.(key) = struct('C', C, 'r', r); end",
+  "targets": ["tCoreModel/compileIsNotStale"],
+  "rationale": "compile() caches the chain by axis name: a second model with the same axis names and a different geometry (or a re-built axis) gets the stale offsets."
+ }
+]
