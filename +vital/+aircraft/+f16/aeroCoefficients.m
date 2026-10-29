@@ -10,7 +10,7 @@ function [c, info] = aeroCoefficients(flight, AC)
 %   there (PLAN_DEVIATIONS D2). info.outOfEnvelope is the aero tables' flag; the
 %   engine's flag comes from the engine component (vital.aircraft.f16.engineThrust).
 u = [flight.U.de; flight.U.da; flight.U.dr; 0];
-[~, ~, li] = vital.aircraft.f16.loads(flight.Air, u, flight.H, flight.Atm, AC, 'aero');
+[~, ~, li] = vital.aircraft.f16.loads(flight.Air, u, flight.H, flight.Atm, AC, 'coeff');
 c = li.coeff;
 info.outOfEnvelope = li.outOfEnvelope;
 end

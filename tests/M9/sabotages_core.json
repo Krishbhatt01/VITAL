@@ -98,8 +98,8 @@
  {
   "id": "SC-14",
   "file": "+vital/AircraftModel.m",
-  "pattern": "info.M_aero = sum(M_own(:, ia), 2);",
-  "replacement": "info.M_aero = sum(M_R(:, ia), 2);",
+  "pattern": "F_aero = sum(F_R(:, ia), 2); M_aero = sum(M_own(:, ia), 2);",
+  "replacement": "F_aero = sum(F_R(:, ia), 2); M_aero = sum(M_R(:, ia), 2);",
   "targets": ["tI0NescAircraftModel/case09EastwardCannonball", "tI0NescAircraftModel/modelPathEqualsStructPath"],
   "rationale": "The toRuntime bridge reports the aero moment about the root instead of about the aero component origin, so the rotating plant's M_aero_cg = M_aero + (r_mrc - r_cg) x F_aero counts d x F twice. Invisible for the F-16 (r_mrc = 0); the NESC cannonball as an AircraftModel, whose aero data axis is offset by d, then reports a moment about its CM where the published one is zero (band floor 1e-6 ft lbf)."
  }

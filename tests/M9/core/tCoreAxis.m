@@ -77,6 +77,26 @@ classdef (TestTags = {'M9', 'CORE'}) tCoreAxis < vital.test.VitalTestCase
                 'Quantity', 'ft + deg');
         end
 
+        function charUnitsEqualStringUnits(tc)
+            % 'Units' as char ('deg') or cellstr ({'ft','deg'}) means the same as the
+            % string form; a char must not be split into letters ("d", "e", "g").
+            r = vital.Axis.root('n');
+            e = [0.3 -0.2 1.1];
+            aS = vital.Axis([1 2 3], rad2deg(e), r, 'Name', 's', 'Units', ["ft" "deg"]);
+            aD = vital.Axis([0 0 0], rad2deg(e), r, 'Name', 'd', 'Units', 'deg');
+            aF = vital.Axis([1 2 3], eye(3), r, 'Name', 'f', 'Units', 'ft');
+            aC = vital.Axis([1 2 3], rad2deg(e), r, 'Name', 'c', 'Units', {'ft', 'deg'});
+            tc.verifyTol(aD.C, aS.C, 0, 'abs', 'ANALYTIC', 'char deg = string deg', 'Quantity', 'C (char deg)');
+            tc.verifyTol(aF.Origin, aS.Origin, 0, 'abs', 'ANALYTIC', 'char ft = string ft', ...
+                'Quantity', 'origin (char ft)', 'Unit', 'm');
+            tc.verifyTol([aC.Origin(:); aC.C(:)], [aS.Origin(:); aS.C(:)], 0, 'abs', 'ANALYTIC', ...
+                'cellstr = string array', 'Quantity', 'ft + deg (cellstr)');
+            s = vital.Axis.station([1 2 3], r, 'Units', 'ft');
+            tc.verifyTol(s.Origin, vital.Axis.station([1 2 3], r, 'Units', "ft").Origin, 0, 'abs', 'ANALYTIC', ...
+                'station char ft = string ft', 'Quantity', 'station origin (char ft)', 'Unit', 'm');
+            tc.verifyError(@() vital.Axis([0 0 0], eye(3), r, 'Units', 'furlong'), 'vital:badInput');
+        end
+
         function chainsResolveBothWays(tc)
             rng(9101);
             for depth = 1:5

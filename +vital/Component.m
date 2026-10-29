@@ -12,7 +12,13 @@ classdef (Abstract) Component
 %   reads only its own control channels (Channels) by name, so multi-engine and
 %   engine-out need no special code: a failed engine is c.withEnabled(false).
 %   Properties: Name, Axis (vital.Axis), Enabled, Channels (cellstr), MassProps
-%   (vital.MassProperties or [], not yet used by the model's mass: see ADR-040).
+%   (vital.MassProperties or [], not yet used by the model's mass: see ADR-040),
+%   Kind: what the loads ARE, for the model's diagnostics (ADR-043, I1 finding
+%   F-7): 'aero' (summed into y.F_aero, y.M_aero), 'propulsion' (y.F_prop,
+%   y.M_prop), 'other' (in neither sum, e.g. landing gear) or 'unclassified'
+%   (the default for a new subclass: the sums are then NaN, never a silent 0).
+%   AeroTableComponent is 'aero', PropulsorComponent 'propulsion';
+%   c = c.withKind(kind) re-declares it (unknown kind: vital:badInput).
 %   Subclasses implement computeLoads(c, flight) (Hidden: the loads of an ENABLED
 %   component; AircraftModel's compiled path calls it directly for the components
 %   that were enabled at compile time).
@@ -23,6 +29,11 @@ classdef (Abstract) Component
         Enabled (1,1) logical = true
         Channels cell = {}
         MassProps = []
+        Kind (1,:) char = 'unclassified'
+    end
+
+    properties (Constant)
+        KINDS = {'aero', 'propulsion', 'other', 'unclassified'}
     end
 
     methods (Abstract, Hidden)
@@ -48,6 +59,12 @@ classdef (Abstract) Component
             c.Enabled = logical(tf);
         end
 
+        function c = withKind(obj, kind)
+            %WITHKIND  The same component with its load kind re-declared (ADR-043).
+            c = obj;
+            c.Kind = vital.Component.checkKind(kind);
+        end
+
         function c = withAxis(obj, axis)
             if ~isa(axis, 'vital.Axis') || ~isscalar(axis)
                 error('vital:badInput', 'component axis must be a single vital.Axis.');
@@ -58,7 +75,16 @@ classdef (Abstract) Component
 
         function s = toStruct(obj)
             s = struct('name', obj.Name, 'class', class(obj), 'axis', obj.Axis.Name, 'enabled', obj.Enabled, ...
-                'channels', {obj.Channels});
+                'channels', {obj.Channels}, 'kind', obj.Kind);
+        end
+    end
+
+    methods (Static, Hidden)
+        function kind = checkKind(kind)
+            if ~(ischar(kind) || (isstring(kind) && isscalar(kind))) || ~any(strcmp(char(kind), vital.Component.KINDS))
+                error('vital:badInput', 'component kind must be one of %s.', strjoin(vital.Component.KINDS, ', '));
+            end
+            kind = char(kind);
         end
     end
 

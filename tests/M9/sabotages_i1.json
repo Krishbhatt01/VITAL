@@ -1,0 +1,129 @@
+[
+ {
+  "id": "SI1-1",
+  "file": "+vital/+plant/derivatives.m",
+  "pattern": "if numel(u) ~= numel(names)",
+  "replacement": "if false",
+  "targets": [
+   "tI1PlantContract/structWidthByControlNames"
+  ],
+  "rationale": "The control-width check of the legacy struct path is removed: a 5-wide u for the F-16 config (or a 3- or 5-wide u for an AC without controlNames) is silently accepted (the extra entry ignored, or a missing one read out of range by the loads function)."
+ },
+ {
+  "id": "SI1-2",
+  "file": "+vital/+plant/derivatives.m",
+  "pattern": "vital.AircraftModel.checkRuntime(AC);",
+  "replacement": "% (toRuntime guard removed)",
+  "targets": [
+   "tI1RuntimeGuard/editsRaiseStaleRuntime",
+   "tI1RuntimeGuard/noRuntimeAeroScaleField"
+  ],
+  "rationale": "The staleRuntime guard is not called by the flat plant: an edited S, mass, aeroScale ... of a toRuntime struct is silently ignored (the plant evaluates the model the struct came from)."
+ },
+ {
+  "id": "SI1-3",
+  "file": "+vital/AircraftModel.m",
+  "pattern": "if ok && c.hasAeroScale, ok = isequal(AC.aeroScale, c.aeroScale); end",
+  "replacement": "% (aeroScale not in the guard)",
+  "targets": [
+   "tI1RuntimeGuard/editsRaiseStaleRuntime"
+  ],
+  "rationale": "The guard fingerprint leaves out aeroScale: editing AC.aeroScale.Cm_q on a toRuntime struct (the M8 uncertainty knob) is silently ignored, the I0/CORE_AUDIT example of a stale bridge."
+ },
+ {
+  "id": "SI1-4",
+  "file": "+vital/FlightContext.m",
+  "pattern": "obj.X = x;",
+  "replacement": "obj.X = [];",
+  "targets": [
+   "tI1FlightContext/sameContextOnEveryFlatPath",
+   "tI1FlightContext/rotatingContext"
+  ],
+  "rationale": "The context drops the state X (the I0 bridge defect F-3): a component that reads fl.X sees []. Caught by the check of the context against the state itself, not only against the constructor."
+ },
+ {
+  "id": "SI1-5",
+  "file": "+vital/FlightContext.m",
+  "pattern": "C = kin.C_bn; h = kin.H; atm = kin.Atm;",
+  "replacement": "C = []; h = kin.H; atm = kin.Atm;",
+  "targets": [
+   "tI1FlightContext/rotatingContext"
+  ],
+  "rationale": "The context a plant with its own kinematics (derivativesRotating) builds has no C_bn: the bridge context differs from the direct one (C_bn empty, as before I1)."
+ },
+ {
+  "id": "SI1-6",
+  "file": "+vital/+plant/derivatives.m",
+  "pattern": "if nargout > 1, [xdot, y] = AC.derivatives(x, u, env); else, xdot = AC.derivatives(x, u, env); end",
+  "replacement": "[xdot, y] = AC.derivativesObject(x, u, env);",
+  "targets": [
+   "tI1PlantContract/f16ModelBitwiseOver1100States",
+   "tI1PlantContract/twinThroughPlant"
+  ],
+  "rationale": "Model dispatch bypassed: the plant evaluates the OBJECT path (Loads objects, aggregate) instead of the compiled path; equal to round-off only, so the E = 0 contract with the struct path and model.derivatives breaks."
+ },
+ {
+  "id": "SI1-7",
+  "file": "+vital/+plant/derivatives.m",
+  "pattern": "if isempty(AC.Compiled), AC = AC.compile(); end",
+  "replacement": "% (no compile)",
+  "targets": [
+   "tI1PlantContract/uncompiledModelIsCompiled"
+  ],
+  "rationale": "An uncompiled model is not compiled by the plant, so model.derivatives falls back to the object path (round-off different, and slow)."
+ },
+ {
+  "id": "SI1-8",
+  "file": "+vital/AircraftModel.m",
+  "pattern": "if c.unclassified",
+  "replacement": "if false",
+  "targets": [
+   "tI1Diagnostics/unclassifiedIsNaN"
+  ],
+  "rationale": "Finding F-7 back: an unclassified component (the analytic aircraft) is left out of the kind sums, so y.F_aero reads 0 while the body force is ~1 kN, a silent wrong number instead of NaN."
+ },
+ {
+  "id": "SI1-9",
+  "file": "+vital/AircraftModel.m",
+  "pattern": "'F_aero', F_aero, 'M_aero', M_aero, 'F_prop', F_prop, 'M_prop', M_prop,",
+  "replacement": "'F_aero_', F_aero, 'M_aero_', M_aero, 'F_prop_', F_prop, 'M_prop_', M_prop,",
+  "targets": [
+   "tI1PlantContract/f16ModelBitwiseOver1100States",
+   "tI1Diagnostics/twinPropulsionSums",
+   "tI1Diagnostics/declaredAeroIsExact"
+  ],
+  "rationale": "Finding F-8 back: the compiled y has no F_aero, M_aero, F_prop, M_prop, so the model path and the struct path give different y fields."
+ },
+ {
+  "id": "SI1-10",
+  "file": "+vital/AircraftModel.m",
+  "pattern": "info.M_aero_transfer = info.M_aero_transfer + cross(c.r(:, k) - c.r_mrc, F_R(:, k));",
+  "replacement": "info.M_aero_transfer = info.M_aero_transfer;",
+  "targets": [
+   "tI1Diagnostics/twoAeroPointsRotating"
+  ],
+  "rationale": "Finding F-6 back: with two aero components at different points the rotating plant takes the aero moment about the CG from the FIRST point only."
+ },
+ {
+  "id": "SI1-11",
+  "file": "+vital/+plant/derivativesRotating.m",
+  "pattern": "if isfield(AC, 'controlNames') && numel(u) ~= numel(AC.controlNames)",
+  "replacement": "if false",
+  "targets": [
+   "tI1PlantContract/rotatingPlantWidth"
+  ],
+  "rationale": "The rotating plant silently mis-sizes u: a 5- or 3-wide u for the F-16 config reaches its loadsFcn."
+ },
+ {
+  "id": "SI1-12",
+  "file": "+vital/AeroTableComponent.m",
+  "pattern": "obj.Kind = 'aero';",
+  "replacement": "",
+  "targets": [
+   "tI1PlantContract/f16ModelBitwiseOver1100States",
+   "tI1Diagnostics/twinPropulsionSums",
+   "tI1Diagnostics/twoAeroPointsRotating"
+  ],
+  "rationale": "The aero table no longer declares its kind: every aero diagnostic of a real aircraft becomes NaN (unclassified), and the F-16 model y no longer equals the struct path."
+ }
+]

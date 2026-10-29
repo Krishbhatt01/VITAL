@@ -32,10 +32,24 @@ classdef AircraftModel
 %                                             m.Controls, or a struct by name), plus
 %                                             y.F_R, y.M_R (3xK, root/BFRP axes, about
 %                                             the root) and y.componentNames.
+%   The model IS the aircraft (ADR-043, increment I1): hand it to the plant,
+%     [xdot, y] = vital.plant.derivatives(x, u, m, env)   (= m.derivatives, compiled)
+%   with u a vector of numel(m.Controls) in that order or a struct by name; y has
+%   every field of the struct path (incl. F_aero, M_aero, F_prop, M_prop, coeff,
+%   thrust_lbf, summed by component Kind; NaN when a component is 'unclassified').
 %   Bridge to the existing functional consumers (trim, linearize, sim, fq, uq):
-%     AC = m.toRuntime()   the AC struct of vital.plant.derivatives with a loadsFcn
-%                          that evaluates this model (needs 4 controls [de da dr
-%                          throttle] for vital.plant.derivatives itself)
+%     AC = m.toRuntime()   the legacy AC struct: copies of S, b, cbar, mass, J,
+%                          r_cg, r_mrc (the origin of the first 'aero' component;
+%                          informational, finding F-6), limits, controlNames,
+%                          Meta (e.g. aeroScale), PLUS AC.runtimeModel (this model,
+%                          compiled). vital.plant.derivatives and
+%                          derivativesRotating evaluate AC.runtimeModel; the copied
+%                          fields are never the truth, so the plant refuses a struct
+%                          whose S, b, cbar, mass, J, r_cg, r_mrc, aeroScale,
+%                          controlNames or loadsFcn were edited
+%                          (vital:model:staleRuntime; limits and name may be edited).
+%                          AC.loadsFcn cannot be called on its own
+%                          (vital:model:runtimeLoadsFcn: a context needs the state).
 %   Edits return new (uncompiled) models: m.withComponentEnabled(name, tf).
 %   Lookups: m.axis(name), m.component(name).
 
@@ -175,8 +189,12 @@ classdef AircraftModel
             end
             c.comps = obj.Components;
             c.enabled = cellfun(@(x) x.Enabled, obj.Components);
-            c.isAero = cellfun(@(x) isa(x, 'vital.AeroTableComponent'), obj.Components);
-            c.isProp = cellfun(@(x) isa(x, 'vital.PropulsorComponent'), obj.Components);
+            kinds = cellfun(@(x) x.Kind, obj.Components, 'UniformOutput', false);
+            c.isAero = strcmp(kinds, 'aero');
+            c.isProp = strcmp(kinds, 'propulsion');
+            c.iAero = find(c.isAero);
+            c.iProp = find(c.isProp);
+            c.unclassified = any(strcmp(kinds, 'unclassified'));
             mp = obj.MassProps;
             [~, rcg] = chainPose(mp.CgAxis, root);
             c.r_cg = rcg;
@@ -184,6 +202,13 @@ classdef AircraftModel
             c.J = mp.about(vital.Axis(rcg, eye(3), root, 'Name', 'cg_body'));
             c.ref = obj.Ref;
             c.controls = obj.Controls;
+            % the toRuntime guard (ADR-043): the physical fields a toRuntime struct
+            % copies, as ONE stored numeric fingerprint, plus names and aeroScale
+            if isempty(c.iAero), c.r_mrc = zeros(3, 1); else, c.r_mrc = c.r(:, c.iAero(1)); end
+            c.fingerprint = [obj.Ref.S; obj.Ref.b; obj.Ref.cbar; c.mass; c.J(:); c.r_cg(:); c.r_mrc(:)];
+            c.hasAeroScale = isfield(obj.Meta, 'aeroScale');
+            c.aeroScale = [];
+            if c.hasAeroScale, c.aeroScale = obj.Meta.aeroScale; end
             obj.Compiled = c;
         end
 
@@ -220,7 +245,7 @@ classdef AircraftModel
                 return
             end
             fl = vital.FlightContext(x, u, env, c.controls, c.ref);
-            [F_R, M_R, oe] = vital.AircraftModel.compiledLoads(c, fl);
+            [F_R, M_R, oe, infos, M_own] = vital.AircraftModel.compiledLoads(c, fl);
             if any(~isfinite(F_R(:))) || any(~isfinite(M_R(:)))
                 error('vital:plant:nonFinite', 'aircraft loads are not finite at this state.');
             end
@@ -231,7 +256,8 @@ classdef AircraftModel
                 error('vital:plant:nonFinite', 'state derivative is not finite.');
             end
             if nargout > 1
-                y = vital.AircraftModel.diagnostics(fl, F_R, M_R, F_b, M_cg, oe, c.mass, env, c.names);
+                [Fa, Ma, Fp, Mp, MaR, cf, th] = vital.AircraftModel.kindSums(c, F_R, M_R, M_own, infos);
+                y = vital.AircraftModel.diagnostics(fl, F_R, M_R, F_b, M_cg, oe, c.mass, env, c.names, Fa, Ma, Fp, Mp, MaR, cf, th);
             end
         end
 
@@ -250,14 +276,20 @@ classdef AircraftModel
             end
             if nargout > 1
                 n = numel(obj.Components);
-                F_R = zeros(3, n); M_R = zeros(3, n); oe = false; names = cell(1, n);
+                F_R = zeros(3, n); M_R = zeros(3, n); M_own = zeros(3, n); oe = false; names = cell(1, n);
+                infos = cell(1, n); kinds = cell(1, n);
                 for k = 1:n
                     comp = obj.Components{k};
-                    [~, ~, info] = comp.loadsNumeric(fl);
+                    [~, M, info] = comp.loadsNumeric(fl);
                     Lr = comp.loads(fl).transform(root);
                     F_R(:, k) = Lr.F; M_R(:, k) = Lr.M; oe = oe || info.outOfEnvelope; names{k} = comp.Name;
+                    M_own(:, k) = comp.Axis.dcmTo(root) * M;
+                    infos{k} = info; kinds{k} = comp.Kind;
                 end
-                y = vital.AircraftModel.diagnostics(fl, F_R, M_R, L.F, L.M, oe, mp.Mass, env, names);
+                ck.iAero = find(strcmp(kinds, 'aero')); ck.iProp = find(strcmp(kinds, 'propulsion'));
+                ck.unclassified = any(strcmp(kinds, 'unclassified'));
+                [Fa, Ma, Fp, Mp, MaR, cf, th] = vital.AircraftModel.kindSums(ck, F_R, M_R, M_own, infos);
+                y = vital.AircraftModel.diagnostics(fl, F_R, M_R, L.F, L.M, oe, mp.Mass, env, names, Fa, Ma, Fp, Mp, MaR, cf, th);
             end
         end
 
@@ -271,11 +303,11 @@ classdef AircraftModel
             AC.mass = c.mass;
             AC.J = c.J;
             AC.r_cg = c.r_cg;
-            ia = find(c.isAero, 1);
-            if isempty(ia), AC.r_mrc = zeros(3, 1); else, AC.r_mrc = c.r(:, ia); end
+            AC.r_mrc = c.r_mrc;
             AC.limits = obj.Limits;
             AC.controlNames = obj.Controls;
-            AC.loadsFcn = @(ad, u, h, atm, AC_) vital.AircraftModel.runtimeLoads(c, ad, u, h, atm); %#ok<INUSD>
+            AC.loadsFcn = @vital.AircraftModel.runtimeLoadsFcn;
+            AC.runtimeModel = obj;
         end
 
         function s = toStruct(obj)
@@ -391,44 +423,118 @@ classdef AircraftModel
                 end
                 F_R(:, k) = F;
                 M_own(:, k) = M;
-                M_R(:, k) = M + cross(c.r(:, k), F);
+                r = c.r(:, k);                  % M + r x F, the arithmetic of cross() written out
+                M_R(:, k) = M + [r(2) * F(3) - r(3) * F(2); r(3) * F(1) - r(1) * F(3); r(1) * F(2) - r(2) * F(1)];
                 oe = oe || info.outOfEnvelope;
                 infos{k} = info;
             end
         end
 
-        function [F_R, M_R, info] = runtimeLoads(c, ad, u, h, atm)
-            fl = vital.FlightContext.fromAirData(ad, u, h, atm, c.controls);
+        function [F_R, M_R, info] = runtimeLoads(c, fl)
+            % the loads of a compiled model in a context built by a plant with its own
+            % kinematics (vital.plant.derivativesRotating, ADR-043), in the info
+            % layout of an AC.loadsFcn: outOfEnvelope and the kind sums
             [F_R, M_R, oe, infos, M_own] = vital.AircraftModel.compiledLoads(c, fl);
+            [info.F_aero, info.M_aero, info.F_prop, info.M_prop, info.M_aero_R, cf, th] = ...
+                vital.AircraftModel.kindSums(c, F_R, M_R, M_own, infos);
+            if ~isempty(cf), info.coeff = cf; end
+            if ~isempty(th), info.thrust_lbf = th; end
             info.outOfEnvelope = oe;
-            ia = find(c.isAero); ip = find(c.isProp);
-            % as vital.aircraft.f16.loads: aero and propulsive loads in body axes, each
-            % about its own component origin (the MRC for the F-16)
-            info.F_aero = sum(F_R(:, ia), 2); info.M_aero = sum(M_own(:, ia), 2);
-            info.F_prop = sum(F_R(:, ip), 2); info.M_prop = sum(M_own(:, ip), 2);
-            if ~isempty(ia) && isfield(infos{ia(1)}, 'coeff'), info.coeff = infos{ia(1)}.coeff; end
-            if ~isempty(ip) && all(cellfun(@(s) isfield(s, 'thrust_lbf'), infos(ip)))
-                info.thrust_lbf = sum(cellfun(@(s) s.thrust_lbf, infos(ip)));
+            % F-6: the aero moment about the first aero point AC.r_mrc is M_aero +
+            % M_aero_transfer, exact for aero components at several points (zero
+            % for one point); derivativesRotating adds (r_mrc - r_cg) x F_aero
+            ia = c.iAero;
+            info.M_aero_transfer = zeros(3, 1);
+            for k = ia(2:end)
+                info.M_aero_transfer = info.M_aero_transfer + cross(c.r(:, k) - c.r_mrc, F_R(:, k));
             end
         end
 
-        function y = diagnostics(fl, F_R, M_R, F_b, M_cg, oe, mass, env, names)
-            % the y of vital.plant.derivatives (same formulas), plus the component loads
-            ad = fl.Air; x = fl.X;
-            y.V = ad.V; y.alpha = ad.alpha; y.beta = ad.beta; y.mach = ad.mach; y.qbar = ad.qbar; y.h = fl.H;
-            y.F_b = F_b; y.M_cg = M_cg;
-            y.outOfEnvelope = oe;
-            y.F_R = F_R; y.M_R = M_R; y.componentNames = names;
-            y.quatNorm = norm(x(7:10));
-            e = vital.frames.dcm2eul(fl.C_bn);
-            y.phi = e(1); y.theta = e(2); y.psi = e(3);
-            y.p = x(4); y.q = x(5); y.r = x(6);
-            y.specificForce_b = sum(F_R, 2) / mass;
-            if env.g > 0
-                y.nz = -y.specificForce_b(3) / env.g;
-            else
-                y.nz = NaN;
+        function [F_R, M_R, info] = runtimeLoadsFcn(ad, u, h, atm, AC) %#ok<STOUT,INUSD>
+            % the loadsFcn of a toRuntime struct: never evaluated on its own
+            error('vital:model:runtimeLoadsFcn', ['the loadsFcn of a toRuntime struct cannot be called on its own ' ...
+                '(a component context needs the state): pass the struct, or the model itself, to ' ...
+                'vital.plant.derivatives or vital.plant.derivativesRotating (ADR-043).']);
+        end
+
+        function checkRuntime(AC)
+            %CHECKRUNTIME  vital:model:staleRuntime unless the physical fields of a
+            %   toRuntime struct still equal the model it carries (ADR-043): one
+            %   stored numeric fingerprint (S b cbar mass J r_cg r_mrc), the control
+            %   names, the loadsFcn and aeroScale (present iff the model has one).
+            m = AC.runtimeModel;
+            ok = isa(m, 'vital.AircraftModel') && ~isempty(m.Compiled);
+            if ok
+                c = m.Compiled;
+                try
+                    ok = isequal([AC.S(:); AC.b(:); AC.cbar(:); AC.mass(:); AC.J(:); AC.r_cg(:); AC.r_mrc(:)], c.fingerprint) && ...
+                        isequal(AC.controlNames, c.controls) && isequal(AC.loadsFcn, @vital.AircraftModel.runtimeLoadsFcn) && ...
+                        isfield(AC, 'aeroScale') == c.hasAeroScale;
+                    if ok && c.hasAeroScale, ok = isequal(AC.aeroScale, c.aeroScale); end
+                catch
+                    ok = false;
+                end
             end
+            if ~ok
+                error('vital:model:staleRuntime', ['this AC struct was made by AircraftModel.toRuntime() and one of its ' ...
+                    'physical fields (S, b, cbar, mass, J, r_cg, r_mrc, aeroScale, controlNames, loadsFcn) was edited ' ...
+                    'afterwards; the plant evaluates the model, so the edit would be ignored. Change the model (or its ' ...
+                    'data) and call toRuntime() again (ADR-043).']);
+            end
+        end
+
+        function [F_aero, M_aero, F_prop, M_prop, M_aero_R, coeff, thrust] = kindSums(c, F_R, M_R, M_own, infos)
+            % y.F_aero, M_aero, F_prop, M_prop, coeff, thrust_lbf by component Kind
+            % (ADR-043, findings F-7/F-8): forces in the root (body) axes, moments
+            % each about its own component origin (the MRC for the F-16), as
+            % vital.aircraft.f16.loads; M_aero_R the aero moment about the root.
+            % NaN when any component is 'unclassified' (never a silent 0). coeff
+            % (one aero component) and thrust (every propulsor reports thrust_lbf)
+            % are [] when not defined. Plain outputs, no struct (cost).
+            coeff = []; thrust = [];
+            if c.unclassified
+                F_aero = nan(3, 1); M_aero = F_aero; F_prop = F_aero; M_prop = F_aero; M_aero_R = F_aero;
+                return
+            end
+            ia = c.iAero; ip = c.iProp;
+            F_aero = sum(F_R(:, ia), 2); M_aero = sum(M_own(:, ia), 2);
+            if isscalar(ip)                     % one column: the same numbers as sum(., 2), cheaper
+                F_prop = F_R(:, ip); M_prop = M_own(:, ip);
+                if isfield(infos{ip}, 'thrust_lbf'), thrust = infos{ip}.thrust_lbf; end
+            else
+                F_prop = sum(F_R(:, ip), 2); M_prop = sum(M_own(:, ip), 2);
+                if ~isempty(ip)
+                    thrust = 0;
+                    for k = ip
+                        if ~isfield(infos{k}, 'thrust_lbf'), thrust = []; break; end
+                        thrust = thrust + infos{k}.thrust_lbf;
+                    end
+                end
+            end
+            if isscalar(ia)
+                if isfield(infos{ia}, 'coeff'), coeff = infos{ia}.coeff; end
+                M_aero_R = M_R(:, ia);
+            else
+                M_aero_R = sum(M_R(:, ia), 2);
+            end
+        end
+
+        function y = diagnostics(fl, F_R, M_R, F_b, M_cg, oe, mass, env, names, F_aero, M_aero, F_prop, M_prop, M_aero_R, coeff, thrust)
+            % the y of vital.plant.derivatives (same formulas and fields, incl. the
+            % kind sums of kindSums), plus the component loads F_R, M_R, componentNames and
+            % M_aero_R. Built by ONE struct() call (ADR-043 cost note: about 3x
+            % cheaper than ~30 single field assignments).
+            ad = fl.Air; x = fl.X;
+            e = vital.frames.dcm2eul(fl.C_bn);
+            sf = sum(F_R, 2) / mass;
+            if env.g > 0, nz = -sf(3) / env.g; else, nz = NaN; end
+            y = struct('V', ad.V, 'alpha', ad.alpha, 'beta', ad.beta, 'mach', ad.mach, 'qbar', ad.qbar, 'h', fl.H, ...
+                'F_b', F_b, 'M_cg', M_cg, 'outOfEnvelope', oe, ...
+                'F_aero', F_aero, 'M_aero', M_aero, 'F_prop', F_prop, 'M_prop', M_prop, ...
+                'quatNorm', norm(x(7:10)), 'phi', e(1), 'theta', e(2), 'psi', e(3), 'p', x(4), 'q', x(5), 'r', x(6), ...
+                'specificForce_b', sf, 'nz', nz, 'F_R', F_R, 'M_R', M_R, 'componentNames', {names}, 'M_aero_R', M_aero_R);
+            if ~isempty(coeff), y.coeff = coeff; end
+            if ~isempty(thrust), y.thrust_lbf = thrust; end
         end
     end
 end

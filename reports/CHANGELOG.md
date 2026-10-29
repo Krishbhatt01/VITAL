@@ -705,3 +705,21 @@ Rough, single uncontended MATLAB, about 0.4-0.7 s per closed-loop single-point e
 - `ReturnWorkspaceOutputs` is off, so pressing Run leaves `sim6dof` in the workspace.
 - `run_f16_trim_6dof` no longer runs or plots any VITAL simulation; the VITAL cross-check stays in test T6 only.
 - Tests T8-T10 were added. RED: T8-T10 errored before the change (`reports/work/trim6dof/amendmentA_red.txt`). Sabotages ST-6 and ST-7 were added. FC-1085..1087.
+
+## 0.9.4-I1 (2026-10-29): the plant contract by name (increment I1; ADR-043 proposed)
+
+### Added
+- `vital.plant.derivatives(x, u, aircraft, env)` takes a `vital.AircraftModel` (compiled path; compiles an uncompiled one) or a toRuntime struct (through `AC.runtimeModel`); legacy structs: nu = numel(AC.controlNames), default 4; u by name (`vital.FlightContext.controlVector`). `derivativesRotating` takes a model and checks the applied u against controlNames.
+- toRuntime guard `vital:model:staleRuntime` (fingerprint S b cbar mass J r_cg r_mrc + controlNames, loadsFcn, aeroScale); `vital:model:runtimeLoadsFcn`.
+- `vital.Component.Kind` / `withKind` ('aero', 'propulsion', 'other', 'unclassified'); model y gains F_aero, M_aero, F_prop, M_prop, coeff, thrust_lbf (NaN sums for unclassified components) and M_aero_R; `FlightContext.StateLayout`; `vital.aircraft.f16.loads(..., 'coeff')`.
+- Tests `tests/M9/i1/` (tI1PlantContract, tI1RuntimeGuard, tI1FlightContext, tI1Diagnostics, tI1Performance; 19 tests), helpers `tests/reference/{ContextSink, ContextProbeComponent, linearDerivativeXdot}.m`, sabotages `tests/M9/sabotages_i1.json` (SI1-1..12), FC-1090..1103.
+
+### Changed
+- One FlightContext construction path (the constructor, optional plant kinematics); `fromAirData`/`bridge`/`setBridge` removed. The rotating plant's M_aero_cg adds the transfer term of further aero points (F-6; zero for one point).
+- tCorePerformance statistic: median of 15 paired batch ratios (bound 1.25 unchanged; F-11). SC-14 pattern moved with the kind-sum refactor (same mutation).
+
+### Measured
+- RED (full cumulative M9): 707 | PASS 688 | RED_EXPECTED 13 | RED_SUSPICIOUS 4 | VACUOUS 2 | unexpected 0 | regression 0 (`reports/work/i1/M9_red_i1.txt`).
+- GREEN (full cumulative M9): 827 | PASS 825 | FAIL 2: tI1Performance (1.267 vs 1.05, criterion NOT met) and tCorePerformance (1.311 vs 1.25 in the gate; 1.21/1.21/1.25 rerun alone) (`reports/work/i1/M9_green_i1.txt`). M0 gate OK (53).
+- F-16 through the plant as model / toRuntime / config: 1,100 states, max difference 0 (isequal).
+- Sabotages: i1 12/12, core 13/13, data 9/9, trim6dof 7/7 DETECTED, tree unchanged.

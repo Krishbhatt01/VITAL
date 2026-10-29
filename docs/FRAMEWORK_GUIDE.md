@@ -835,6 +835,24 @@ Rules that kept these tests honest:
 
 **Limits until I1.** The consumers (plant, trim, linearize) still need exactly the four controls `de da dr throttle` and F-16-named limits (`de_deg`, `da_deg`, `dr_deg`, `throttle`, `alpha_deg`). A component must read the air data from `fl.Air`, not the state from `fl.X`, because the `toRuntime` bridge gives it no state. The full list is in `reports/fragments/i0/FINDINGS_FOR_I1.md`.
 
+### 12c.2 The model is the aircraft: the plant contract by name (increment I1)
+
+Hand the `vital.AircraftModel` itself to the plant (ADR-043). The old AC struct is only a bridge for the consumers that still take structs.
+```matlab
+f16 = vital.AircraftModel.fromData(vital.aircraft.f16.data());   % compiled
+env = struct('g', 9.80665, 'wind_n', [0; 0; 0], 'deltaT', 0);
+[xdot, y] = vital.plant.derivatives(x, u, f16, env);              % = f16.derivatives(x, u, env)
+u = struct('de', -0.05, 'da', 0, 'dr', 0, 'throttle', 0.3);       % or by name
+[xdot, y] = vital.plant.derivatives(x, u, f16, env);
+twin = coreTwinFixture(1.5);                                      % 5 controls: u has 5 entries
+xdot = vital.plant.derivatives(x, [u4; 0.4], twin, env);          % 4 entries: vital:badInput
+```
+- **Width.** u has `numel(model.Controls)` entries in that order. For a legacy struct it has `numel(AC.controlNames)` entries, or 4 ([de da dr throttle]) when the struct has no controlNames. A wrong width is `vital:badInput`, and the message names the channels.
+- **y.** It has the fields of the struct path (V, alpha, ..., F_aero, M_aero, F_prop, M_prop, coeff, thrust_lbf, ..., nz) plus F_R, M_R, componentNames and M_aero_R. The aero and propulsion sums go by component `Kind` ('aero', 'propulsion', 'other', 'unclassified'). They are NaN when a component is unclassified: declare yours with `c.withKind('aero')`.
+- **toRuntime.** `AC = model.toRuntime()` still works for trim, linearize, sim, fq and uq. The plant then evaluates `AC.runtimeModel`. Change the model, not the struct: editing S, b, cbar, mass, J, r_cg, r_mrc, aeroScale, controlNames or loadsFcn on the struct gives `vital:model:staleRuntime` (limits and name may be edited).
+- **Components** get one context, from `vital.FlightContext(x, u, env, names, ref)`, on every path. X, C_bn, Env, U, Air, H and Atm are always filled; on the rotating plant X is that plant's state (`fl.StateLayout = 'rotating13'`).
+- **Not yet by name (I2, I3):** trim (unknowns alpha, de, throttle; limit names de_deg, throttle) and linearize (4 inputs).
+
 ## 12d. Aircraft data objects
 
 **Why.** NASA's F-16 comes as five DAVE-ML files: tables, breakpoints, constants, build-up equations and check cases, each with units. Before D1 VITAL turned them straight into generated code, where the tables became anonymous arrays (`K.f1_data`), and `config.m` copied the geometry and mass by hand. You could not ask "what is CX0 at 5 degrees, and where does that number come from?", and there was no format in which to write a second aircraft. Now every aircraft is one data object, read straight from its source files, in the same object style as the core (12c), and every number in it carries its units and its source: file, line, SHA-256 and DAVE-ML id.

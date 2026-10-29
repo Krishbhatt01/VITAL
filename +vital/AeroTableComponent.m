@@ -36,6 +36,7 @@ classdef AeroTableComponent < vital.Component
                 error('vital:badInput', 'coeffFcn must be a function handle.');
             end
             obj = obj.initComponent(name, axis, opts.Channels, opts.MassProps);
+            obj.Kind = 'aero';
             obj.CoeffFcn = coeffFcn;
             obj.CoeffArgs = opts.CoeffArgs;
             obj.S = opts.S; obj.b = opts.b; obj.cbar = opts.cbar;

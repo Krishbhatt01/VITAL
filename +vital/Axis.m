@@ -13,7 +13,7 @@ classdef Axis
 %               an so3 object (ACTIVE rotation, the toolbox convention): C = rotm(R)'
 %             anything else is vital:badInput
 %     parent  a vital.Axis, or [] for a root
-%   a = vital.Axis.root(name)                        the root of a tree (BFRP, NED, ...)
+%   a = vital.Axis.root(name)                        the root of a tree (BFRP, NED,  ...)
 %
 %   ONE CONVENTION (CONVENTIONS 3): a.C maps parent components to a's components.
 %   Value class: an Axis never changes after construction; a tree is built from the
@@ -256,6 +256,7 @@ classdef Axis
             if ~(isstring(units) || ischar(units) || iscellstr(units))
                 error('vital:badInput', 'Units must be text: "m", "ft", "rad" or "deg".');
             end
+            if ischar(units), units = string(units); end     % 'deg' is one word, not 'd' 'e' 'g'
             for u = string(units(:)).'
                 switch lower(u)
                     case "m"

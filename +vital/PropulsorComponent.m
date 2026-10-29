@@ -29,6 +29,7 @@ classdef PropulsorComponent < vital.Component
                 error('vital:badInput', 'a propulsor reads exactly one control channel.');
             end
             obj = obj.initComponent(name, axis, {char(channel)}, opts.MassProps);
+            obj.Kind = 'propulsion';
             obj.ThrustFcn = thrustFcn;
         end
     end

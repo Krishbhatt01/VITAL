@@ -2,6 +2,8 @@ function [F_R, M_R, info] = loads(ad, u, h, atm, AC, part) %#ok<INUSD>
 %LOADS  F-16 aerodynamic and propulsive loads about the BFRP, body axes (SI).
 %   [F_R, M_R, info] = vital.aircraft.f16.loads(ad, u, h, atm, AC)
 %   [F_R, M_R, info] = vital.aircraft.f16.loads(..., 'aero')   aero column only
+%   [~, ~, info] = vital.aircraft.f16.loads(..., 'coeff')   info.coeff and
+%     info.outOfEnvelope only (the aero component's coefficient function; I1)
 %     (0.9.1-CORE, for the AeroTableComponent of vital.aircraft.f16.model; the
 %     engine model is not evaluated, u(4) unused; info has F_aero, M_aero, coeff
 %     and the aero table outOfEnvelope only). Without 'part' nothing changes.
@@ -53,6 +55,13 @@ if isfield(AC, 'aeroScale')
     elseif s.Cn_r ~= 1
         a.cn = a.cn1 + a.b2v * ((a.cnp * a.p) + (a.cnr * a.r));
     end
+end
+if nargin >= 6 && strcmp(part, 'coeff')
+    % I1 (ADR-043 cost note): the coefficients only, for vital.aircraft.f16.aeroCoefficients
+    F_R = []; M_R = [];
+    info.coeff = [a.cx a.cy a.cz a.cl a.cm a.cn];
+    info.outOfEnvelope = a.outOfEnvelope;
+    return
 end
 qS = ad.qbar * AC.S;
 F_aero = qS * [a.cx; a.cy; a.cz];

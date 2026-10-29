@@ -1,9 +1,23 @@
 function [xdot, y] = derivatives(x, u, AC, env)
 %DERIVATIVES  The single physics entry point: state derivative of the aircraft.
-%   [xdot, y] = vital.plant.derivatives(x, u, AC, env)
+%   [xdot, y] = vital.plant.derivatives(x, u, aircraft, env)
 %     x    [v_b (3) m/s; w_b (3) rad/s; q (4) scalar-first N->B; p_n (3) m NED]
-%     u    controls [de; da; dr; throttle] (rad, rad, rad, 0..1)
-%     AC   aircraft configuration (e.g. vital.aircraft.f16.config) with loadsFcn
+%     u    controls: a vector in the order of the aircraft's control names, or a
+%          struct by control name (ADR-043)
+%     aircraft  (ADR-043, increment I1: the plant contract by name)
+%          a vital.AircraftModel: THE aircraft. The plant evaluates its compiled
+%            path, [xdot, y] = model.derivatives(x, u, env) (an uncompiled model
+%            is compiled first, at every call: pass a compiled one), u of
+%            numel(model.Controls); y as below plus F_R, M_R, componentNames,
+%            M_aero_R (kind sums: NaN when a component is 'unclassified').
+%          an AC struct made by model.toRuntime(): the same model path, through
+%            AC.runtimeModel, after the guard vital:model:staleRuntime (an edited
+%            S, b, cbar, mass, J, r_cg, r_mrc, aeroScale, controlNames or loadsFcn).
+%          any other AC struct (the legacy format, e.g. vital.aircraft.f16.config)
+%            with loadsFcn: nu = numel(AC.controlNames) when the field exists,
+%            else 4 in the legacy F-16 order [de da dr throttle] (rad, rad, rad, 0..1).
+%          A u of another width is vital:badInput (the message names the channels);
+%          a control struct with a missing or unknown name vital:model:unknownControl.
 %     env  struct: g (m/s^2, flat-earth gravity), wind_n (3x1 NED m/s), deltaT (K)
 %   Pipeline (docs/CONVENTIONS.md):
 %     atmosphere (ISA via atmosisa, vital.env.atmosphere, at h = -p_n(3)) -> air data -> AC.loadsFcn (loads about
@@ -25,13 +39,26 @@ function [xdot, y] = derivatives(x, u, AC, env)
 %   The same function serves trim, linearization and time simulation.
 %   Errors: vital:badInput (bad x/u), vital:plant:nonFinite (a component or the
 %   derivative is not finite; FC-402).
+if isa(AC, 'vital.AircraftModel')
+    if isempty(AC.Compiled), AC = AC.compile(); end
+    if nargout > 1, [xdot, y] = AC.derivatives(x, u, env); else, xdot = AC.derivatives(x, u, env); end
+    return
+end
+if isfield(AC, 'runtimeModel')
+    vital.AircraftModel.checkRuntime(AC);
+    if nargout > 1, [xdot, y] = AC.runtimeModel.derivatives(x, u, env); else, xdot = AC.runtimeModel.derivatives(x, u, env); end
+    return
+end
+if isfield(AC, 'controlNames'), names = AC.controlNames; else, names = {'de', 'da', 'dr', 'throttle'}; end
+if isstruct(u), u = vital.FlightContext.controlVector(u, names); end
 vital.validate.finite(x, 'state');
 vital.validate.finite(u, 'controls');
 if numel(x) ~= 13
     error('vital:badInput', 'state must have 13 elements, got %d.', numel(x));
 end
-if numel(u) ~= 4
-    error('vital:badInput', 'controls must be [de da dr throttle], got %d elements.', numel(u));
+if numel(u) ~= numel(names)
+    error('vital:badInput', 'controls must be [%s] (%d channels), got %d elements.', ...
+        strjoin(cellstr(names), ' '), numel(names), numel(u));
 end
 x = x(:); u = u(:);
 v = x(1:3); w = x(4:6); q = x(7:10);

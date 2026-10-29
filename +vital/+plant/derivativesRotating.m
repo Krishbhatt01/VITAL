@@ -13,8 +13,16 @@ function [xdot, y] = derivativesRotating(x, u, AC, env)
 %   Build it with vital.eom.rotatingState; ECI (coincident with ECEF at t = 0)
 %   with vital.eom.rotatingToInertial.
 %
-%   u    controls, passed unchanged to AC.loadsFcn (F-16: [de da dr throttle];
-%        [] for the unpowered NESC sphere and brick)
+%   u    controls, passed to AC.loadsFcn (F-16: [de da dr throttle]; [] for the
+%        unpowered NESC sphere and brick). ADR-043 (I1): when AC declares
+%        controlNames the applied u must have numel(AC.controlNames) elements
+%        (vital:badInput naming the channels); an AC WITHOUT controlNames keeps
+%        the legacy contract (u passed unchanged; its loadsFcn owns the width).
+%        A vital.AircraftModel is accepted (its toRuntime struct, built at
+%        every call); a toRuntime struct is evaluated through its runtimeModel
+%        (guard vital:model:staleRuntime), with a vital.FlightContext built by
+%        the ONE constructor from this plant's kinematics (X = this state,
+%        StateLayout 'rotating13', C_bn local NED -> body, Env = env).
 %   AC   vehicle: mass (kg), J (kg m^2, about the CM, body axes), r_cg, r_mrc
 %        (BFRP coordinates, m), b, cbar (m) and
 %        [F_R, M_R, info] = AC.loadsFcn(ad, u, h, atm, AC): the M3 loads
@@ -59,6 +67,7 @@ function [xdot, y] = derivativesRotating(x, u, AC, env)
 %   Errors: vital:badInput (state, env, zero quaternion), vital:plant:nonFinite
 %   (loads or derivative not finite; FC-402), vital:env:altitudeOutOfRange
 %   (FC-106), vital:badInput at the exact pole (NED undefined).
+if isa(AC, 'vital.AircraftModel'), AC = AC.toRuntime(); end
 if ~(isnumeric(x) && numel(x) == 13)
     error('vital:badInput', 'rotating-plant state must have 13 elements [r_e v_e q_be w_bi], got %d.', numel(x));
 end
@@ -98,7 +107,18 @@ if isfield(AC, 'stageControl')
     ucmd = u;
     u = AC.stageControl(sig, ucmd);
 end
-[F_R, M_R, info] = AC.loadsFcn(ad, u, h, atm, AC);
+if isfield(AC, 'controlNames') && numel(u) ~= numel(AC.controlNames)
+    error('vital:badInput', 'controls must be [%s] (%d channels), got %d elements.', ...
+        strjoin(cellstr(AC.controlNames), ' '), numel(AC.controlNames), numel(u));
+end
+if isfield(AC, 'runtimeModel')
+    vital.AircraftModel.checkRuntime(AC);
+    kin = struct('C_bn', C_bn, 'H', h, 'Atm', atm, 'Air', ad, 'StateLayout', 'rotating13');
+    fl = vital.FlightContext(x, u, env, AC.controlNames, ref, kin);
+    [F_R, M_R, info] = vital.AircraftModel.runtimeLoads(AC.runtimeModel.Compiled, fl);
+else
+    [F_R, M_R, info] = AC.loadsFcn(ad, u, h, atm, AC);
+end
 if any(~isfinite(F_R(:))) || any(~isfinite(M_R(:)))
     error('vital:plant:nonFinite', 'vehicle loads are not finite at this state.');
 end
@@ -122,7 +142,11 @@ if isfield(info, 'F_aero') && isfield(info, 'M_aero')
     d = [0; 0; 0];
     if isfield(AC, 'r_mrc'), d = AC.r_mrc(:); end
     y.F_aero = info.F_aero;
-    y.M_aero_cg = info.M_aero + cross(d - AC.r_cg(:), info.F_aero);
+    if isfield(info, 'M_aero_transfer')         % aero components at several points (F-6)
+        y.M_aero_cg = (info.M_aero + info.M_aero_transfer) + cross(d - AC.r_cg(:), info.F_aero);
+    else
+        y.M_aero_cg = info.M_aero + cross(d - AC.r_cg(:), info.F_aero);
+    end
 else
     y.F_aero = nan(3, 1); y.M_aero_cg = nan(3, 1);
 end
