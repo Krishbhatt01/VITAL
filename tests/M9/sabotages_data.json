@@ -1,0 +1,74 @@
+[
+ {
+  "id": "SD-1",
+  "file": "+vital/+data/DaveModel.m",
+  "pattern": "                data = f.data;",
+  "replacement": "                data = reshape(permute(f.data, ndims(f.data):-1:1), size(f.data));",
+  "targets": ["tDataInventory/everyEntryPresentWithFileValues", "tDataTables/everyBreakpointBitwise", "tDataTables/randomPointsBitwise"],
+  "rationale": "PLAN_DATA_LAYER 4: a table stored with its breakpoint order swapped (a transposed CXT): the values are laid out first-breakpoint-fastest instead of the DAVE-ML last-breakpoint-fastest, with the shape kept, so every 2-D table (CXT, CMT, CLT, ..., T_MIL) is scrambled while the 1-D tables are unchanged."
+ },
+ {
+  "id": "SD-2",
+  "file": "+vital/+data/DaveModel.m",
+  "pattern": "                    tb(j) = def.withName(f.inputs{j});",
+  "replacement": "                    tb(j) = def.withName(f.inputs{numel(f.inputs) + 1 - j});",
+  "targets": ["tDataTables/lookupByNameAnyOrder", "tDataTables/randomPointsBitwise", "tDataCheckCases/aeroCheckData"],
+  "rationale": "PLAN_DATA_LAYER 4: a breakpoint name mapped to the wrong input (alpha <-> el): CXT's breakpoints are named {alpha, el} while the data are indexed (el, alpha), so a lookup by name and the build-up read the wrong input."
+ },
+ {
+  "id": "SD-3",
+  "file": "+vital/+data/unitFactor.m",
+  "pattern": "    case 'ft2',                      factor = k.ft^2;         siUnits = 'm2';",
+  "replacement": "    case 'ft2',                      factor = 1;              siUnits = 'm2';",
+  "targets": ["tDataInventory/geometryByName", "tDataModel/configEqualsData", "tDataModel/fromDataBitwiseOver1100States"],
+  "rationale": "PLAN_DATA_LAYER 4: a unit not converted (ft2 kept as m2): S = 300 'm2' instead of 27.87 m2 changes every aero load of the model built from the data."
+ },
+ {
+  "id": "SD-4",
+  "file": "+vital/+data/DaveModel.m",
+  "pattern": "            checks = m.checks;",
+  "replacement": "            tabs(end) = tabs(end).withSource([]); checks = m.checks;",
+  "targets": ["tDataInventory/everyItemHasUnitsAndSource", "tDataTables/lookupByNameAnyOrder"],
+  "rationale": "PLAN_DATA_LAYER 4: provenance stripped from one table (the last table of each file loses its source, e.g. dcndr, T_MAX): the object would carry a number without a source; validation must refuse it (vital:data:noProvenance)."
+ },
+ {
+  "id": "SD-5",
+  "file": "+vital/+data/writeJson.m",
+  "pattern": "    s = sprintf('%.17g', v);",
+  "replacement": "    s = num2str(v);",
+  "targets": ["tDataJson/roundTripBitwise", "tDataJson/hardNumbers"],
+  "rationale": "PLAN_DATA_LAYER 4: JSON written with num2str (4 decimals / 5 significant digits): the save/load round trip loses precision (e.g. 11.32 * 0.3048, 1/3, the 0.1-type table values)."
+ },
+ {
+  "id": "SD-6",
+  "file": "+vital/AircraftModel.m",
+  "pattern": "            axis_cg = ax.(rt.cgAxis);",
+  "replacement": "            axis_cg = ax.(data.aero.mrcAxis);",
+  "targets": ["tDataModel/fromDataBitwiseOver1100States", "tDataModel/cgAxisIsTheCg", "tDataModel/sameModelStructure"],
+  "rationale": "PLAN_DATA_LAYER 4: fromData takes the CG from the wrong axis (the MRC, 0.10 cbar = 0.345 m aft of the 25 % CG): the weight acts at the wrong point and the pitching moment about the CG changes."
+ },
+ {
+  "id": "SD-7",
+  "file": "+vital/+data/sourceFile.m",
+  "pattern": "if ~strcmp(sha, entry.sha256)",
+  "replacement": "if false",
+  "targets": ["tDataValidate/changedFileIsRefused"],
+  "rationale": "Criterion 7: the SHA-256 check against data/MANIFEST.json skipped: a changed NASA file would be read without notice."
+ },
+ {
+  "id": "SD-8",
+  "file": "+vital/+data/DaveModel.m",
+  "pattern": "                if isfinite(P.minValue(j)), x = max(x, P.minValue(j)); end",
+  "replacement": "                % minValue saturation forgotten",
+  "targets": ["tDataCheckCases/evaluateEqualsGeneratedCode"],
+  "rationale": "The data object's build-up forgets the DAVE-ML minValue saturation (ADR-014; e.g. vt >= 0.1 ft/s in F16_aero.dml): it no longer equals the generated runtime code bit for bit."
+ },
+ {
+  "id": "SD-9",
+  "file": "+vital/+data/+internal/checkExpression.m",
+  "pattern": "    if any(strcmp(w{1}, ALLOWED)), continue; end",
+  "replacement": "    continue;",
+  "targets": ["tDataJson/loadErrors"],
+  "rationale": "The expression whitelist bypassed: a .vital.json file could make MATLAB call any function (e.g. system) when it is loaded; data must never be code."
+ }
+]

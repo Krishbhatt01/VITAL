@@ -1,0 +1,96 @@
+{
+  "format": "vital.aircraftdata",
+  "formatVersion": 1,
+  "name": "Toy glider (hand-authored example of the .vital.json format; NOT a real aircraft)",
+  "description": "Minimal aircraft written by hand to test and document the format: one lift table, one build-up equation, constant mass.",
+  "options": {},
+  "axes": [
+    {"name": "bfrp", "parent": "", "dcm": {"size": [3, 3], "values": [1, 0, 0, 0, 1, 0, 0, 0, 1]},
+     "origin": {"name": "bfrp origin", "value": {"size": [3, 1], "values": [0, 0, 0]}, "units": "m", "description": "root",
+                "source": {"file": "toy/glider_notes.txt", "line": 1, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "", "element": "note", "note": "datum"}}},
+    {"name": "mrc", "parent": "bfrp", "dcm": {"size": [3, 3], "values": [1, 0, 0, 0, 1, 0, 0, 0, 1]},
+     "origin": {"name": "mrc origin", "value": {"size": [3, 1], "values": [0, 0, 0]}, "units": "m", "description": "aero reference point",
+                "source": {"file": "toy/glider_notes.txt", "line": 2, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "", "element": "note", "note": "MRC at the datum"}}},
+    {"name": "cg", "parent": "bfrp", "dcm": {"size": [3, 3], "values": [1, 0, 0, 0, 1, 0, 0, 0, 1]},
+     "origin": {"name": "cg origin", "value": {"size": [3, 1], "values": [0.05, 0, 0]}, "units": "m", "description": "CG 5 cm forward of the MRC",
+                "source": {"file": "toy/glider_notes.txt", "line": 3, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "DXCG", "element": "note", "note": ""}}}
+  ],
+  "aero": {
+    "class": "AeroDatabase",
+    "name": "toy glider aero",
+    "role": "aero",
+    "source": {"file": "toy/glider_notes.txt", "line": 1, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "", "element": "file", "note": ""},
+    "reference": {
+      "S": {"name": "S", "value": 0.5, "units": "m2", "description": "wing area",
+            "source": {"file": "toy/glider_notes.txt", "line": 4, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "", "element": "note", "note": ""}},
+      "b": {"name": "b", "value": 2, "units": "m", "description": "span",
+            "source": {"file": "toy/glider_notes.txt", "line": 5, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "", "element": "note", "note": ""}},
+      "cbar": {"name": "cbar", "value": 0.25, "units": "m", "description": "mean chord",
+               "source": {"file": "toy/glider_notes.txt", "line": 6, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "", "element": "note", "note": ""}}
+    },
+    "mrcAxis": "mrc",
+    "coefficientMap": [
+      {"role": "CL", "varID": "CL", "axes": "wind"}
+    ],
+    "variables": [
+      {"varID": "alpha", "name": "angleOfAttack", "units": "deg", "kind": "input", "isInput": true,
+       "source": {"file": "toy/glider_notes.txt", "line": 7, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "alpha", "element": "note", "note": ""}},
+      {"varID": "CL_alpha", "name": "liftTable", "units": "nd", "kind": "table",
+       "source": {"file": "toy/glider_notes.txt", "line": 8, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "CL_alpha", "element": "note", "note": ""}},
+      {"varID": "CL", "name": "totalCoefficientOfLift", "units": "nd", "kind": "calc", "isOutput": true,
+       "expression": "v_CL_alpha",
+       "source": {"file": "toy/glider_notes.txt", "line": 9, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "CL", "element": "note", "note": ""}}
+    ],
+    "breakpoints": [
+      {"bpID": "ALPHA", "name": "alpha", "units": "deg", "values": [-10, 0, 10], "description": "alpha breakpoints",
+       "source": {"file": "toy/glider_notes.txt", "line": 10, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "", "element": "note", "note": ""}}
+    ],
+    "tables": [
+      {"varID": "CL_alpha", "name": "liftTable", "description": "CL = 0.2 + 0.1 alpha (deg)", "units": "nd",
+       "inputs": ["alpha"], "bpIDs": ["ALPHA"], "data": [-0.8, 0.2, 1.2], "extrapolate": ["neither"],
+       "source": {"file": "toy/glider_notes.txt", "line": 11, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "CL_alpha", "element": "note", "note": ""}}
+    ],
+    "checkCases": []
+  },
+  "propulsion": [],
+  "mass": {
+    "class": "MassData",
+    "name": "toy glider mass",
+    "role": "mass",
+    "source": {"file": "toy/glider_notes.txt", "line": 1, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "", "element": "file", "note": ""},
+    "inputs": {},
+    "variables": [
+      {"varID": "XMASS", "name": "totalMass", "units": "kg", "value": 2.0, "kind": "constant",
+       "source": {"file": "toy/glider_notes.txt", "line": 12, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "XMASS", "element": "note", "note": ""}},
+      {"varID": "XIXX", "name": "bodyMomentOfInertia_Roll", "units": "kgm2", "value": 0.4, "kind": "constant",
+       "source": {"file": "toy/glider_notes.txt", "line": 13, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "XIXX", "element": "note", "note": ""}},
+      {"varID": "XIYY", "name": "bodyMomentOfInertia_Pitch", "units": "kgm2", "value": 0.1, "kind": "constant",
+       "source": {"file": "toy/glider_notes.txt", "line": 14, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "XIYY", "element": "note", "note": ""}},
+      {"varID": "XIZZ", "name": "bodyMomentOfInertia_Yaw", "units": "kgm2", "value": 0.5, "kind": "constant",
+       "source": {"file": "toy/glider_notes.txt", "line": 15, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "XIZZ", "element": "note", "note": ""}},
+      {"varID": "XIZX", "name": "bodyProductOfInertia_ZX", "units": "kgm2", "value": 0.0, "kind": "constant",
+       "source": {"file": "toy/glider_notes.txt", "line": 16, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "XIZX", "element": "note", "note": ""}},
+      {"varID": "XIXY", "name": "bodyProductOfInertia_XY", "units": "kgm2", "value": 0.0, "kind": "constant",
+       "source": {"file": "toy/glider_notes.txt", "line": 17, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "XIXY", "element": "note", "note": ""}},
+      {"varID": "XIYZ", "name": "bodyProductOfInertia_YZ", "units": "kgm2", "value": 0.0, "kind": "constant",
+       "source": {"file": "toy/glider_notes.txt", "line": 18, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "XIYZ", "element": "note", "note": ""}},
+      {"varID": "DXCG", "name": "bodyPositionOfCmWrtMrc_X", "units": "m", "value": 0.05, "kind": "constant",
+       "source": {"file": "toy/glider_notes.txt", "line": 3, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "DXCG", "element": "note", "note": ""}},
+      {"varID": "DYCG", "name": "bodyPositionOfCmWrtMrc_Y", "units": "m", "value": 0.0, "kind": "constant",
+       "source": {"file": "toy/glider_notes.txt", "line": 3, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "DYCG", "element": "note", "note": ""}},
+      {"varID": "DZCG", "name": "bodyPositionOfCmWrtMrc_Z", "units": "m", "value": 0.0, "kind": "constant",
+       "source": {"file": "toy/glider_notes.txt", "line": 3, "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "varID": "DZCG", "element": "note", "note": ""}}
+    ],
+    "breakpoints": [],
+    "tables": [],
+    "checkCases": []
+  },
+  "controlLaws": [],
+  "controls": [],
+  "limits": {},
+  "provenance": [
+    {"file": "toy/glider_notes.txt", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "role": "all", "name": "hand-written notes"}
+  ],
+  "runtime": {"loadsFcn": "", "components": [], "aeroScaleNames": [], "configMeta": [], "cgAxis": "cg", "root": "bfrp"},
+  "meta": {}
+}

@@ -305,6 +305,60 @@ classdef AircraftModel
         end
     end
 
+    methods (Static)
+        function m = fromData(data, opts)
+            %FROMDATA  The model built from a vital.data.AircraftData (D1; ADR-042).
+            %   m = vital.AircraftModel.fromData(d)
+            %   m = vital.AircraftModel.fromData(d, 'AeroScale', struct('Cm_q', 0.5))
+            %   Nothing aircraft-specific here: the axes are d.axes (in d.axisDefs order),
+            %   the mass properties d.mass.massProperties(d.axes.(d.runtime.cgAxis)), the
+            %   components those of d.runtime.components (an 'aero' component gets
+            %   CoeffArgs {AC} when its args are 'config', with AC = d.toConfig(AeroScale),
+            %   and the reference geometry of d.geometry; a 'propulsor' its channel), the
+            %   controls d.controls, the limits AC.limits. Returned COMPILED. For the F-16
+            %   the result is bitwise the 0.9.1-CORE model (tests/M9/data/tDataModel.m).
+            %   Errors: vital:data:noRuntime (the data declare no runtime components),
+            %   vital:badInput (unknown AeroScale name).
+            arguments
+                data (1,1) vital.data.AircraftData
+                opts.AeroScale (1,1) struct = struct()
+            end
+            rt = data.runtime;
+            if isempty(rt.components)
+                error('vital:data:noRuntime', ['aircraft ''%s'' declares no runtime components ' ...
+                    '(runtime.components), so no AircraftModel can be built from it.'], data.name);
+            end
+            AC = data.toConfig('AeroScale', opts.AeroScale);
+            ax = data.axes;
+            axList = cellfun(@(n) ax.(n), {data.axisDefs.name});
+            comps = cell(1, numel(rt.components));
+            for k = 1:numel(rt.components)
+                c = rt.components(k);
+                fh = str2func(c.fcn);
+                switch c.kind
+                    case 'aero'
+                        args = {};
+                        if strcmp(c.args, 'config'), args = {AC}; end
+                        comps{k} = vital.AeroTableComponent(c.name, ax.(c.axis), fh, 'CoeffArgs', args, ...
+                            'S', AC.S, 'b', AC.b, 'cbar', AC.cbar, 'Channels', c.channels);
+                    case 'propulsor'
+                        comps{k} = vital.PropulsorComponent(c.name, ax.(c.axis), fh, c.channels{1});
+                end
+            end
+            axis_cg = ax.(rt.cgAxis);
+            mp = data.mass.massProperties(axis_cg);
+            meta = struct();
+            for f = rt.configMeta
+                meta.(f{1}) = AC.(f{1});
+            end
+            if isfield(AC, 'aeroScale'), meta.aeroScale = AC.aeroScale; end
+            meta.source = sprintf('vital.data.AircraftData ''%s'' (vital.AircraftModel.fromData)', data.name);
+            m = vital.AircraftModel(data.name, axList, comps, mp, AC.controlNames, ...
+                'Ref', struct('S', AC.S, 'b', AC.b, 'cbar', AC.cbar), 'Limits', AC.limits, 'Meta', meta, 'Root', rt.root);
+            m = m.compile();
+        end
+    end
+
     methods (Access = private)
         function tf = hasAxis(obj, a)
             k = find(strcmp({obj.Axes.Name}, a.Name), 1);
