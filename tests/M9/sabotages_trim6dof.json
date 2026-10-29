@@ -1,0 +1,78 @@
+[
+ {
+  "id": "ST-1",
+  "file": "+vital/+slx/f16LoadsCg.m",
+  "pattern": "M_cg = y.M_cg;",
+  "replacement": "M_cg = sum(y.M_R, 2);",
+  "targets": [
+   "tF16Trim6dof/t2LoadsBalanceAtTrim",
+   "tF16Trim6dof/t3TenSecondHoldIsFlat",
+   "tF16Trim6dof/t6AgreesWithVitalEom"
+  ],
+  "rationale": "Moments handed to the 6DOF block about the BFRP (35 % MAC) instead of the CG (25 % MAC): the r_cg x F transfer is dropped, the trim no longer balances in pitch."
+ },
+ {
+  "id": "ST-2",
+  "file": "+vital/+slx/buildTrim6dof.m",
+  "pattern": "'mass_0', 'P6dof.m',",
+  "replacement": "'mass_0', '1.01 * P6dof.m',",
+  "targets": [
+   "tF16Trim6dof/t3TenSecondHoldIsFlat",
+   "tF16Trim6dof/t6AgreesWithVitalEom"
+  ],
+  "rationale": "The 6DOF block's mass differs from the mass the weight and the trim use: lift balances the weight but the block accelerates a different mass."
+ },
+ {
+  "id": "ST-3",
+  "file": "+vital/+slx/simulateTrim6dof.m",
+  "pattern": "tk + opts.dt / 2",
+  "replacement": "tk + opts.dt",
+  "targets": [
+   "tF16Trim6dof/t6AgreesWithVitalEom"
+  ],
+  "rationale": "Input held one step late (the next piece's value instead of the piece containing the step): the doublet is shifted by dt against vital.sim.run."
+ },
+ {
+  "id": "ST-4",
+  "file": "+vital/+slx/trim6dofSetup.m",
+  "pattern": "P.eul0 = P.eul0(:);",
+  "replacement": "P.eul0 = flipud(P.eul0(:));",
+  "targets": [
+   "tF16Trim6dof/t3TenSecondHoldIsFlat",
+   "tF16Trim6dof/t4PositionRampsAlongHeading"
+  ],
+  "rationale": "Euler angles handed to the 6DOF block in the wrong order ([psi theta phi] instead of [phi theta psi]): the aircraft starts banked 45 deg."
+ },
+ {
+  "id": "ST-5",
+  "file": "+vital/+slx/buildTrim6dof.m",
+  "pattern": "'Value', '[0; 0; P6dof.m * P6dof.g * P6dof.weightOn]'",
+  "replacement": "'Value', '[0; 0; -P6dof.m * P6dof.g * P6dof.weightOn]'",
+  "targets": [
+   "tF16Trim6dof/t2LoadsBalanceAtTrim",
+   "tF16Trim6dof/t3TenSecondHoldIsFlat"
+  ],
+  "rationale": "Weight pointing up in NED (z is down): the net force at the trim is twice the weight."
+ },
+ {
+  "id": "ST-6",
+  "file": "+vital/+slx/buildTrim6dof.m",
+  "pattern": "L('Incidence, Sideslip & Airspeed/1', [fts '/2']);",
+  "replacement": "L('Incidence, Sideslip & Airspeed/2', [fts '/2']);",
+  "targets": [
+   "tF16Trim6dof/t9AirDataAreSimulinkBlocks",
+   "tF16Trim6dof/t10SimulinkOnlyResult"
+  ],
+  "rationale": "The logged alpha is wired to the sideslip output of the Incidence, Sideslip & Airspeed block: the plotted alpha is beta."
+ },
+ {
+  "id": "ST-7",
+  "file": "+vital/+slx/trim6dofSetup.m",
+  "pattern": "P.J = P.data.mass.inertiaSI();",
+  "replacement": "P.J = diag(diag(P.data.mass.inertiaSI()));",
+  "targets": [
+   "tF16Trim6dof/t8InputsAreTheNasaDataObjects"
+  ],
+  "rationale": "The 6DOF block gets a hand-simplified inertia (Ixz dropped) instead of the NASA F16_inertia.dml tensor."
+ }
+]

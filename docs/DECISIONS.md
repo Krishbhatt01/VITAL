@@ -951,3 +951,93 @@ The design is the coordinator's binding amendment (docs/PLAN_M5_M8.md, "Amendmen
 - Today trim, linearize, sim, fq and uq still take the AC struct; `model.toRuntime()` produces it (4 controls). Migrating them to take an `AircraftModel` directly, component mass build-up (fuel, CG travel), landing gear and the X-57 are the next increments.
 - Value classes: no hidden mutation; axis identity is by value (name + geometry).
 - New error identifiers: vital:axis:noCommonRoot, vital:axis:mismatch, vital:vector:quantityMismatch, vital:loads:refMismatch, vital:model:duplicateAxis, vital:model:axisOutsideTree, vital:model:unknownControl, vital:model:duplicateComponent, vital:model:unknownAxis, vital:model:unknownComponent, vital:model:unsupported.
+
+## ADR-041 (proposed; agent i0, 2026-10-27): known-answer tests and non-F-16 known-answer aircraft for the object core (increment I0, no behaviour change)
+
+**Status:** proposed. Version 0.9.2-I0. Increment I0 of the migration plan in `reports/review/CORE_AUDIT.md` section 6. Extends ADR-040.
+
+**Context.** The independent core audit (CORE_AUDIT finding M2, minor m5) showed that the 0.9.1-CORE tests could not see three real frame errors:
+- A: the compiled path uses Cᵀ instead of C;
+- B: the weight is rotated into the CG axis with the transposed DCM;
+- C: the compiled path drops the component rotation.
+
+There were two reasons:
+- Every component and CG axis in `tCoreModel` and `coreTwinFixture` is unrotated, and the default F-16 has r_mrc = r_engine = 0. So `Compiled.identity` is always true.
+- The 1,100-state equivalence gate compares the model with `vital.plant.derivatives`, and both call `vital.aircraft.f16.loads`. It proves plumbing, not physics.
+
+Re-measured for this ADR: with each of A, B, C applied, all 35 pre-I0 core tests pass (`reports/work/i0/red_sabotages_vs_preI0_core.txt`).
+
+**Decision.**
+1. **Known answers come from outside VITAL.** The new tests in `tests/M9/i0/` take their expected values from:
+   - a hand derivation (source ANALYTIC), written in the class header and computed with `vital.frames.dcm321`, `cross` and algebra only. No `Axis`, `Loads` or `MassProperties` call appears on the expected side.
+   - or a published check case (source PUB).
+2. **Every core known-answer test uses rotated axes** (`tI0CoreKnownAnswers`, P1-P4):
+   - tilted and toed-in engines, one chained on a dihedral wing axis, with propeller torque;
+   - a rotated CG axis with the inertia given in its components;
+   - `combine` with rotated self-inertia and a rotated reference;
+   - `about()` a rotated, offset axis and a chained one;
+   - the weight with a rotated, chained CG axis at a non-zero attitude.
+3. **Non-F-16 known-answer aircraft**, built only from test-side code (`tests/reference/`, never `+vital`):
+   - **The analytic linear-derivative aircraft.** `LinearDerivativeComponent` has constant dimensional derivatives, controls `de da dr throttle` and Ixz ≠ 0. The aircraft is trimmed at a reference steady state chosen to be an exact equilibrium. Its closed forms (Etkin & Reid 1996 sec. 4.9, body axes with W_e kept) are:
+     - the trim at the reference speed;
+     - a trim at another speed, reduced to one scalar equation;
+     - the body-axis A and B;
+     - the exact roots of the longitudinal and lateral quartics, with the coefficients written out.
+
+     The aircraft runs through the unchanged consumers: `toRuntime`, `vital.plant.derivatives`, `vital.trim.solve`, `vital.linear.linearize` and `vital.linear.modes`.
+   - **The NESC sphere and brick as AircraftModels.** They have zero controls, a rotated CG axis, and aero data on a rotated and offset axis. They run through `toRuntime` and `vital.plant.derivativesRotating` in NESC cases 1, 2, 3, 9 and 10, against the registered M5 bands (PUB, ADR-009). This is the first PUB evidence that the object core's rotation and transfer paths are right.
+4. **Tolerances are derived, never tuned:**
+   - round-off of the sums: 1e-12 of the scale;
+   - ||J⁻¹||∞ · tr.tol for the trim;
+   - the central-difference truncation g·h²/6 = 1.6e-8 for the A matrix (gate 1e-7);
+   - 1e-8 for the eigenvalues (the CORE_AUDIT I0 criterion);
+   - the registered bands for NESC.
+5. **Sabotages.** `tests/M9/sabotages_core.json` gets:
+   - SC-9, SC-10, SC-11 (the audit's A, B, C);
+   - SC-13: the bridge drops Ixz;
+   - SC-14: the bridge reports the aero moment about the root.
+
+   SC-12 is reserved for the audit's "bridge drops X" (M4), which belongs to I1.
+6. **No production behaviour changes in I0.** `+vital/version.m` is the only file edited under `+vital`. Every check that would need a production change is left out of I0 and listed in `reports/fragments/i0/FINDINGS_FOR_I1.md`.
+
+**Consequences.**
+- The compiled and object rotation paths, the weight in a rotated CG axis, and the inertia rotation now have independent known answers. Two of these are published (the NESC brick and the cannonball).
+- The non-F-16 path through trim, linearize and modes has closed-form evidence. Its limits (4 F-16-named controls, F-16-named limit fields, no state in the bridge's FlightContext, diagnostics that ignore custom component classes) are documented findings for I1, not workarounds in production code.
+- The suite grows by 18 tests, about 85 s.
+- RED for pure known-answer tests on existing code cannot come from stubs, because there is nothing to stub. The RED evidence is the sabotage pair instead:
+  - A, B and C are NOT DETECTED by the pre-I0 core tests;
+  - they ARE DETECTED by the I0 tests.
+
+  The RED-phase gate run lists the 18 new tests as VACUOUS, and this ADR is their written justification (`docs/AGENT_BRIEF.md`).
+
+## ADR-042 (proposed; agent data, 2026-10-27): aircraft data as objects, built from the source files, with units and provenance on every number
+
+**Status:** proposed (docs/PLAN_DATA_LAYER.md, increment D1, requested by the user on 2026-10-27). Version 0.9.3-DATA (set by the coordinator at merge). Builds on ADR-040 (the object core) and ADR-014 (DAVE-ML saturations). Nothing in the plant's hot loop changes.
+
+**Context.** `vital.daveml.read` already parsed every NASA DAVE-ML file, but the result was used only to generate code (`+vital/+models/+f16/*.m`), where the tables are anonymous `K.f1_data ... K.f18_data` without names, units or sources. `vital.aircraft.f16.config` hand-copied geometry, mass and limits into a flat struct with the sources in comments. So the NASA data could not be inspected or called by name, and there was no file format another aircraft (the X-57) could be written in.
+
+**Decision 1: one data object per aircraft, in package `vital.data`, read straight from the source files.**
+- `Source` (file relative to the data root, line of the element's start tag, SHA-256 of the file, varID, element, note), `Parameter` (value in the published units, units, description, source; `si()`), `Variable` (a Parameter + kind input/constant/calc/table, saturations, expression, deps), `Breakpoint` (input name, bpID, units, values, source), `Table` (`at` by input name in any order or positional, `grid`, `toGriddedInterpolant`, `plot`).
+- `DaveModel` (one DAVE-ML file: variables, breakpoints, tables, check cases; `variable/parameter/table/breakpoint/equation/list/evaluate/runChecks`), with the subclasses `AeroDatabase` (reference S, b, cbar; MRC axis; which variable is which coefficient and in which axes), `PropulsionData` (engine axis, output map), `MassData` (inputs; mass, inertia, CG by their ANSI/AIAA S-119 names; `massProperties(axis_cg)`), `ControlData` (control laws).
+- `AircraftData`: name, geometry, axis tree (`axisDefs` -> `axes`), aero, propulsion, mass, control laws, controls, limits, check cases, provenance (every source file and its SHA-256), runtime binding, options. `save`/`load` (.vital.json), `summary`, `validate`, `verifySources`, `toConfig`, `models`.
+- Builders: `vital.aircraft.f16.data(CG_PCT_MAC, BfrpOffset, DataRoot)`, `vital.aircraft.nesc.brick.data()`, `vital.aircraft.nesc.cannonball.data()` (one loader for three aircraft).
+
+**Decision 2: the data object is the definition; the runtime is unchanged and proven equal.** `DaveModel.evaluate` runs the same compiled expressions, `vital.daveml.lookup` calls and saturations as the generated code, so the two are equal bit for bit on all nine files (tests/M9/data/tDataCheckCases). `Table.at` calls `vital.daveml.lookup` with the generated code's arguments (bitwise at all 852 grid nodes and 20,000 random points, clamping included). Nothing in the hot loop calls a `Table` method.
+
+**Decision 3: `vital.aircraft.f16.model()` is built from the data.** `vital.AircraftModel.fromData(d, 'AeroScale', s)` is aircraft-agnostic: axes from `d.axes`, mass from `d.mass.massProperties(d.axes.<cgAxis>)`, components from `d.runtime.components` (function NAMES in the `vital` namespace; an aero component gets `{d.toConfig(AeroScale)}` as its coefficient arguments, so the M6/M8 AeroScale build-up stays only in `loads.m`, ADR-040 decision 5). For the F-16 the result is bitwise the 0.9.1-CORE model (1,100 states, max difference 0). `config()` is kept, unchanged, and is checked field for field against `d.toConfig()` (exact): it is now an independent hand copy that guards the reader.
+
+**Decision 4: every number has units and a source, enforced.** The `AircraftData` constructor validates (also on `load`): a Parameter, Variable, Breakpoint, Table or axis origin without units is `vital:data:noUnits`, without a valid source `vital:data:noProvenance`; each file's model must be in the provenance list with the same SHA-256. Derived numbers (limits from breakpoint ranges, axis origins in m) cite the element they come from and say how in `note`.
+
+**Decision 5: data/ stays read-only and hash-checked.** `vital.data.sourceFile` reads only files listed in data/MANIFEST.json and refuses one whose SHA-256 differs (`vital:data:hashMismatch`, `vital:data:notInManifest`); the F-16 builder checks the five hashes on every call, also when it serves a remembered object (`vital.data.internal.memo`, keyed by options AND hashes). `d.verifySources()` re-checks a loaded object.
+
+**Decision 6: the .vital.json format is lossless and is data, not code.**
+- Every double is written with `%.17g` (scalars as JSON numbers, arrays as `{"size": [...], "values": [...]}` column-major; NaN/Inf as strings). Reading uses `jsondecode`, which was verified correctly rounded on 200,000 random doubles including subnormals. Round trip bitwise for the F-16 (4,515 doubles), brick and cannonball; re-saving gives the same bytes. Never `num2str` or jsonencode's 15-digit numbers (sabotage SD-5).
+- Build-up equations are stored as the MATLAB expressions `vital.daveml.read` compiles from MathML. On load each is checked against a whitelist (numbers, `v_` variables of the file, arithmetic and comparison operators, abs cos sin tan exp floor ceil log min max atan2 `vital.daveml.piecewise`): anything else is `vital:data:badExpression`. Runtime function names must lie in the `vital` namespace (`vital:data:badRuntime`). A file can therefore never run arbitrary code.
+- Hand-authored files may use plain JSON numbers and arrays (a JSON array becomes a row); `tests/M9/data/toy_glider.vital.json` is the tested example.
+
+**Consequences.**
+- The NASA data can be inspected and called by name (`f16_data.aero.table('CXT').at('alpha', 5, 'el', 0)`), with units and the file line printed by `disp`.
+- The X-57 (I8) is written as a .vital.json in this format; for a new aircraft with a new runtime, its runtime binding names its own coefficient and thrust functions.
+- `vital.aircraft.f16.model()` now reads the five DAVE-ML files once per session (about 8 s cold, then about 20 ms with the SHA-256 checks); the plant time per call is unchanged (ratio 0.98 against the frozen 0.9.1-CORE model; same-code noise floor 0.96-1.03).
+- `vital.daveml.read`, `compile`, the generated models, trim, linearize, sim, fq, uq and the Simulink plant are unchanged.
+- New error identifiers: vital:data:noUnits, vital:data:noProvenance, vital:data:hashMismatch, vital:data:notInManifest, vital:data:fileNotFound, vital:data:unknownName, vital:data:ambiguousName, vital:data:unknownInput, vital:data:missingInput, vital:data:badQuery, vital:data:badExpression, vital:data:badRuntime, vital:data:badFormat, vital:data:badNumber, vital:data:unknownUnits, vital:data:noRuntime, vital:data:cycle, vital:data:undefinedVariable, vital:data:cannotWrite.

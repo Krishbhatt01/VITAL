@@ -616,3 +616,92 @@ Rough, single uncontended MATLAB, about 0.4-0.7 s per closed-loop single-point e
 - tCoreAxis: ft expectation written as the product; two dcmTo expectations corrected to the header's own pre-registered contract (a.dcmTo(b) = C_ba).
 - tCorePointVector: norm tolerance 0 -> 1e-15 rel (1 ulp).
 - tCorePerformance: both paths timed with [xdot, y] (stricter).
+
+## 0.9.2-I0 (2026-10-27): test hardening and known-answer aircraft
+
+## Added (ADR-041 proposed; test hardening, no behaviour change)
+- `tests/M9/i0/`: 18 tests, tags M9 I0:
+  - `tI0CoreKnownAnswers` (P1-P4, ANALYTIC, rotated axes throughout);
+  - `tI0LinearDerivativeAircraft` (analytic aircraft: xdot, trim at design and off design, A/B, eigenvalues and modes);
+  - `tI0NescAircraftModel` (NESC cases 1, 2, 3, 9, 10 as AircraftModels, PUB bands; model path equals struct path; compiled inertia).
+- `tests/reference/`: `LinearDerivativeComponent.m`, `linearDerivativeAircraft.m`, `nescAircraftModel.m`, `nescModelRun.m` (test fixtures, not in +vital).
+- `tests/M9/sabotages_core.json`: SC-9, SC-10, SC-11 (CORE_AUDIT A, B, C), SC-13 (the bridge drops Ixz), SC-14 (the bridge reports M_aero about the root). SC-12 is reserved for I1.
+- FC-1042..FC-1054.
+
+## Changed
+- `+vital/version.m`: 0.9.2-I0. This is the only edit under `+vital` (`git diff --stat -- +vital`: 1 file, 1 line).
+
+## Measured
+- RED evidence:
+  - With SC-9, SC-10 and SC-11 each applied, all 35 pre-I0 core tests (tCoreAxis, tCorePointVector, tCoreLoads, tCoreMass, tCoreModel) PASS, so each sabotage is NOT DETECTED (`reports/work/i0/red_sabotages_vs_preI0_core.txt`; tree unchanged).
+  - RED-phase gate on the I0 classes: 18 VACUOUS, 0 RED_UNEXPECTED, 0 REGRESSION, 0 EXCLUDED, gateOK 1. Justified in ADR-041: these are known-answer tests on existing code (`reports/work/i0/M9_red_i0.txt`).
+- GREEN M0..M9: 765 PASS of 765 (747 + 18), 0 EXCLUDED; 4,205 checks (PUB 2103, INDEP 175, ANALYTIC 1086, REG 841); 3,832 s (`reports/work/i0/M9_green_i0.txt`).
+  - F-16 anchors unchanged within this gate:
+    - tCoreModel equivalence max e = 0 over 1,100 states;
+    - README trim unchanged;
+    - Simulink E1-E5 E = 0;
+    - M7 and M8 tests pass.
+  - tCorePerformance ratio 1.239 (bound 1.25; no code on that path changed).
+- Sabotages:
+  - `run_sabotage('M9', 'Parts', {'core'})`: SC-1..SC-11, SC-13 and SC-14 all DETECTED, tree unchanged.
+  - `run_sabotage('M9', 'Parts', {'main'})`: S9-1..S9-6 all DETECTED, tree unchanged (`reports/work/i0/M9_sabotage_core.txt`, `M9_sabotage_main.txt`).
+- Known-answer agreement (gate in brackets):
+  - P1 loads 3.6e-12 N m (about 2e-8);
+  - P1 xdot 1.4e-14 (5.7e-11);
+  - P2 5.7e-14;
+  - P3 9.1e-13;
+  - P4 3.6e-12 N;
+  - analytic xdot 7.1e-15;
+  - trim 2.8e-17 and 4.2e-17 (1.7e-9);
+  - A 1.63e-8 (1e-7), B 6.1e-13 (1e-9);
+  - eigenvalues 1.9e-10 (1e-8);
+  - NESC: every band signal inside, model path vs struct path about 1e-13 of scale.
+
+## 0.9.3-DATA (2026-10-27): aircraft data as objects
+
+## Added (docs/PLAN_DATA_LAYER.md; ADR-042 proposed)
+- Package `+vital/+data`: value classes `Source`, `Parameter`, `Variable`, `Breakpoint`, `Table`, `DaveModel`, `AeroDatabase`, `PropulsionData`, `MassData`, `ControlData` and `AircraftData`; functions `unitFactor`, `sourceFile` (MANIFEST-checked reads), `writeJson`, `readJson` (lossless .vital.json); `+internal`: `locate`, `readCached`, `memo`, `checkExpression`, `topoOrder`, `num`, `field`, `asList`, `asCellstr`.
+- Builders: `vital.aircraft.f16.data(CG_PCT_MAC, BfrpOffset, DataRoot)`, `vital.aircraft.nesc.bodyData`, `vital.aircraft.nesc.brick.data()`, `vital.aircraft.nesc.cannonball.data()`.
+- `vital.AircraftModel.fromData(data, 'AeroScale', s)` (static, added to AircraftModel.m).
+- `run_data_example.m`: the calls of plan section 2, with a printed summary; its JSON goes to tempdir and is deleted.
+- tests/M9/data (tags M9 DATA): tDataInventory, tDataTables, tDataCheckCases, tDataModel, tDataJson, tDataValidate, tDataPerformance, tDataExample (32 tests); private helpers, including the frozen 0.9.1-CORE builder `legacyF16Model`; the hand-authored example `toy_glider.vital.json`; tests/M9/sabotages_data.json (SD-1..SD-9).
+- FC-1060..FC-1079.
+
+## Changed (behaviour unchanged, bitwise)
+- `vital.aircraft.f16.model()` is now `vital.AircraftModel.fromData(vital.aircraft.f16.data(CG, Bfrp), 'AeroScale', s)`. Meta.source names the data object; everything else is isequal to 0.9.1-CORE.
+- `vital.aircraft.f16.config()`: unchanged, and checked field for field against the data object.
+
+## Measured
+- RED (tests/M9/data, before implementation): 32 RED_EXPECTED, 0 RED_UNEXPECTED / SUSPICIOUS / VACUOUS / REGRESSION / EXCLUDED (reports/work/data/M9_red_data.txt).
+- GREEN M0..M9: 779 PASS of 779 (747 existing + 32 new), 0 EXCLUDED, 4,322 checks (PUB 2244, INDEP 177, ANALYTIC 1043, REG 858), 3,314 s (reports/work/data/M9_green_data.txt).
+- Inventory: the nine DAVE-ML files (298 variables, 6 breakpoint sets, 21 tables, 25 check cases) are all present with the file's values, units and lines.
+- Tables: bitwise equal to the generated code at 852 nodes and 20,000 random points (12,618 out of range); griddedInterpolant within 8.3e-17 (aero) and 4.3e-16 of the table scale (all tables).
+- NASA checkData through the data object: 25 of 25 shots (198 outputs).
+- fromData vs 0.9.1-CORE: max difference 0 over 1,100 states (652 out of envelope); README trim identical.
+- JSON round trip bitwise (F-16 4,515 doubles); re-save byte-identical.
+- Plant time per call, fromData / 0.9.1-CORE: 0.991 (noise floor 0.991; first runs 0.982 and, before the order fix, 1.069). tCorePerformance in the same gate: 1.184 (bound 1.25).
+- Sabotages: SD-1..SD-9 all DETECTED (after the SD-9 test addition, see PLAN_DEVIATIONS correction 4), tree unchanged; core SC-1..SC-8 8/8 DETECTED and M9 S9-1..S9-6 6/6 DETECTED, tree unchanged (reports/work/data/M9_sabotage_{data,core,main}.txt).
+- After the test additions, tests/M9/data re-run: 32/32 PASS (fromData / 0.9.1-CORE 0.976, noise floor 0.970).
+
+## 0.9.3-DATA addendum (2026-10-28): F-16 trim check in the Aerospace Blockset 6DOF block
+
+### Added
+- `vital.slx.trim6dofSetup`, `buildTrim6dof`, `simulateTrim6dof`, `f16LoadsCg`, plus the generated model `models/F16Trim6DOF.slx`.
+- `run_f16_trim_6dof.m`, writing figures to `reports/simulink/trim6dof`.
+- Tests: `tests/M9/tF16Trim6dof.m` (T1-T7, criteria registered before the first run), with sabotages `tests/M9/sabotages_trim6dof.json` (ST-1..5).
+- FC-1080..1084.
+
+### Measured
+- RED: 7 RED_EXPECTED, 688 PASS, 0 unexpected (`reports/work/trim6dof/M9_red_trim6dof.txt`).
+- Trim: theta 2.6542 deg, elevator -3.2412 deg, throttle 13.9012 % (README 2.6538, -3.2410, 13.9019).
+- 10 s hold: V, alpha, h, beta, phi, psi change 0; theta 8e-16 deg; p, q, r 8e-15 deg/s.
+- Net force / weight 1e-15.
+- Doublet, 6DOF vs VITAL EOM: E = 1.1e-12.
+- No weight: dh 410 m.
+### Amendment A (2026-10-28, user request): NASA data objects throughout; results from Simulink alone
+- `trim6dofSetup` now builds the aircraft as `vital.aircraft.f16.data` -> `vital.AircraftModel.fromData`. Mass, inertia and c-bar come from the data objects; the trim goes through `f16.toRuntime()`.
+- The model gains Aerospace Blockset air-data blocks: Incidence, Sideslip & Airspeed; ISA Atmosphere at the geopotential height; Mach Number; Dynamic Pressure.
+- It also gains a "Flight-test signals" vector logged to `sim6dof`, a live scope "Live: change from trim" (6 panels, fixed bands), and a StopFcn that draws the result figures from the model's own log (`vital.slx.plotTrim6dof`).
+- `ReturnWorkspaceOutputs` is off, so pressing Run leaves `sim6dof` in the workspace.
+- `run_f16_trim_6dof` no longer runs or plots any VITAL simulation; the VITAL cross-check stays in test T6 only.
+- Tests T8-T10 were added. RED: T8-T10 errored before the change (`reports/work/trim6dof/amendmentA_red.txt`). Sabotages ST-6 and ST-7 were added. FC-1085..1087.

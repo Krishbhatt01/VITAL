@@ -2,9 +2,9 @@
   "summary": {
     "milestone": "M0",
     "phase": "green",
-    "total": 50,
+    "total": 53,
     "counts": {
-      "PASS": 50,
+      "PASS": 53,
       "FAIL": 0,
       "RED_EXPECTED": 0,
       "RED_UNEXPECTED": 0,
@@ -18,7 +18,7 @@
     "increment": [],
     "baseline": [],
     "excluded": [],
-    "elapsed_s": 101.1744624,
+    "elapsed_s": 78.9176131,
     "checksLogged": 0,
     "checksBySource": {
       "PUB": 0,
@@ -32,8 +32,8 @@
       "xml": "C:\\VITAL\\reports\\M0_green.xml",
       "provenance": "C:\\VITAL\\reports\\M0_green_provenance.json"
     },
-    "timestamp": "2026-10-07 22:31:49",
-    "vitalVersion": "0.2.0-M4"
+    "timestamp": "2026-10-28 18:45:01",
+    "vitalVersion": "0.9.3-DATA"
   },
   "tests": [
     {
@@ -227,6 +227,27 @@
     },
     {
       "name": "tSabotageHarness/sabotageTurnsTargetRedAndBaselineIsGreen",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageReports/copyHasReportsButNotScratch",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageReports/nullSabotageNotDetected",
+      "milestone": "M0",
+      "isNew": true,
+      "class": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tSabotageReports/realSabotageDetected",
       "milestone": "M0",
       "isNew": true,
       "class": "PASS",

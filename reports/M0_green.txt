@@ -1,4 +1,4 @@
-VITAL 0.2.0-M4  gate M0 (GREEN)  2026-10-07 22:31:49
+VITAL 0.9.3-DATA  gate M0 (GREEN)  2026-10-28 18:45:01
 test                                                                             class
 tCatalogueRules/closedMilestonePlannedRowIsAProblem                              PASS
 tCatalogueRules/closedMilestoneRealTestIsFine                                    PASS
@@ -28,6 +28,9 @@ tSabotageHarness/unknownTargetErrors                                            
 tSabotageHarness/originalTreeUnchanged                                           PASS
 tSabotageHarness/treeHashIsDeterministicAndSensitive                             PASS
 tSabotageHarness/sabotageTurnsTargetRedAndBaselineIsGreen                        PASS
+tSabotageReports/copyHasReportsButNotScratch                                     PASS
+tSabotageReports/nullSabotageNotDetected                                         PASS
+tSabotageReports/realSabotageDetected                                            PASS
 tSpecDocs/requiredDocsExist                                                      PASS
 tSpecDocs/catalogueTestsExistOrPlanned                                           PASS
 tSpecDocs/catalogueCoversRequiredFailureModes                                    PASS
@@ -51,6 +54,6 @@ tVitalTestCase/recordHasAllFields                                               
 tVitalTestCase/failingCheckIsLogged                                              PASS
 tVitalTestCase/provenanceWritesJson                                              PASS
 
-TOTAL 50 | PASS 50 FAIL 0 | RED_EXPECTED 0 RED_UNEXPECTED 0 RED_SUSPICIOUS 0 VACUOUS 0 REGRESSION 0 | EXCLUDED 0 | checks logged 0 | 101.2 s
+TOTAL 53 | PASS 53 FAIL 0 | RED_EXPECTED 0 RED_UNEXPECTED 0 RED_SUSPICIOUS 0 VACUOUS 0 REGRESSION 0 | EXCLUDED 0 | checks logged 0 | 78.9 s
 checks by source: PUB 0  INDEP 0  ANALYTIC 0  REG 0
 GATE OK
