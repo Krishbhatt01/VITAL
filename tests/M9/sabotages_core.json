@@ -62,5 +62,45 @@
   "replacement": "persistent cache; if isempty(cache), cache = struct(); end; key = matlab.lang.makeValidName(ax.Name); if isfield(cache, key), C = cache.(key).C; r = cache.(key).r; else, [C, r] = ax.poseIn(root); cache.(key) = struct('C', C, 'r', r); end",
   "targets": ["tCoreModel/compileIsNotStale"],
   "rationale": "compile() caches the chain by axis name: a second model with the same axis names and a different geometry (or a re-built axis) gets the stale offsets."
+ },
+ {
+  "id": "SC-9",
+  "file": "+vital/AircraftModel.m",
+  "pattern": "F = C * F; M = C * M;",
+  "replacement": "F = C.' * F; M = C.' * M;",
+  "targets": ["tI0CoreKnownAnswers/p1PerComponentLoadsAtBfrp", "tI0CoreKnownAnswers/p1DerivativesAgainstHandXdot", "tI0NescAircraftModel/case03TumblingBrickDamped"],
+  "rationale": "CORE_AUDIT sabotage A (finding M2): the compiled path rotates component loads with C' (the active rotation) instead of C_root_component. Invisible while every component axis is unrotated (all pre-I0 core tests: 35/35 pass with it, reports/work/i0/red_sabotages_vs_preI0_core.txt); the tilted/toed-in twin (hand loads and hand xdot) and the NESC brick with its aero data on a rotated axis (PUB band) see it."
+ },
+ {
+  "id": "SC-10",
+  "file": "+vital/MassProperties.m",
+  "pattern": "W = vital.Loads(root.dcmTo(obj.CgAxis) * Fb, zeros(3, 1), obj.CgAxis);",
+  "replacement": "W = vital.Loads(obj.CgAxis.dcmTo(root) * Fb, zeros(3, 1), obj.CgAxis);",
+  "targets": ["tI0CoreKnownAnswers/p4WeightRotatedChainedCgAxis", "tI0CoreKnownAnswers/p1TotalsAtCgAndBfrp", "tI0CoreKnownAnswers/p1DerivativesAgainstHandXdot"],
+  "rationale": "CORE_AUDIT sabotage B (finding M2): the weight is rotated into the CG axis with the transposed DCM. Invisible with a body-parallel CG axis (pre-I0 core: 35/35 pass); the rotated, chained CG axis of P4 and the rotated CG axis of the P1 twin (object path: loadsTotal, derivativesObject) see it."
+ },
+ {
+  "id": "SC-11",
+  "file": "+vital/AircraftModel.m",
+  "pattern": "if ~c.identity(k)",
+  "replacement": "if false",
+  "targets": ["tI0CoreKnownAnswers/p1PerComponentLoadsAtBfrp", "tI0CoreKnownAnswers/p1DerivativesAgainstHandXdot", "tI0NescAircraftModel/case03TumblingBrickDamped"],
+  "rationale": "CORE_AUDIT sabotage C (finding M2): the compiled path drops the component rotation entirely (loads used as if in root axes). Invisible with unrotated component axes (pre-I0 core: 35/35 pass); the rotated engine axes of P1 and the rotated NESC aero data axis see it."
+ },
+ {
+  "id": "SC-13",
+  "file": "+vital/AircraftModel.m",
+  "pattern": "AC.J = c.J;",
+  "replacement": "AC.J = diag(diag(c.J));",
+  "targets": ["tI0LinearDerivativeAircraft/xdotExact", "tI0LinearDerivativeAircraft/linearModelClosedForm", "tI0LinearDerivativeAircraft/eigenvaluesClosedForm"],
+  "rationale": "The toRuntime bridge passes only the principal moments of inertia (Ixz dropped). The symmetric F-16 trim does not see it; the analytic linear-derivative aircraft (Ixz = 250 kg m^2) does: its plant xdot, its lateral primed derivatives and its Dutch roll / roll / spiral roots no longer match the closed form. (SC-12 is reserved for the audit's 'bridge drops X' sabotage, increment I1.)"
+ },
+ {
+  "id": "SC-14",
+  "file": "+vital/AircraftModel.m",
+  "pattern": "info.M_aero = sum(M_own(:, ia), 2);",
+  "replacement": "info.M_aero = sum(M_R(:, ia), 2);",
+  "targets": ["tI0NescAircraftModel/case09EastwardCannonball", "tI0NescAircraftModel/modelPathEqualsStructPath"],
+  "rationale": "The toRuntime bridge reports the aero moment about the root instead of about the aero component origin, so the rotating plant's M_aero_cg = M_aero + (r_mrc - r_cg) x F_aero counts d x F twice. Invisible for the F-16 (r_mrc = 0); the NESC cannonball as an AircraftModel, whose aero data axis is offset by d, then reports a moment about its CM where the published one is zero (band floor 1e-6 ft lbf)."
  }
 ]
